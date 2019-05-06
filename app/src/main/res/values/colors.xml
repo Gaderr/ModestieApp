@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#424242</color>
+    <color name="colorPrimaryLight">#6d6d6d</color>
+    <color name="colorPrimaryDark">#1b1b1b</color>
+
+    <color name="colorSecondary">#1976D2</color>
+    <color name="colorSecondaryLight">#63A4FF</color>
+    <color name="colorSecondaryDark">#004ba0</color>
+
+    <color name="colorBackground">#424242</color>
+    <color name="colorSurface">#424242</color>
+    <color name="colorError">#b71c1c</color>
+
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorOnSecondary">#FFFFFF</color>
+    <color name="colorOnBackground">#FFFFFF</color>
+    <color name="colorOnSurface">#FFFFFF</color>
+    <color name="colorOnError">#FFFFFF</color>
+
+    <color name="maelstromColor">#E53935</color>
+    <color name="twinAdderColor">#ffc107</color>
+    <color name="immortalFlamesColor">#1976d2</color>
+
+    <!--<color name="colorAccent">#D81B60</color>-->
+</resources>

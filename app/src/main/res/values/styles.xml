@@ -1,0 +1,32 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="android:textColor">@color/colorOnPrimary</item>
+        <item name="android:textColorPrimary">@color/colorOnPrimary</item>
+        <item name="android:textColorSecondary">@color/colorOnPrimary</item>
+        <item name="android:fontFamily">@font/librebaskerville_regular</item>
+        <!--<item name="colorAccent">@color/colorAccent</item>-->
+
+        <item name="buttonStyle">@style/ButtonModestie</item>
+        <item name="editTextStyle">@style/EditTextModestie</item>
+    </style>
+
+    <style name="ButtonModestie" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:backgroundTint">@color/colorSecondary</item>
+    </style>
+
+    <style name="EditTextModestie" parent="Widget.AppCompat.EditText">
+        <item name="android:textColor">@color/colorOnPrimary</item>
+        <item name="android:textColorHint">@color/colorOnPrimary</item>
+        <item name="android:textColorHighlight">@color/colorSecondary</item>
+        <item name="android:textColorLink">@color/colorSecondary</item>
+        <item name="android:textCursorDrawable">@drawable/text_cursor</item>
+        <!--<item name="android:background">@drawable/edit_text_bg_shape</item>-->
+    </style>
+
+</resources>
