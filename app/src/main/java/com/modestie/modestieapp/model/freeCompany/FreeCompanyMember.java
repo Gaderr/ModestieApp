@@ -1,6 +1,9 @@
 package com.modestie.modestieapp.model.freeCompany;
 
+import android.database.Cursor;
 import android.util.Log;
+
+import com.modestie.modestieapp.sql.FreeCompanyReaderContract;
 
 import org.json.JSONObject;
 
@@ -30,6 +33,15 @@ public class FreeCompanyMember
         {
             Log.e(TAG, e.getMessage());
         }
+    }
+
+    public FreeCompanyMember(Cursor cursor)
+    {
+        this.name = cursor.getString(cursor.getColumnIndex(FreeCompanyReaderContract.MemberEntry.COLUMN_NAME_NAME));
+        this.avatarURL = cursor.getString(cursor.getColumnIndex(FreeCompanyReaderContract.MemberEntry.COLUMN_NAME_AVATAR));
+        this.rank = cursor.getString(cursor.getColumnIndex(FreeCompanyReaderContract.MemberEntry.COLUMN_NAME_RANK));
+        this.rankIconURL = cursor.getString(cursor.getColumnIndex(FreeCompanyReaderContract.MemberEntry.COLUMN_NAME_RANKICON));
+        this.feastMatches = cursor.getInt(cursor.getColumnIndex(FreeCompanyReaderContract.MemberEntry.COLUMN_NAME_FEASTMATCHES));
     }
 
     public int getID()

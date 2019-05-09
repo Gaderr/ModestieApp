@@ -1,6 +1,10 @@
 package com.modestie.modestieapp.model.freeCompany;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+
+import com.modestie.modestieapp.sql.FreeCompanyReaderContract;
 
 import org.json.JSONObject;
 
@@ -24,6 +28,13 @@ public class FreeCompanyFocus
         {
             Log.e(TAG, e.getMessage());
         }
+    }
+
+    public FreeCompanyFocus(Cursor cursor)
+    {
+        this.name = cursor.getString(cursor.getColumnIndex(FreeCompanyReaderContract.FocusEntry.COLUMN_NAME_NAME));
+        this.iconURL = cursor.getString(cursor.getColumnIndex(FreeCompanyReaderContract.FocusEntry.COLUMN_NAME_ICON));
+        this.status = cursor.getInt(cursor.getColumnIndex(FreeCompanyReaderContract.FocusEntry.COLUMN_NAME_STATUS)) == 1;
     }
 
     public String getName()

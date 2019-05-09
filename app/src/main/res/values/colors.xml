@@ -19,8 +19,8 @@
     <color name="colorOnError">#FFFFFF</color>
 
     <color name="maelstromColor">#E53935</color>
-    <color name="twinAdderColor">#ffc107</color>
-    <color name="immortalFlamesColor">#1976d2</color>
+    <color name="twinAdderColor">#FFC107</color>
+    <color name="immortalFlamesColor">#1976D2</color>
 
     <!--<color name="colorAccent">#D81B60</color>-->
 </resources>

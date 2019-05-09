@@ -35,7 +35,7 @@
                 app:layout_constraintBottom_toBottomOf="@+id/headerBackground"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:srcCompat="@drawable/gradeient_transparent_to_grey" />
+                app:srcCompat="@drawable/gradient_transparent_to_grey" />
 
             <ImageView
                 android:id="@+id/crestBackground"
@@ -43,62 +43,57 @@
                 android:layout_height="75dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:background="@color/colorOnBackground"
-                android:padding="2dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/crest_bg_modestie" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
                 android:id="@+id/crestFrame"
                 android:layout_width="75dp"
                 android:layout_height="75dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:padding="2dp"
                 android:visibility="visible"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/crest_frame_modestie" />
+                app:layout_constraintStart_toStartOf="@+id/crestLogo"
+                app:layout_constraintTop_toTopOf="@+id/crestLogo" />
 
             <ImageView
                 android:id="@+id/crestLogo"
                 android:layout_width="75dp"
                 android:layout_height="75dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:padding="2dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/crest_logo_modestie" />
+                app:layout_constraintStart_toStartOf="@+id/crestBackground"
+                app:layout_constraintTop_toTopOf="@+id/crestBackground" />
 
             <TextView
                 android:id="@+id/freeCompanyName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:fontFamily="@font/jupiter_pro_bold"
+                android:gravity="center"
                 android:text="@string/free_company_name"
+                android:textAlignment="viewStart"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:textSize="34sp"
-                app:layout_constraintBottom_toBottomOf="@+id/crestLogo"
+                app:autoSizeMaxTextSize="37sp"
+                app:autoSizeMinTextSize="22sp"
+                app:autoSizeTextType="uniform"
+                app:layout_constraintBottom_toTopOf="@+id/freeCompanySigle"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toEndOf="@+id/crestLogo"
-                app:layout_constraintTop_toTopOf="@+id/crestLogo"
-                app:layout_constraintVertical_bias="0.0" />
+                app:layout_constraintTop_toTopOf="@+id/crestLogo" />
 
             <TextView
-                android:id="@+id/freeCompanyTag"
-                android:layout_width="wrap_content"
+                android:id="@+id/freeCompanySigle"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:text="@string/free_company_tag"
+                android:layout_marginEnd="16dp"
+                android:text="@string/free_company_sigle"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
                 android:textColor="#DBDBDB"
-                app:layout_constraintStart_toEndOf="@+id/crestLogo"
-                app:layout_constraintTop_toBottomOf="@+id/freeCompanyName" />
+                app:layout_constraintBottom_toBottomOf="@+id/crestLogo"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/crestLogo" />
 
             <TextView
                 android:id="@+id/formationDate"
@@ -189,7 +184,7 @@
                 android:layout_marginTop="8dp"
                 app:layout_constraintStart_toStartOf="@+id/grandcompanyTitle"
                 app:layout_constraintTop_toBottomOf="@+id/grandcompanyTitle"
-                app:srcCompat="@drawable/gc_maelstrom_flag" />
+                app:srcCompat="@color/colorOnBackground" />
 
             <TextView
                 android:id="@+id/grandcompanyName"
@@ -199,7 +194,7 @@
                 android:fontFamily="@font/eorzea"
                 android:text="@string/grandcompany_name"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="@color/maelstromColor"
+                android:textColor="@color/colorOnBackground"
                 android:textSize="24sp"
                 app:layout_constraintStart_toEndOf="@+id/grandcompanyFlag"
                 app:layout_constraintTop_toTopOf="@+id/grandcompanyFlag" />
@@ -216,7 +211,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/grandcompanyName" />
 
             <ProgressBar
-                android:id="@+id/grandcompanyProgressbar"
+                android:id="@+id/grandcompanyMaelProgressbar"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -224,6 +219,37 @@
                 android:layout_marginEnd="16dp"
                 android:progress="100"
                 android:progressTint="@color/maelstromColor"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="@+id/grandcompanyRank"
+                app:layout_constraintEnd_toStartOf="@+id/grandcompanyProgressText"
+                app:layout_constraintStart_toEndOf="@+id/grandcompanyRank"
+                app:layout_constraintTop_toTopOf="@+id/grandcompanyRank" />
+
+            <ProgressBar
+                android:id="@+id/grandcompanyAdderProgressbar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:progress="100"
+                android:progressTint="@color/twinAdderColor"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="@+id/grandcompanyRank"
+                app:layout_constraintEnd_toStartOf="@+id/grandcompanyProgressText"
+                app:layout_constraintStart_toEndOf="@+id/grandcompanyRank"
+                app:layout_constraintTop_toTopOf="@+id/grandcompanyRank" />
+
+            <ProgressBar
+                android:id="@+id/grandcompanyFlamesProgressbar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:progress="100"
+                android:progressTint="@color/immortalFlamesColor"
+                android:visibility="invisible"
                 app:layout_constraintBottom_toBottomOf="@+id/grandcompanyRank"
                 app:layout_constraintEnd_toStartOf="@+id/grandcompanyProgressText"
                 app:layout_constraintStart_toEndOf="@+id/grandcompanyRank"
