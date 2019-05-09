@@ -137,15 +137,12 @@ public class MainActivity extends AppCompatActivity
 
         if(doUpdate)
         {
-            Toast.makeText(this, "Updating", Toast.LENGTH_SHORT).show();
             addToRequestQueue(new JsonObjectRequest(GET, apiURLRequest, null,
                     new Response.Listener<JSONObject>()
                     {
                         @Override
                         public void onResponse(JSONObject response)
                         {
-                            Log.e(TAG, response.toString());
-
                             freeCompany = new FreeCompany(response, dbHelper);
 
                             touchAppIcon.setVisibility(View.VISIBLE);
@@ -164,7 +161,6 @@ public class MainActivity extends AppCompatActivity
         }
         else
         {
-            Toast.makeText(this, "No update", Toast.LENGTH_SHORT).show();
             touchAppIcon.setVisibility(View.VISIBLE);
             bar.setVisibility(View.INVISIBLE);
             ready = true;

@@ -57,9 +57,7 @@ public class FreeCompany
 
     public FreeCompany(JSONObject obj, @org.jetbrains.annotations.NotNull FreeCompanyDbHelper dbHelper)
     {
-        Log.e(TAG, "CALLING CONSTRUCTION");
         setAttributesFromJson(obj);
-        Log.e(TAG, "CONSTRUCTION CALLED");
 
         this.database = dbHelper.getWritableDatabase();
         dbHelper.resetDatabase(this.database);
@@ -85,8 +83,7 @@ public class FreeCompany
         freeCompanyValues.put(FreeCompanyReaderContract.FreeCompanyEntry.COLUMN_NAME_RECRUITMENT, this.recruitment);
         freeCompanyValues.put(FreeCompanyReaderContract.FreeCompanyEntry.COLUMN_NAME_UPDATED, this.updated);
 
-        long rowDbID = this.database.insert(FreeCompanyReaderContract.FreeCompanyEntry.TABLE_NAME, null, freeCompanyValues);
-        Log.e(TAG, "FreeCompany " + rowDbID);
+        this.database.insert(FreeCompanyReaderContract.FreeCompanyEntry.TABLE_NAME, null, freeCompanyValues);
 
         ContentValues memberValues;
         for (int i = 0; i < this.members.size(); i++)
@@ -99,8 +96,7 @@ public class FreeCompany
             memberValues.put(FreeCompanyReaderContract.MemberEntry.COLUMN_NAME_RANKICON, this.members.get(i).getRankIconURL());
             memberValues.put(FreeCompanyReaderContract.MemberEntry.COLUMN_NAME_FEASTMATCHES, this.members.get(i).getFeastMatches());
 
-            rowDbID = this.database.insert(FreeCompanyReaderContract.MemberEntry.TABLE_NAME, null, memberValues);
-            Log.e(TAG, "Member " + rowDbID);
+            this.database.insert(FreeCompanyReaderContract.MemberEntry.TABLE_NAME, null, memberValues);
         }
 
         ContentValues focusValues;
@@ -111,8 +107,7 @@ public class FreeCompany
             focusValues.put(FreeCompanyReaderContract.FocusEntry.COLUMN_NAME_ICON, this.focuses.get(i).getIconURL());
             focusValues.put(FreeCompanyReaderContract.FocusEntry.COLUMN_NAME_STATUS, this.focuses.get(i).isStatus() ? 1 : 0);
 
-            rowDbID = this.database.insert(FreeCompanyReaderContract.FocusEntry.TABLE_NAME, null, focusValues);
-            Log.e(TAG, "Focus " + rowDbID);
+            this.database.insert(FreeCompanyReaderContract.FocusEntry.TABLE_NAME, null, focusValues);
         }
 
         ContentValues seekedRolesValues;
@@ -123,8 +118,7 @@ public class FreeCompany
             seekedRolesValues.put(FreeCompanyReaderContract.SeekedRoleEntry.COLUMN_NAME_ICON, this.seekedRoles.get(i).getIconURL());
             seekedRolesValues.put(FreeCompanyReaderContract.SeekedRoleEntry.COLUMN_NAME_STATUS, this.seekedRoles.get(i).isStatus() ? 1 : 0);
 
-            rowDbID = this.database.insert(FreeCompanyReaderContract.SeekedRoleEntry.TABLE_NAME, null, seekedRolesValues);
-            Log.e(TAG, "SeekedRole " + rowDbID);
+            this.database.insert(FreeCompanyReaderContract.SeekedRoleEntry.TABLE_NAME, null, seekedRolesValues);
         }
     }
 
@@ -217,8 +211,6 @@ public class FreeCompany
     {
         try
         {
-            Log.e(TAG, "CONSTRUCTION INITIATED");
-
             JSONObject freeCompany = obj.getJSONObject("FreeCompany");
             JSONArray crest = freeCompany.getJSONArray("Crest");
             JSONArray reputation = freeCompany.getJSONArray("Reputation");
@@ -262,20 +254,17 @@ public class FreeCompany
             this.estateName = estate.getString("Name");
             this.estatePlot = estate.getString("Plot");
 
-            Log.e(TAG, "CONSTRUCTING MEMBERS");
             JSONObject freeCompanyMembers = obj.getJSONObject("FreeCompanyMembers");
             this.members = new ArrayList<>();
             JSONArray data = freeCompanyMembers.getJSONArray("data");
             for (int i = 0; i < data.length(); i++)
             {
-                Log.e(TAG, "member " + i);
                 this.members.add(new FreeCompanyMember(data.getJSONObject(i)));
             }
 
             this.active = freeCompany.getString("Active");
             this.recruitment = freeCompany.getString("Recruitment");
 
-            Log.e(TAG, "CONSTRUCTING FOCUS");
             JSONArray focus = freeCompany.getJSONArray("Focus");
             this.focuses = new ArrayList<>();
             for (int i = 0; i < focus.length(); i++)
@@ -283,7 +272,6 @@ public class FreeCompany
                 this.focuses.add(new FreeCompanyFocus(focus.getJSONObject(i)));
             }
 
-            Log.e(TAG, "CONSTRUCTING SEEKING");
             JSONArray seeking = freeCompany.getJSONArray("Seeking");
             this.seekedRoles = new ArrayList<>();
             for (int i = 0; i < seeking.length(); i++)
@@ -292,8 +280,6 @@ public class FreeCompany
             }
 
             this.updated = System.currentTimeMillis() / 1000;
-
-            Log.e(TAG, "CONSTRUCTION DONE");
         }
         catch (Exception e)
         {
