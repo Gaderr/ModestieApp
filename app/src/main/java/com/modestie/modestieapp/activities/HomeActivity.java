@@ -1,5 +1,6 @@
-package com.modestie.modestieapp;
+package com.modestie.modestieapp.activities;
 
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Build;
@@ -17,8 +18,9 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.model.freeCompany.FreeCompany;
-import com.modestie.modestieapp.sql.FreeCompanyDbHelper;
+import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
@@ -214,11 +216,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.nav_members)
         {
-
+            startActivity(new Intent(getApplicationContext(), MembersListActivity.class));
         }
         else if (id == R.id.nav_events)
         {
-
+            startActivity(new Intent(getApplicationContext(), CharacterActivity.class));
         }
         else if (id == R.id.nav_tools)
         {

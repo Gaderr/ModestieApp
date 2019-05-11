@@ -1,4 +1,4 @@
-package com.modestie.modestieapp;
+package com.modestie.modestieapp.activities;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -8,8 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -23,9 +23,10 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.model.freeCompany.FreeCompany;
-import com.modestie.modestieapp.sql.FreeCompanyDbHelper;
-import com.modestie.modestieapp.sql.FreeCompanyReaderContract;
+import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
+import com.modestie.modestieapp.sqlite.FreeCompanyReaderContract;
 
 import org.json.JSONObject;
 
@@ -127,6 +128,7 @@ public class MainActivity extends AppCompatActivity
         if(cursor.moveToFirst())
         {
             long lastUpdate = cursor.getInt(cursor.getColumnIndex(FreeCompanyReaderContract.FreeCompanyEntry.COLUMN_NAME_UPDATED));
+            Log.e(TAG, (currentTime - lastUpdate)+"");
             if(currentTime - lastUpdate < 3600)
             {
                 doUpdate = false;

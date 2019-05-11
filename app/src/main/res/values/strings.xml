@@ -39,4 +39,7 @@
     <string name="menu_events">Events</string>
     <string name="menu_tools">Outils</string>
     <string name="menu_share">Partager</string>
+
+    <!-- MEMBERS LIST -->
+    <string name="title_members_list_activity">Membres</string>
 </resources>

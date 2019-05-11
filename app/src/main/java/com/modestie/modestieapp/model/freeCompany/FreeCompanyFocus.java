@@ -1,10 +1,9 @@
 package com.modestie.modestieapp.model.freeCompany;
 
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.modestie.modestieapp.sql.FreeCompanyReaderContract;
+import com.modestie.modestieapp.sqlite.FreeCompanyReaderContract;
 
 import org.json.JSONObject;
 

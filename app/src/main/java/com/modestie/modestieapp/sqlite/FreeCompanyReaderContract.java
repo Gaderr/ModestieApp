@@ -1,4 +1,4 @@
-package com.modestie.modestieapp.sql;
+package com.modestie.modestieapp.sqlite;
 
 import android.provider.BaseColumns;
 

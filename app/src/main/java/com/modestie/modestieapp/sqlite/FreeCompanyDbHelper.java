@@ -1,9 +1,8 @@
-package com.modestie.modestieapp.sql;
+package com.modestie.modestieapp.sqlite;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.support.v4.content.res.FontResourcesParserCompat;
 
 public class FreeCompanyDbHelper extends SQLiteOpenHelper
 {

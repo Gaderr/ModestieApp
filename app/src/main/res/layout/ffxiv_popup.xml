@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.CharacterActivity">
+
+    <ImageView
+        android:id="@+id/frameTopLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/lodestone_popup_top_left"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/frameTopMid"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bitmap_lodestone_popup_top_mid"
+        app:layout_constraintEnd_toStartOf="@+id/FrameTopRight"
+        app:layout_constraintStart_toEndOf="@+id/frameTopLeft"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/FrameTopRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/lodestone_popup_top_right" />
+
+    <ImageView
+        android:id="@+id/frameMidLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:background="@drawable/bitmap_lodestone_popup_left_trail"
+        app:layout_constraintBottom_toTopOf="@+id/frameBottomLeft"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/frameTopLeft" />
+
+    <ImageView
+        android:id="@+id/frameBackground"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/bitmap_lodestone_popup_background"
+        app:layout_constraintBottom_toTopOf="@+id/frameBottomMid"
+        app:layout_constraintEnd_toStartOf="@+id/frameMidRight"
+        app:layout_constraintStart_toEndOf="@+id/frameMidLeft"
+        app:layout_constraintTop_toBottomOf="@+id/frameTopMid" />
+
+    <ImageView
+        android:id="@+id/frameMidRight"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:background="@drawable/bitmap_lodestone_popup_right_trail"
+        app:layout_constraintBottom_toTopOf="@+id/frameBottomRight"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/FrameTopRight" />
+
+    <ImageView
+        android:id="@+id/frameBottomLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/lodestone_popup_bottom_left" />
+
+    <ImageView
+        android:id="@+id/frameBottomMid"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bitmap_lodestone_popup_bottom_mid"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/frameBottomRight"
+        app:layout_constraintStart_toEndOf="@+id/frameBottomLeft" />
+
+    <ImageView
+        android:id="@+id/frameBottomRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/lodestone_popup_bottom_right" />
+
+</android.support.constraint.ConstraintLayout>

@@ -3,11 +3,10 @@ package com.modestie.modestieapp.model.freeCompany;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.modestie.modestieapp.sql.FreeCompanyDbHelper;
-import com.modestie.modestieapp.sql.FreeCompanyReaderContract;
+import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
+import com.modestie.modestieapp.sqlite.FreeCompanyReaderContract;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -164,10 +163,11 @@ public class FreeCompany
         this.members = new ArrayList<>();
         if(cursor.moveToFirst())
         {
-            while(cursor.moveToNext())
+            do
             {
                 this.members.add(new FreeCompanyMember(cursor));
             }
+            while(cursor.moveToNext());
         }
         else
         {
@@ -179,10 +179,11 @@ public class FreeCompany
         this.focuses = new ArrayList<>();
         if(cursor.moveToFirst())
         {
-            while(cursor.moveToNext())
+            do
             {
                 this.focuses.add(new FreeCompanyFocus(cursor));
             }
+            while(cursor.moveToNext());
         }
         else
         {
@@ -194,10 +195,11 @@ public class FreeCompany
         this.seekedRoles = new ArrayList<>();
         if(cursor.moveToFirst())
         {
-            while(cursor.moveToNext())
+            do
             {
                 this.seekedRoles.add(new FreeCompanySeekedRole(cursor));
             }
+            while(cursor.moveToNext());
         }
         else
         {
@@ -254,12 +256,12 @@ public class FreeCompany
             this.estateName = estate.getString("Name");
             this.estatePlot = estate.getString("Plot");
 
-            JSONObject freeCompanyMembers = obj.getJSONObject("FreeCompanyMembers");
+            JSONArray freeCompanyMembers = obj.getJSONArray("FreeCompanyMembers");
             this.members = new ArrayList<>();
-            JSONArray data = freeCompanyMembers.getJSONArray("data");
-            for (int i = 0; i < data.length(); i++)
+            for (int i = 0; i < freeCompanyMembers.length(); i++)
             {
-                this.members.add(new FreeCompanyMember(data.getJSONObject(i)));
+                Log.e(TAG, i + " " + freeCompanyMembers.getJSONObject(i).toString());
+                this.members.add(new FreeCompanyMember(freeCompanyMembers.getJSONObject(i)));
             }
 
             this.active = freeCompany.getString("Active");
