@@ -35,25 +35,20 @@ import static com.android.volley.Request.Method.GET;
 
 public class MainActivity extends AppCompatActivity
 {
-    private ConstraintLayout layout;
-
     private AnimatorSet animatorSetIn;
     private ObjectAnimator animationTextUp;
     private ObjectAnimator animationCrestDown;
     private ObjectAnimator animationTextFadeIn;
     private ObjectAnimator animationCrestFadeIn;
 
-    private ImageView crestView;
-    private TextView appNameView;
     private ImageView touchAppIcon;
     private ProgressBar bar;
 
     private boolean ready;
 
-    private String apiURLRequest = "https://xivapi.com/freecompany/9232660711086299979?data=FCM";
+    private static final String apiURLRequest = "https://xivapi.com/freecompany/9232660711086299979?data=FCM";
 
     private FreeCompanyDbHelper dbHelper;
-    private FreeCompany freeCompany;
 
     private RequestQueue mRequestQueue;
 
@@ -67,7 +62,7 @@ public class MainActivity extends AppCompatActivity
 
         this.ready = false;
 
-        layout = findViewById(R.id.mainActivityLayout);
+        ConstraintLayout layout = findViewById(R.id.mainActivityLayout);
 
         layout.setOnClickListener(new View.OnClickListener()
         {
@@ -82,29 +77,29 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        this.crestView = findViewById(R.id.crest);
-        this.appNameView = findViewById(R.id.textAppName);
+        ImageView crestView = findViewById(R.id.crest);
+        TextView appNameView = findViewById(R.id.textAppName);
         this.touchAppIcon = findViewById(R.id.touchIcon);
         this.touchAppIcon.setVisibility(View.INVISIBLE);
         this.bar = findViewById(R.id.progressBar);
 
         this.animatorSetIn = new AnimatorSet();
 
-        this.animationTextUp = ObjectAnimator.ofFloat(this.appNameView, "translationY", -50f)
+        this.animationTextUp = ObjectAnimator.ofFloat(appNameView, "translationY", -50f)
                 .setDuration(1750);
-        this.animationTextFadeIn = ObjectAnimator.ofFloat(this.appNameView, "alpha", 0f, 1f)
-                .setDuration(1750);
-
-        this.animationCrestDown = ObjectAnimator.ofFloat(this.crestView, "translationY", +50f)
-                .setDuration(1750);
-        this.animationCrestFadeIn = ObjectAnimator.ofFloat(this.crestView, "alpha", 0f, 1f)
+        this.animationTextFadeIn = ObjectAnimator.ofFloat(appNameView, "alpha", 0f, 1f)
                 .setDuration(1750);
 
-        this.appNameView.setAlpha(0f);
-        this.appNameView.setTranslationY(+100f);
+        this.animationCrestDown = ObjectAnimator.ofFloat(crestView, "translationY", +50f)
+                .setDuration(1750);
+        this.animationCrestFadeIn = ObjectAnimator.ofFloat(crestView, "alpha", 0f, 1f)
+                .setDuration(1750);
 
-        this.crestView.setAlpha(0f);
-        this.crestView.setTranslationY(-100f);
+        appNameView.setAlpha(0f);
+        appNameView.setTranslationY(+100f);
+
+        crestView.setAlpha(0f);
+        crestView.setTranslationY(-100f);
     }
 
     @Override
@@ -145,7 +140,7 @@ public class MainActivity extends AppCompatActivity
                         @Override
                         public void onResponse(JSONObject response)
                         {
-                            freeCompany = new FreeCompany(response, dbHelper);
+                            new FreeCompany(response, dbHelper);
 
                             touchAppIcon.setVisibility(View.VISIBLE);
                             bar.setVisibility(View.INVISIBLE);

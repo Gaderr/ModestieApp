@@ -31,24 +31,29 @@
         android:textAlignment="gravity"
         android:textAppearance="?attr/textAppearanceListItem"
         android:textSize="15sp"
-        app:layout_constraintBottom_toTopOf="@+id/memberRank"
+        app:firstBaselineToTopHeight="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/avatar" />
+        app:layout_constraintStart_toEndOf="@+id/avatar"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/memberRank"
         android:layout_width="0dp"
-        android:layout_height="20dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
+        android:fontFamily="@font/rubik_light"
         android:gravity="start|top"
         android:textAlignment="gravity"
         android:textAppearance="?attr/textAppearanceListItem"
+        android:textColor="#FFFFFF"
         android:textSize="13sp"
-        app:layout_constraintBottom_toBottomOf="@+id/avatar"
+        app:firstBaselineToTopHeight="20dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/avatar" />
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/avatar"
+        app:layout_constraintTop_toBottomOf="@+id/memberName" />
 
     <ImageView
         android:id="@+id/rankIcon"

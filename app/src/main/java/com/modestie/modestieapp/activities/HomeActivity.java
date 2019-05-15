@@ -23,15 +23,14 @@ import com.modestie.modestieapp.model.freeCompany.FreeCompany;
 import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
 import com.squareup.picasso.Picasso;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
-    private FreeCompanyDbHelper dbHelper;
-    private SQLiteDatabase database;
-
     private FreeCompany freeCompany;
 
     private TextView fcNameView;
@@ -93,10 +92,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         this.gcAdderProgressBarView = findViewById(R.id.grandcompanyAdderProgressbar);
         this.gcFlamesProgressBarView = findViewById(R.id.grandcompanyFlamesProgressbar);
 
-        this.dbHelper = new FreeCompanyDbHelper(getApplicationContext());
-        this.database = this.dbHelper.getReadableDatabase();
+        FreeCompanyDbHelper dbHelper = new FreeCompanyDbHelper(getApplicationContext());
+        SQLiteDatabase database = dbHelper.getReadableDatabase();
 
-        this.freeCompany = new FreeCompany(this.database, 0);
+        this.freeCompany = new FreeCompany(database, 0);
     }
 
     @Override
@@ -209,7 +208,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item)
+    public boolean onNavigationItemSelected(@NotNull MenuItem item)
     {
         // Handle navigation view item clicks here.
         int id = item.getItemId();

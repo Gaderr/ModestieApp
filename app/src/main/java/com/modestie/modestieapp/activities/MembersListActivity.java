@@ -8,6 +8,8 @@ import android.support.v7.widget.Toolbar;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.model.freeCompany.FreeCompanyMember;
 
+import java.util.Objects;
+
 public class MembersListActivity extends AppCompatActivity implements MemberFragment.OnListFragmentInteractionListener
 {
 
@@ -18,7 +20,7 @@ public class MembersListActivity extends AppCompatActivity implements MemberFrag
         setContentView(R.layout.activity_members_list);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
     }
 
     @Override

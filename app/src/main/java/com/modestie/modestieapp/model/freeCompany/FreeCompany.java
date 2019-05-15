@@ -260,7 +260,6 @@ public class FreeCompany
             this.members = new ArrayList<>();
             for (int i = 0; i < freeCompanyMembers.length(); i++)
             {
-                Log.e(TAG, i + " " + freeCompanyMembers.getJSONObject(i).toString());
                 this.members.add(new FreeCompanyMember(freeCompanyMembers.getJSONObject(i)));
             }
 
