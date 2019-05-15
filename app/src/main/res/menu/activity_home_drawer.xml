@@ -17,11 +17,13 @@
         <item
             android:id="@+id/nav_events"
             android:icon="@drawable/ic_event_white_24dp"
-            android:title="@string/menu_events" />
+            android:title="@string/menu_events"
+            android:enabled="false" />
         <item
             android:id="@+id/nav_tools"
             android:icon="@drawable/ic_menu_manage"
-            android:title="@string/menu_tools" />
+            android:title="@string/menu_tools"
+            android:enabled="false" />
     </group>
 
     <item android:title="Communication">
@@ -29,7 +31,8 @@
             <item
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_menu_share"
-                android:title="@string/menu_share" />
+                android:title="@string/menu_share"
+                android:enabled="false" />
         </menu>
     </item>
 

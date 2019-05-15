@@ -1,5 +1,6 @@
 package com.modestie.modestieapp.activities;
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -37,6 +38,9 @@ public class MembersListActivity extends AppCompatActivity implements MemberFrag
     {
         // The user selected a member from the MemberFragment
         // Do something here to display that article
-
+        Intent characterActivityIntent = new Intent(getApplicationContext(), CharacterActivity.class);
+        characterActivityIntent.putExtra("CharacterID", member.getID());
+        characterActivityIntent.putExtra("Name", member.getName());
+        startActivity(characterActivityIntent);
     }
 }

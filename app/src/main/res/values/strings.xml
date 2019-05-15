@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Modestie App</string>
 
-    <!-- HOME ACTIVITY STRINGS -->
+    <!-- HOME ACTIVITY -->
     <string name="title_activity_home">Accueil</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -40,6 +40,9 @@
     <string name="menu_tools">Outils</string>
     <string name="menu_share">Partager</string>
 
-    <!-- MEMBERS LIST -->
+    <!-- MEMBERS LIST ACTIVITY -->
     <string name="title_members_list_activity">Membres</string>
+
+    <!-- CHARACTER ACTIVITY -->
+    <string name="title_character_activity">Personnage</string>
 </resources>

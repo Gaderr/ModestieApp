@@ -123,7 +123,6 @@ public class MainActivity extends AppCompatActivity
         if(cursor.moveToFirst())
         {
             long lastUpdate = cursor.getInt(cursor.getColumnIndex(FreeCompanyReaderContract.FreeCompanyEntry.COLUMN_NAME_UPDATED));
-            Log.e(TAG, (currentTime - lastUpdate)+"");
             if(currentTime - lastUpdate < 3600)
             {
                 doUpdate = false;

@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:ignore="ContentDescription"
     tools:context=".activities.HomeActivity"
     tools:showIn="@layout/app_bar_home">
 
@@ -68,9 +69,8 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:fontFamily="@font/jupiter_pro_bold"
-                android:gravity="center"
+                android:gravity="center|start"
                 android:text="@string/free_company_name"
-                android:textAlignment="viewStart"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:textSize="34sp"
                 app:autoSizeMaxTextSize="37sp"

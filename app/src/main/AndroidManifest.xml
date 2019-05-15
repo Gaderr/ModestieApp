@@ -14,7 +14,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".activities.CharacterActivity"></activity>
+        <activity android:name=".activities.CharacterActivity"
+            android:label="@string/title_character_activity"
+            android:parentActivityName=".activities.MembersListActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.modestie.modestieapp.activities.MembersListActivity" />
+        </activity>
         <activity
             android:name=".activities.MembersListActivity"
             android:label="@string/title_members_list_activity"
@@ -27,7 +34,9 @@
         <activity
             android:name=".activities.HomeActivity"
             android:label="@string/title_activity_home"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme">
+
+        </activity>
         <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

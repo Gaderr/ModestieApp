@@ -37,6 +37,7 @@ public class FreeCompanyMember
 
     public FreeCompanyMember(Cursor cursor)
     {
+        this.ID = cursor.getInt(cursor.getColumnIndex(FreeCompanyReaderContract.MemberEntry.COLUMN_NAME_LODESTONEID));
         this.name = cursor.getString(cursor.getColumnIndex(FreeCompanyReaderContract.MemberEntry.COLUMN_NAME_NAME));
         this.avatarURL = cursor.getString(cursor.getColumnIndex(FreeCompanyReaderContract.MemberEntry.COLUMN_NAME_AVATAR));
         this.rank = cursor.getString(cursor.getColumnIndex(FreeCompanyReaderContract.MemberEntry.COLUMN_NAME_RANK));

@@ -1,6 +1,10 @@
 package com.modestie.modestieapp.activities;
 
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -16,11 +20,14 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.model.character.Character;
+import com.modestie.modestieapp.sqlite.CharacterDbHelper;
+import com.modestie.modestieapp.sqlite.CharacterReaderContract;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
@@ -36,11 +43,18 @@ public class CharacterActivity extends AppCompatActivity
 {
     public static final String TAG = "ACTIVITY - CHARACTER";
 
+    private int characterID;
     private Character character;
+    private String name;
 
     private String apiURL = "https://xivapi.com";
-    private String apiURLRequest = apiURL + "/character/11148489?language=fr&extended=1";
+    private String apiCharacterURL = "/character/";
+    private String apiCharacterExtra_Get = "?language=fr&extended=1";
+    private String apiCharacterExtra_Update = "/update";
+    //private String apiURLRequest = apiURL + "/character/11148489?language=fr&extended=1";
     private RequestQueue mRequestQueue;
+
+    private ImageView upAction;
 
     private ImageView jobIcon;
     private RoundedImageView portrait;
@@ -55,6 +69,26 @@ public class CharacterActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_character);
+
+        this.upAction = findViewById(R.id.upAction);
+        this.upAction.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                navigateUp();
+            }
+        });
+
+        Intent intent = getIntent();
+        this.characterID = intent.getIntExtra("CharacterID", 0);
+        this.name = intent.getStringExtra("Name");
+
+        if(this.characterID == 0)
+        {
+            Toast.makeText(this, "Erreur à la récupération du personnage", Toast.LENGTH_SHORT).show();
+            navigateUp();
+        }
 
         jobIcon = findViewById(R.id.jobIcon);
         portrait = findViewById(R.id.portrait);
@@ -77,48 +111,37 @@ public class CharacterActivity extends AppCompatActivity
         this.classJobName = findViewById(R.id.classJobName);
         this.classJobLevel = findViewById(R.id.classJobLevel);
         this.characterName = findViewById(R.id.characterName);
+        characterName.setText(this.name); //Set immediately to adapt layout
 
-        addToRequestQueue(new JsonObjectRequest(GET, apiURLRequest, null,
-                new Response.Listener<JSONObject>()
-                {
-                    @Override
-                    public void onResponse(JSONObject response)
-                    {
-                        try
-                        {
-                            character = new Character(response.getJSONObject("Character"));
+        CharacterDbHelper characterDbHelper = new CharacterDbHelper(getApplicationContext());
+        SQLiteDatabase database = characterDbHelper.getWritableDatabase();
+        characterDbHelper.onCreate(database);
 
-                            new Thread(new Runnable()
-                            {
-                                @Override
-                                public void run()
-                                {
-                                    while(!character.isLoaded()) {}
+        Cursor cursor = database.rawQuery(
+                "SELECT " + CharacterReaderContract.CharacterUpdateEntry.COLUMN_NAME_LAST_UPDATE +
+                        " FROM " + CharacterReaderContract.CharacterUpdateEntry.TABLE_NAME +
+                        " WHERE " + CharacterReaderContract.CharacterUpdateEntry.COLUMN_NAME_CHARACTER_ID +
+                        "=" + this.characterID, null);
+        if(cursor.moveToFirst())
+        {
+            long currentTime = System.currentTimeMillis() / 1000;
+            int lastUpdate = cursor.getInt(cursor.getColumnIndex(CharacterReaderContract.CharacterUpdateEntry.COLUMN_NAME_LAST_UPDATE));
+            //DO UPDATE IF TOO OLD
+            if(currentTime - lastUpdate > 43200) // > 12 hours
+            {
+                updateCharacterAPI(characterDbHelper);
+            }
+            else
+            {
+                getCharacterAPI(characterDbHelper);
+            }
+        }
+        else
+        {
+            updateCharacterAPI(characterDbHelper);
+        }
 
-                                    runOnUiThread(new Runnable()
-                                    {
-                                        @Override
-                                        public void run()
-                                        {
-                                            updateCharacterViews();
-                                        }
-                                    });
-                                }
-                            }).run();
-                        }
-                        catch (Exception e)
-                        {
-                            Log.e(TAG, e.getMessage());
-                        }
-                    }
-                }, new Response.ErrorListener()
-                {
-                @Override
-                public void onErrorResponse(VolleyError error)
-                {
-                    Toast.makeText(CharacterActivity.this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show();
-                }
-        }));
+        cursor.close();
     }
 
     @Override
@@ -149,6 +172,8 @@ public class CharacterActivity extends AppCompatActivity
     private void updateCharacterViews()
     {
         hideCharacterViews();
+
+        characterName.setText(this.name);
 
         if(character.getGearItems().get("SoulCrystal") != null)
             Picasso.get()
@@ -194,9 +219,95 @@ public class CharacterActivity extends AppCompatActivity
         name = name.substring(0, 1).toUpperCase() + name.substring(1);
         classJobName.setText(name);
         classJobLevel.setText(String.format(Locale.FRANCE, "niveau %d", character.getActiveClassJob().getLevel()));
-        characterName.setText(character.getName());
 
         showCharacterViews();
+    }
+
+    private void updateCharacterAPI(final CharacterDbHelper dbHelper)
+    {
+        String request = this.apiURL + this.apiCharacterURL + this.characterID + this.apiCharacterExtra_Update;
+        addToRequestQueue(new StringRequest(GET, request, new Response.Listener<String>()
+                {
+                    @Override
+                    public void onResponse(String response)
+                    {
+                        try
+                        {
+                            //Log.e(TAG, "Update response received : [" + response + "]");
+                            getCharacterAPI(dbHelper);
+                        }
+                        catch (Exception e)
+                        {
+                            Log.e(TAG, e.getMessage());
+                            Toast.makeText(CharacterActivity.this, "Échec de la mise à jour du personnage", Toast.LENGTH_SHORT).show();
+                            navigateUp();
+                            finish();
+                        }
+                    }
+                }, new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error)
+                    {
+                        Toast.makeText(CharacterActivity.this, "Échec de la mise à jour du personnage", Toast.LENGTH_SHORT).show();
+                        //Log.e(TAG, error.getMessage());
+                        navigateUp();
+                        finish();
+                    }
+                }));
+    }
+
+    private void getCharacterAPI(final CharacterDbHelper dbHelper)
+    {
+        String request = this.apiURL + this.apiCharacterURL + this.characterID + this.apiCharacterExtra_Get;
+        addToRequestQueue(new JsonObjectRequest(GET, request, null,
+                new Response.Listener<JSONObject>()
+                {
+                    @Override
+                    public void onResponse(JSONObject response)
+                    {
+                        try
+                        {
+                            character = new Character(response.getJSONObject("Character"), dbHelper);
+
+                            new Thread(new Runnable()
+                            {
+                                @Override
+                                public void run()
+                                {
+
+                                    while(!character.isLoaded()) {}
+
+                                    runOnUiThread(new Runnable()
+                                    {
+                                        @Override
+                                        public void run()
+                                        {
+                                            Log.e(TAG, "Data acquired");
+                                            updateCharacterViews();
+                                        }
+                                    });
+                                }
+                            }).run();
+                        }
+                        catch (Exception e)
+                        {
+                            //Log.e(TAG, e.getMessage());
+                            Toast.makeText(CharacterActivity.this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show();
+                            navigateUp();
+                            finish();
+                        }
+                    }
+                }, new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error)
+                    {
+                        //Toast.makeText(CharacterActivity.this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show();
+                        navigateUp();
+                        finish();
+                    }
+                }));
     }
 
     /**
@@ -236,5 +347,10 @@ public class CharacterActivity extends AppCompatActivity
     {
         if (mRequestQueue != null)
             mRequestQueue.cancelAll(tag);
+    }
+
+    private void navigateUp()
+    {
+        NavUtils.navigateUpFromSameTask(this);
     }
 }

@@ -5,7 +5,8 @@
     android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
     android:layout_height="72dp"
-    android:background="?attr/selectableItemBackground">
+    android:background="?attr/selectableItemBackground"
+    tools:ignore="ContentDescription">
 
     <com.makeramen.roundedimageview.RoundedImageView
         android:id="@+id/avatar"

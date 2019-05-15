@@ -5,9 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#000000"
-    tools:context=".activities.CharacterActivity">
+    tools:context=".activities.CharacterActivity"
+    tools:ignore="ContentDescription">
 
     <include
+        android:id="@+id/include"
         layout="@layout/ffxiv_popup"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -17,28 +19,59 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageView
+        android:id="@+id/upAction"
+        style="@style/Widget.AppCompat.ActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="18dp"
+        android:src="@drawable/ic_arrow_back_white_24dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/characterName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:fontFamily="@font/jupiter_pro_bold"
+        android:gravity="center_vertical"
+        android:maxLines="2"
+        android:singleLine="false"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        app:autoSizeMaxTextSize="34sp"
+        app:autoSizeMinTextSize="25sp"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintEnd_toEndOf="@+id/include"
+        app:layout_constraintStart_toEndOf="@+id/upAction"
+        app:layout_constraintTop_toTopOf="@+id/include" />
+
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/characterName">
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp">
 
             <ImageView
                 android:id="@+id/jobIcon"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="24dp"
                 android:layout_marginTop="8dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -62,20 +95,17 @@
                 app:layout_constraintBaseline_toBaselineOf="@+id/classJobName"
                 app:layout_constraintStart_toEndOf="@+id/classJobName" />
 
-            <TextView
-                android:id="@+id/characterName"
-                android:layout_width="0dp"
-                android:layout_height="34dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:fontFamily="@font/jupiter_pro_bold"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-                app:autoSizeMaxTextSize="34sp"
-                app:autoSizeMinTextSize="25sp"
-                app:autoSizeTextType="uniform"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/classJobName" />
+            <ProgressBar
+                android:id="@+id/portraitLoading"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminateTint="@color/colorOnSecondary"
+                app:layout_constraintBottom_toBottomOf="@+id/portrait"
+                app:layout_constraintEnd_toEndOf="@+id/portrait"
+                app:layout_constraintHorizontal_bias="0.494"
+                app:layout_constraintStart_toStartOf="@+id/portrait"
+                app:layout_constraintTop_toTopOf="@+id/portrait" />
 
             <com.makeramen.roundedimageview.RoundedImageView
                 android:id="@+id/portrait"
@@ -87,19 +117,18 @@
                 android:scaleType="center"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/characterName"
+                app:layout_constraintTop_toBottomOf="@+id/jobIcon"
                 app:srcCompat="@drawable/portrait_argus" />
 
             <ImageView
                 android:id="@+id/itemMainHandIcon"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginEnd="12dp"
+                android:layout_marginEnd="24dp"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
                 android:paddingBottom="3dp"
                 app:layout_constraintEnd_toStartOf="@+id/portrait"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/portrait" />
 
             <ImageView
@@ -107,13 +136,12 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="12dp"
+                android:layout_marginEnd="24dp"
                 android:background="@drawable/item_empty_head"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
                 android:paddingBottom="3dp"
                 app:layout_constraintEnd_toStartOf="@+id/portrait"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/itemMainHandIcon" />
 
             <ImageView
@@ -121,13 +149,12 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="12dp"
+                android:layout_marginEnd="24dp"
                 android:background="@drawable/item_empty_body"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
                 android:paddingBottom="3dp"
                 app:layout_constraintEnd_toStartOf="@+id/portrait"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/itemHeadIcon" />
 
             <ImageView
@@ -135,13 +162,12 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="12dp"
+                android:layout_marginEnd="24dp"
                 android:background="@drawable/item_empty_hands"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
                 android:paddingBottom="3dp"
                 app:layout_constraintEnd_toStartOf="@+id/portrait"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/itemBodyIcon" />
 
             <ImageView
@@ -149,13 +175,12 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="12dp"
+                android:layout_marginEnd="24dp"
                 android:background="@drawable/item_empty_waist"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
                 android:paddingBottom="3dp"
                 app:layout_constraintEnd_toStartOf="@+id/portrait"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/itemHandsIcon" />
 
             <ImageView
@@ -163,13 +188,12 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="12dp"
+                android:layout_marginEnd="24dp"
                 android:background="@drawable/item_empty_pants"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
                 android:paddingBottom="3dp"
                 app:layout_constraintEnd_toStartOf="@+id/portrait"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/itemWaistIcon" />
 
             <ImageView
@@ -177,25 +201,23 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="12dp"
+                android:layout_marginEnd="24dp"
                 android:background="@drawable/item_empty_feet"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
                 android:paddingBottom="3dp"
                 app:layout_constraintEnd_toStartOf="@+id/portrait"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/itemLegsIcon" />
 
             <ImageView
                 android:id="@+id/itemOffHandIcon"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="24dp"
                 android:background="@drawable/item_empty_shield"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
                 android:paddingBottom="3dp"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/portrait"
                 app:layout_constraintTop_toTopOf="@+id/portrait" />
 
@@ -203,13 +225,12 @@
                 android:id="@+id/itemEarringIcon"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="24dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/item_empty_earring"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
                 android:paddingBottom="3dp"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/portrait"
                 app:layout_constraintTop_toBottomOf="@+id/itemOffHandIcon" />
 
@@ -217,13 +238,12 @@
                 android:id="@+id/itemNecklaceIcon"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="24dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/item_empty_necklace"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
                 android:paddingBottom="3dp"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/portrait"
                 app:layout_constraintTop_toBottomOf="@+id/itemEarringIcon" />
 
@@ -231,13 +251,12 @@
                 android:id="@+id/itemBraceletIcon"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="24dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/item_empty_armband"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
                 android:paddingBottom="3dp"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/portrait"
                 app:layout_constraintTop_toBottomOf="@+id/itemNecklaceIcon" />
 
@@ -245,13 +264,12 @@
                 android:id="@+id/itemRing1Icon"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="24dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/item_empty_ring"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
                 android:paddingBottom="3dp"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/portrait"
                 app:layout_constraintTop_toBottomOf="@+id/itemBraceletIcon" />
 
@@ -259,13 +277,12 @@
                 android:id="@+id/itemRing2Icon"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="24dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/item_empty_ring"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
                 android:paddingBottom="3dp"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/portrait"
                 app:layout_constraintTop_toBottomOf="@+id/itemRing1Icon" />
 
@@ -273,13 +290,12 @@
                 android:id="@+id/itemSoulCrystalIcon"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="24dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/item_empty_crystal"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
                 android:paddingBottom="3dp"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/portrait"
                 app:layout_constraintTop_toBottomOf="@+id/itemRing2Icon" />
 
@@ -291,12 +307,11 @@
         android:layout_width="0dp"
         android:layout_height="10dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/scrollView"
         app:srcCompat="@drawable/gradient_transparent_to_popup_top" />
 
     <ImageView
@@ -307,7 +322,6 @@
         android:layout_marginEnd="16dp"
         app:layout_constraintBottom_toBottomOf="@+id/scrollView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/gradient_transparent_to_popup_bottom" />
 

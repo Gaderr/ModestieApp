@@ -19,6 +19,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.modestie.modestieapp.R;
+import com.modestie.modestieapp.model.character.Character;
 import com.modestie.modestieapp.model.freeCompany.FreeCompany;
 import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
 import com.squareup.picasso.Picasso;
@@ -210,7 +211,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NotNull MenuItem item)
     {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_members)
@@ -219,7 +219,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_events)
         {
-            startActivity(new Intent(getApplicationContext(), CharacterActivity.class));
+
         }
         else if (id == R.id.nav_tools)
         {

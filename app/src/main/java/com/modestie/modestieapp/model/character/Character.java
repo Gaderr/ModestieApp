@@ -1,7 +1,12 @@
 package com.modestie.modestieapp.model.character;
 
-import android.content.Context;
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+
+import com.modestie.modestieapp.sqlite.CharacterDbHelper;
+import com.modestie.modestieapp.sqlite.CharacterReaderContract;
+import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -62,6 +67,7 @@ public class Character
     private static final String apiID_MEN = "8_8";
     private static final String apiID_FRG = "9_9";
 
+    private int ID;
     private String name;
     private int gender;
     private String nameday;
@@ -81,12 +87,18 @@ public class Character
 
     private CharacterGuardianDeity guardianDeity;
 
-    public Character(JSONObject obj)
+    private SQLiteDatabase database;
+
+    public Character(JSONObject obj, @org.jetbrains.annotations.NotNull CharacterDbHelper dbHelper)
     {
         this.loaded = false;
 
+        this.database = dbHelper.getWritableDatabase();
+        dbHelper.resetDatabase(this.database);
+
         try
         {
+            this.ID = obj.getInt("ID");
             this.name = obj.getString("Name");
             this.gender = obj.getInt("Gender");
             this.nameday = obj.getString("Nameday");
@@ -152,6 +164,11 @@ public class Character
             this.guardianDeity = new CharacterGuardianDeity(obj.getJSONObject("GuardianDeity"));
 
             this.loaded = true;
+
+            ContentValues characterValues = new ContentValues();
+            characterValues.put(CharacterReaderContract.CharacterUpdateEntry.COLUMN_NAME_CHARACTER_ID, this.ID);
+            characterValues.put(CharacterReaderContract.CharacterUpdateEntry.COLUMN_NAME_LAST_UPDATE, System.currentTimeMillis() / 1000);
+            this.database.insert(CharacterReaderContract.CharacterUpdateEntry.TABLE_NAME, null, characterValues);
         }
         catch (Exception e)
         {
