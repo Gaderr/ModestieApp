@@ -6,7 +6,6 @@ import android.util.Log;
 
 import com.modestie.modestieapp.sqlite.CharacterDbHelper;
 import com.modestie.modestieapp.sqlite.CharacterReaderContract;
-import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

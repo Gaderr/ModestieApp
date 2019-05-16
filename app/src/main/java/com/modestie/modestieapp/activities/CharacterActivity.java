@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -64,6 +66,16 @@ public class CharacterActivity extends AppCompatActivity
     private TextView classJobLevel;
     private TextView characterName;
 
+    private TextView param1Label;
+    private TextView param2Label;
+    private TextView param3Label;
+    private ImageView param1Bar;
+    private ImageView param2Bar;
+    private ImageView param3Bar;
+    private TextView param1Value;
+    private TextView param2Value;
+    private TextView param3Value;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -112,6 +124,20 @@ public class CharacterActivity extends AppCompatActivity
         this.classJobLevel = findViewById(R.id.classJobLevel);
         this.characterName = findViewById(R.id.characterName);
         characterName.setText(this.name); //Set immediately to adapt layout
+
+        ConstraintLayout param1 = findViewById(R.id.param1);
+        ConstraintLayout param2 = findViewById(R.id.param2);
+        ConstraintLayout param3 = findViewById(R.id.param3);
+
+        this.param1Label = param1.findViewById(R.id.paramLabel);
+        this.param2Label = param2.findViewById(R.id.paramLabel);
+        this.param3Label = param3.findViewById(R.id.paramLabel);
+        this.param1Bar = param1.findViewById(R.id.paramBar);
+        this.param2Bar = param2.findViewById(R.id.paramBar);
+        this.param3Bar = param3.findViewById(R.id.paramBar);
+        this.param1Value = param1.findViewById(R.id.paramValue);
+        this.param2Value = param2.findViewById(R.id.paramValue);
+        this.param3Value = param3.findViewById(R.id.paramValue);
 
         CharacterDbHelper characterDbHelper = new CharacterDbHelper(getApplicationContext());
         SQLiteDatabase database = characterDbHelper.getWritableDatabase();
@@ -173,18 +199,18 @@ public class CharacterActivity extends AppCompatActivity
     {
         hideCharacterViews();
 
-        characterName.setText(this.name);
+        this.characterName.setText(this.name);
 
         if(character.getGearItems().get("SoulCrystal") != null)
             Picasso.get()
-                    .load(apiURL + character.getActiveClassJob().get_job().getIconURL())
+                    .load(this.apiURL + this.character.getActiveClassJob().get_job().getIconURL())
                     .fit()
-                    .into(jobIcon);
+                    .into(this.jobIcon);
         else
             Picasso.get()
-                    .load(apiURL + character.getActiveClassJob().get_class().getIconURL())
+                    .load(this.apiURL + this.character.getActiveClassJob().get_class().getIconURL())
                     .fit()
-                    .into(jobIcon);
+                    .into(this.jobIcon);
 
 
         final Transformation transformation = new RoundedTransformationBuilder()
@@ -195,32 +221,70 @@ public class CharacterActivity extends AppCompatActivity
                 .build();
 
         Picasso.get()
-                .load(character.getPortraitURL())
+                .load(this.character.getPortraitURL())
                 .fit()
                 .centerCrop()
                 .transform(transformation)
-                .into(portrait);
+                .into(this.portrait);
 
         for(String gearItemKey : Character.getGearItemKeys())
         {
-            if(character.getGearItems().get(gearItemKey) != null)
+            if(this.character.getGearItems().get(gearItemKey) != null)
                 Picasso.get()
-                        .load(apiURL + character.getGearItems().get(gearItemKey).getItemIcon())
+                        .load(this.apiURL + this.character.getGearItems().get(gearItemKey).getItemIcon())
                         .fit()
                         .into(this.itemImageViews.get(gearItemKey));
         }
 
         String name;
-        if(character.getGearItems().get("SoulCrystal") != null)
-            name = character.getActiveClassJob().get_job().getName();
+        if(this.character.getGearItems().get("SoulCrystal") != null)
+            name = this.character.getActiveClassJob().get_job().getName();
         else
-            name = character.getActiveClassJob().get_class().getName();
+            name = this.character.getActiveClassJob().get_class().getName();
 
         name = name.substring(0, 1).toUpperCase() + name.substring(1);
         classJobName.setText(name);
         classJobLevel.setText(String.format(Locale.FRANCE, "niveau %d", character.getActiveClassJob().getLevel()));
 
+        int attributesCount = this.character.getAttributes().size();
+        this.param1Label.setText(this.character.getAttributes().get(attributesCount - 3).getName());
+        setParamBarColor(this.param1Label.getText().toString(), this.param1Bar);
+        this.param2Label.setText(this.character.getAttributes().get(attributesCount - 2).getName());
+        setParamBarColor(this.param2Label.getText().toString(), this.param2Bar);
+        this.param3Label.setText(this.character.getAttributes().get(attributesCount - 1).getName());
+        setParamBarColor(this.param3Label.getText().toString(), this.param3Bar);
+        this.param1Value.setText(String.format(Locale.FRANCE, "%d",this.character.getAttributes().get(attributesCount - 3).getValue()));
+        this.param2Value.setText(String.format(Locale.FRANCE, "%d",this.character.getAttributes().get(attributesCount - 2).getValue()));
+        this.param3Value.setText(String.format(Locale.FRANCE, "%d",this.character.getAttributes().get(attributesCount - 1).getValue()));
+
         showCharacterViews();
+    }
+
+    private void setParamBarColor(String label, ImageView imageView)
+    {
+        Drawable bar = getDrawable(R.drawable.param_bar_shape);
+        switch (label)
+        {
+            case "PV":
+                bar.setTint(getResources().getColor(R.color.paramPV));
+                imageView.setImageDrawable(bar);
+                break;
+
+            case "PM":
+                bar.setTint(getResources().getColor(R.color.paramPM));
+                imageView.setImageDrawable(bar);
+                break;
+
+            case "PR":
+                bar.setTint(getResources().getColor(R.color.paramPR));
+                imageView.setImageDrawable(bar);
+                break;
+
+            case "PT":
+                bar.setTint(getResources().getColor(R.color.paramPT));
+                imageView.setImageDrawable(bar);
+                break;
+        }
     }
 
     private void updateCharacterAPI(final CharacterDbHelper dbHelper)
@@ -233,7 +297,7 @@ public class CharacterActivity extends AppCompatActivity
                     {
                         try
                         {
-                            //Log.e(TAG, "Update response received : [" + response + "]");
+                            Log.e(TAG, "Update response received : [" + response + "]");
                             getCharacterAPI(dbHelper);
                         }
                         catch (Exception e)
@@ -250,7 +314,7 @@ public class CharacterActivity extends AppCompatActivity
                     public void onErrorResponse(VolleyError error)
                     {
                         Toast.makeText(CharacterActivity.this, "Échec de la mise à jour du personnage", Toast.LENGTH_SHORT).show();
-                        //Log.e(TAG, error.getMessage());
+                        Log.e(TAG, error.getMessage());
                         navigateUp();
                         finish();
                     }
@@ -292,7 +356,7 @@ public class CharacterActivity extends AppCompatActivity
                         }
                         catch (Exception e)
                         {
-                            //Log.e(TAG, e.getMessage());
+                            Log.e(TAG, e.getMessage());
                             Toast.makeText(CharacterActivity.this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show();
                             navigateUp();
                             finish();

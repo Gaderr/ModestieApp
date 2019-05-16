@@ -19,7 +19,7 @@
         android:id="@+id/frameTopMid"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/bitmap_lodestone_popup_top_mid"
+        android:background="@drawable/popupframe_top_mid"
         app:layout_constraintEnd_toStartOf="@+id/FrameTopRight"
         app:layout_constraintStart_toEndOf="@+id/frameTopLeft"
         app:layout_constraintTop_toTopOf="parent" />
@@ -36,7 +36,7 @@
         android:id="@+id/frameMidLeft"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:background="@drawable/bitmap_lodestone_popup_left_trail"
+        android:background="@drawable/popupframe_left_trail"
         app:layout_constraintBottom_toTopOf="@+id/frameBottomLeft"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/frameTopLeft" />
@@ -45,7 +45,7 @@
         android:id="@+id/frameBackground"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/bitmap_lodestone_popup_background"
+        android:background="@drawable/popupframe_background"
         app:layout_constraintBottom_toTopOf="@+id/frameBottomMid"
         app:layout_constraintEnd_toStartOf="@+id/frameMidRight"
         app:layout_constraintStart_toEndOf="@+id/frameMidLeft"
@@ -55,7 +55,7 @@
         android:id="@+id/frameMidRight"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:background="@drawable/bitmap_lodestone_popup_right_trail"
+        android:background="@drawable/popupframe_right_trail"
         app:layout_constraintBottom_toTopOf="@+id/frameBottomRight"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/FrameTopRight" />
@@ -72,7 +72,7 @@
         android:id="@+id/frameBottomMid"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/bitmap_lodestone_popup_bottom_mid"
+        android:background="@drawable/popupframe_bottom_mid"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/frameBottomRight"
         app:layout_constraintStart_toEndOf="@+id/frameBottomLeft" />
