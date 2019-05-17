@@ -280,6 +280,11 @@ public class CharacterActivity extends AppCompatActivity
                 imageView.setImageDrawable(bar);
                 break;
 
+            case "PS":
+                bar.setTint(getResources().getColor(R.color.paramPS));
+                imageView.setImageDrawable(bar);
+                break;
+
             case "PT":
                 bar.setTint(getResources().getColor(R.color.paramPT));
                 imageView.setImageDrawable(bar);
