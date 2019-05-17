@@ -38,6 +38,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.android.volley.Request.Method.GET;
 
@@ -231,7 +232,7 @@ public class CharacterActivity extends AppCompatActivity
         {
             if(this.character.getGearItems().get(gearItemKey) != null)
                 Picasso.get()
-                        .load(this.apiURL + this.character.getGearItems().get(gearItemKey).getItemIcon())
+                        .load(this.apiURL + Objects.requireNonNull(this.character.getGearItems().get(gearItemKey)).getItemIcon())
                         .fit()
                         .into(this.itemImageViews.get(gearItemKey));
         }
@@ -266,26 +267,31 @@ public class CharacterActivity extends AppCompatActivity
         switch (label)
         {
             case "PV":
+                assert bar != null;
                 bar.setTint(getResources().getColor(R.color.paramPV));
                 imageView.setImageDrawable(bar);
                 break;
 
             case "PM":
+                assert bar != null;
                 bar.setTint(getResources().getColor(R.color.paramPM));
                 imageView.setImageDrawable(bar);
                 break;
 
             case "PR":
+                assert bar != null;
                 bar.setTint(getResources().getColor(R.color.paramPR));
                 imageView.setImageDrawable(bar);
                 break;
 
             case "PS":
+                assert bar != null;
                 bar.setTint(getResources().getColor(R.color.paramPS));
                 imageView.setImageDrawable(bar);
                 break;
 
             case "PT":
+                assert bar != null;
                 bar.setTint(getResources().getColor(R.color.paramPT));
                 imageView.setImageDrawable(bar);
                 break;
@@ -345,6 +351,7 @@ public class CharacterActivity extends AppCompatActivity
                                 public void run()
                                 {
 
+                                    //noinspection StatementWithEmptyBody
                                     while(!character.isLoaded()) {}
 
                                     runOnUiThread(new Runnable()
