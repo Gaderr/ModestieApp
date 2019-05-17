@@ -63,6 +63,8 @@ public class CharacterActivity extends AppCompatActivity
     private RoundedImageView portrait;
     private Map<String, ImageView> itemImageViews;
 
+    private TextView ilvlTextView;
+
     private TextView classJobName;
     private TextView classJobLevel;
     private TextView characterName;
@@ -120,6 +122,8 @@ public class CharacterActivity extends AppCompatActivity
         this.itemImageViews.put(Character.GEAR_ITEM_KEYS[11], (ImageView) findViewById(R.id.itemRing1Icon));
         this.itemImageViews.put(Character.GEAR_ITEM_KEYS[12], (ImageView) findViewById(R.id.itemRing2Icon));
         this.itemImageViews.put(Character.GEAR_ITEM_KEYS[13], (ImageView) findViewById(R.id.itemSoulCrystalIcon));
+
+        this.ilvlTextView = findViewById(R.id.ilvlValue);
 
         this.classJobName = findViewById(R.id.classJobName);
         this.classJobLevel = findViewById(R.id.classJobLevel);
@@ -236,6 +240,8 @@ public class CharacterActivity extends AppCompatActivity
                         .fit()
                         .into(this.itemImageViews.get(gearItemKey));
         }
+
+        this.ilvlTextView.setText(String.format(Locale.FRANCE, "%d", character.getIlvl()));
 
         String name;
         if(this.character.getGearItems().get("SoulCrystal") != null)

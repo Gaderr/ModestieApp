@@ -121,6 +121,26 @@
                 app:srcCompat="@drawable/portrait_argus" />
 
             <ImageView
+                android:id="@+id/ilvlIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                app:layout_constraintBottom_toBottomOf="@+id/ilvlValue"
+                app:layout_constraintEnd_toStartOf="@+id/ilvlValue"
+                app:layout_constraintTop_toTopOf="@+id/ilvlValue"
+                app:srcCompat="@drawable/icon_ilvl" />
+
+            <TextView
+                android:id="@+id/ilvlValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="12dp"
+                android:fontFamily="@font/miedinger_regular"
+                app:layout_constraintEnd_toEndOf="@+id/portrait"
+                app:layout_constraintTop_toTopOf="@+id/portrait" />
+
+            <ImageView
                 android:id="@+id/itemMainHandIcon"
                 android:layout_width="40dp"
                 android:layout_height="40dp"

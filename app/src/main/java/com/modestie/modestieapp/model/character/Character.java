@@ -80,6 +80,8 @@ public class Character
     private ArrayList<ClassJob> classJobs;
     private Map<String, GearItem> gearItems;
 
+    private int ilvl;
+
     private ArrayList<CharacterAttribute> attributes;
 
     private CharacterGrandCompany grandCompany;
@@ -151,6 +153,8 @@ public class Character
                     this.gearItems.put(gearItemKey, null);
             }
 
+            calcIlvl();
+
             JSONArray apiAttributes = apiGearSet.getJSONArray("Attributes");
             this.attributes = new ArrayList<>();
             for(int i = 0; i < apiAttributes.length(); i++)
@@ -173,6 +177,34 @@ public class Character
         {
             Log.e(TAG, e.getMessage());
         }
+    }
+
+    private void calcIlvl()
+    {
+        int sum = 0;
+
+        if(gearItems.get("OffHand") == null)
+            sum += gearItems.get("MainHand").getItemLevel() * 2;
+        else
+            sum += gearItems.get("MainHand").getItemLevel() +
+                    gearItems.get("OffHand").getItemLevel();
+
+        for (String gearItemKey : GEAR_ITEM_KEYS)
+        {
+            if (!gearItemKey.equals("MainHand") && !gearItemKey.equals("OffHand") && !gearItemKey.equals("SoulCrystal"))
+            {
+                if(gearItems.get(gearItemKey) != null)
+                    sum += gearItems.get(gearItemKey).getItemLevel();
+            }
+            else
+            {
+                Log.e(TAG, "Ignoring " + gearItemKey);
+            }
+        }
+
+        this.ilvl = sum / 13;
+
+        Log.e(TAG, this.ilvl + "");
     }
 
     public boolean isLoaded()
@@ -293,6 +325,16 @@ public class Character
     public void setGearItems(Map<String, GearItem> gearItems)
     {
         this.gearItems = gearItems;
+    }
+
+    public int getIlvl()
+    {
+        return ilvl;
+    }
+
+    public void setIlvl(int ilvl)
+    {
+        this.ilvl = ilvl;
     }
 
     public ArrayList<CharacterAttribute> getAttributes()

@@ -15,6 +15,7 @@ public class GearItem
 
     private int itemID;
     private String itemIcon;
+    private int itemLevel;
     private int creatorID;
     private ArrayList<Materia> materias;
 
@@ -33,6 +34,7 @@ public class GearItem
             JSONObject item = obj.getJSONObject("Item");
             this.itemID = item.getInt("ID");
             this.itemIcon = item.getString("Icon");
+            this.itemLevel = item.getInt("LevelItem");
 
             if(!obj.isNull("Creator"))
                 this.creatorID = obj.getInt("Creator");
@@ -87,6 +89,16 @@ public class GearItem
     public void setItemIcon(String itemIcon)
     {
         this.itemIcon = itemIcon;
+    }
+
+    public int getItemLevel()
+    {
+        return itemLevel;
+    }
+
+    public void setItemLevel(int itemLevel)
+    {
+        this.itemLevel = itemLevel;
     }
 
     public int getCreatorID()
