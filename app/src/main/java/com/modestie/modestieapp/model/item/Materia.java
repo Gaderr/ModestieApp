@@ -1,4 +1,4 @@
-package com.modestie.modestieapp.model.character;
+package com.modestie.modestieapp.model.item;
 
 import android.util.Log;
 

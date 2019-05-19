@@ -45,4 +45,14 @@
 
     <!-- CHARACTER ACTIVITY -->
     <string name="title_character_activity">Personnage</string>
+    
+    <string name="title_attributes">Caractéristiques</string>
+    <string name="title_offensive_props">Attributs offensifs</string>
+    <string name="title_defensive_props">Attributs défensifs</string>
+    <string name="title_physical_props">Attributs physiques</string>
+    <string name="title_mental_props">Attributs magiques</string>
+    <string name="title_role_props">Rôle</string>
+    <string name="title_crafting_props">Artisanat</string>
+    <string name="attr_empty">---</string>
+
 </resources>

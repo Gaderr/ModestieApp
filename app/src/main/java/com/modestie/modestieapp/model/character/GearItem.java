@@ -2,7 +2,7 @@ package com.modestie.modestieapp.model.character;
 
 import android.util.Log;
 
-import com.modestie.modestieapp.model.item.Item;
+import com.modestie.modestieapp.model.item.Materia;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

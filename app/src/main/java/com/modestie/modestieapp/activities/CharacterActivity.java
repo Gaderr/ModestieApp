@@ -7,12 +7,15 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -69,6 +72,7 @@ public class CharacterActivity extends AppCompatActivity
     private TextView classJobLevel;
     private TextView characterName;
 
+    //3 firsts base character attributes (HP, MP, etc.)
     private TextView param1Label;
     private TextView param2Label;
     private TextView param3Label;
@@ -78,6 +82,28 @@ public class CharacterActivity extends AppCompatActivity
     private TextView param1Value;
     private TextView param2Value;
     private TextView param3Value;
+
+    //Character attributes layouts
+    private ConstraintLayout globalAttributesLayout;
+    private ConstraintLayout fighterAttributesLayout;
+    private ConstraintLayout crafterAttributesLayout;
+
+    //Global character attributes layouts
+    private LinearLayout labelsAttributesLayout;
+    private LinearLayout valuesAttributesLayout;
+    private LinearLayout labelsOffensivePropsLayout;
+    private LinearLayout valuesOffensivePropsLayout;
+    private LinearLayout labelsDefensivePropsLayout;
+    private LinearLayout valuesDefensivePropsLayout;
+    private LinearLayout labelsPhysicalPropsLayout;
+    private LinearLayout valuesPhysicalPropsLayout;
+    private LinearLayout labelsCrafterPropsLayout;
+    private LinearLayout valuesCrafterPropsLayout;
+    private LinearLayout labelsMentalPropsLayout;
+    private LinearLayout valuesMentalPropsLayout;
+    private LinearLayout labelsRolePropsLayout;
+    private LinearLayout valuesRolePropsLayout;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -144,6 +170,25 @@ public class CharacterActivity extends AppCompatActivity
         this.param2Value = param2.findViewById(R.id.paramValue);
         this.param3Value = param3.findViewById(R.id.paramValue);
 
+        this.globalAttributesLayout = findViewById(R.id.globalAttributesLayout);
+        this.fighterAttributesLayout = findViewById(R.id.fighterAttributesLayout);
+        this.crafterAttributesLayout = findViewById(R.id.crafterAttributesLayout);
+        this.labelsAttributesLayout = globalAttributesLayout.findViewById(R.id.labelsAttributesLayout);
+        this.valuesAttributesLayout = globalAttributesLayout.findViewById(R.id.valuesAttributesLayout);
+        this.labelsOffensivePropsLayout = globalAttributesLayout.findViewById(R.id.labelsOffensivePropsLayout);
+        this.valuesOffensivePropsLayout = globalAttributesLayout.findViewById(R.id.valuesOffensivePropsLayout);
+        this.labelsDefensivePropsLayout = globalAttributesLayout.findViewById(R.id.labelsDefensivePropsLayout);
+        this.valuesDefensivePropsLayout = globalAttributesLayout.findViewById(R.id.valuesDefensivePropsLayout);
+        this.labelsPhysicalPropsLayout = globalAttributesLayout.findViewById(R.id.labelsPhysicalPropsLayout);
+        this.valuesPhysicalPropsLayout = globalAttributesLayout.findViewById(R.id.valuesPhysicalPropsLayout);
+        this.labelsCrafterPropsLayout = crafterAttributesLayout.findViewById(R.id.labelsCraftingLayout);
+        this.valuesCrafterPropsLayout = crafterAttributesLayout.findViewById(R.id.valuesCraftingLayout);
+        this.labelsMentalPropsLayout = fighterAttributesLayout.findViewById(R.id.labelsMentalPropsLayout);
+        this.valuesMentalPropsLayout = fighterAttributesLayout.findViewById(R.id.valuesMentalPropsLayout);
+        this.labelsRolePropsLayout = fighterAttributesLayout.findViewById(R.id.labelsRoleLayout);
+        this.valuesRolePropsLayout = fighterAttributesLayout.findViewById(R.id.valuesRoleLayout);
+
+
         CharacterDbHelper characterDbHelper = new CharacterDbHelper(getApplicationContext());
         SQLiteDatabase database = characterDbHelper.getWritableDatabase();
         characterDbHelper.onCreate(database);
@@ -192,7 +237,25 @@ public class CharacterActivity extends AppCompatActivity
 
     private void hideCharacterViews()
     {
-        jobIcon.setVisibility(View.INVISIBLE);
+        this.jobIcon.setVisibility(View.INVISIBLE);
+
+        this.labelsAttributesLayout.removeAllViews();
+        this.valuesAttributesLayout.removeAllViews();
+        this.labelsOffensivePropsLayout.removeAllViews();
+        this.valuesOffensivePropsLayout.removeAllViews();
+        this.labelsDefensivePropsLayout.removeAllViews();
+        this.valuesDefensivePropsLayout.removeAllViews();
+        this.labelsPhysicalPropsLayout.removeAllViews();
+        this.valuesPhysicalPropsLayout.removeAllViews();
+        this.labelsCrafterPropsLayout.removeAllViews();
+        this.valuesCrafterPropsLayout.removeAllViews();
+        this.labelsMentalPropsLayout.removeAllViews();
+        this.valuesMentalPropsLayout.removeAllViews();
+        this.labelsRolePropsLayout.removeAllViews();
+        this.valuesRolePropsLayout.removeAllViews();
+
+        this.fighterAttributesLayout.setVisibility(View.GONE);
+        this.crafterAttributesLayout.setVisibility(View.GONE);
     }
 
     private void showCharacterViews()
@@ -204,8 +267,9 @@ public class CharacterActivity extends AppCompatActivity
     {
         hideCharacterViews();
 
-        this.characterName.setText(this.name);
+        //// IMAGES
 
+        //Load job icon if a soul crystal is equipped
         if(character.getGearItems().get("SoulCrystal") != null)
             Picasso.get()
                     .load(this.apiURL + this.character.getActiveClassJob().get_job().getIconURL())
@@ -218,6 +282,7 @@ public class CharacterActivity extends AppCompatActivity
                     .into(this.jobIcon);
 
 
+        //Load portrait
         final Transformation transformation = new RoundedTransformationBuilder()
                 .borderColor(Color.TRANSPARENT)
                 .borderWidthDp(0)
@@ -232,6 +297,7 @@ public class CharacterActivity extends AppCompatActivity
                 .transform(transformation)
                 .into(this.portrait);
 
+        //Load item icons
         for(String gearItemKey : Character.getGearItemKeys())
         {
             if(this.character.getGearItems().get(gearItemKey) != null)
@@ -241,7 +307,13 @@ public class CharacterActivity extends AppCompatActivity
                         .into(this.itemImageViews.get(gearItemKey));
         }
 
+        //// TEXTS
+
+        this.characterName.setText(this.name);
+
+        //Load ilvl
         this.ilvlTextView.setText(String.format(Locale.FRANCE, "%d", character.getIlvl()));
+
 
         String name;
         if(this.character.getGearItems().get("SoulCrystal") != null)
@@ -253,6 +325,7 @@ public class CharacterActivity extends AppCompatActivity
         classJobName.setText(name);
         classJobLevel.setText(String.format(Locale.FRANCE, "niveau %d", character.getActiveClassJob().getLevel()));
 
+        //Set base character attributes (HP, MP, etc.)
         int attributesCount = this.character.getAttributes().size();
         this.param1Label.setText(this.character.getAttributes().get(attributesCount - 3).getName());
         setParamBarColor(this.param1Label.getText().toString(), this.param1Bar);
@@ -264,7 +337,83 @@ public class CharacterActivity extends AppCompatActivity
         this.param2Value.setText(String.format(Locale.FRANCE, "%d",this.character.getAttributes().get(attributesCount - 2).getValue()));
         this.param3Value.setText(String.format(Locale.FRANCE, "%d",this.character.getAttributes().get(attributesCount - 1).getValue()));
 
+        boolean crafter;
+
+        if(this.character.getActiveClassJob().get_class().getCategoryName().equals("artisans"))
+        {
+            this.crafterAttributesLayout.setVisibility(View.VISIBLE);
+            crafter = true;
+        }
+        else
+        {
+            this.fighterAttributesLayout.setVisibility(View.VISIBLE);
+            crafter = false;
+        }
+
+        for(int i = 0; i < attributesCount - 3; i++)
+        {
+            TextView attributeLabel = getAttributeTextView(10 + i);
+            TextView attributeValue = getAttributeTextView(20 + i);
+            attributeLabel.setText(this.character.getAttributes().get(i).getName());
+            attributeValue.setText(String.format(Locale.FRANCE, "%d", this.character.getAttributes().get(i).getValue()));
+
+            if(i < 5)
+            {
+                this.labelsAttributesLayout.addView(attributeLabel);
+                this.valuesAttributesLayout.addView(attributeValue);
+            }
+            else if(i < 8)
+            {
+                this.labelsOffensivePropsLayout.addView(attributeLabel);
+                this.valuesOffensivePropsLayout.addView(attributeValue);
+            }
+            else if(i < 10)
+            {
+                this.labelsDefensivePropsLayout.addView(attributeLabel);
+                this.valuesDefensivePropsLayout.addView(attributeValue);
+            }
+            else if(i < 12)
+            {
+                this.labelsPhysicalPropsLayout.addView(attributeLabel);
+                this.valuesPhysicalPropsLayout.addView(attributeValue);
+            }
+            else
+            {
+                if(crafter)
+                {
+                    this.labelsCrafterPropsLayout.addView(attributeLabel);
+                    this.valuesCrafterPropsLayout.addView(attributeValue);
+                }
+                else
+                {
+                    if(i < 15)
+                    {
+                        this.labelsMentalPropsLayout.addView(attributeLabel);
+                        this.valuesMentalPropsLayout.addView(attributeValue);
+                    }
+                    else
+                    {
+                        this.labelsRolePropsLayout.addView(attributeLabel);
+                        this.valuesRolePropsLayout.addView(attributeValue);
+                    }
+                }
+            }
+        }
+
         showCharacterViews();
+    }
+
+    private TextView getAttributeTextView(int id)
+    {
+        TextView attribute = new TextView(getApplicationContext());
+        attribute.setTypeface(ResourcesCompat.getFont(getApplicationContext(), R.font.rubik));
+        attribute.setPadding(0, 0, 0, 8);
+        attribute.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        attribute.setTextSize(18f);
+        attribute.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorOnBackground));
+        attribute.setText(this.character.getAttributes().get(0).getName());
+        attribute.setId(id);
+        return attribute;
     }
 
     private void setParamBarColor(String label, ImageView imageView)
@@ -299,6 +448,12 @@ public class CharacterActivity extends AppCompatActivity
             case "PT":
                 assert bar != null;
                 bar.setTint(getResources().getColor(R.color.paramPT));
+                imageView.setImageDrawable(bar);
+                break;
+
+            default:
+                assert bar != null;
+                bar.setTint(getResources().getColor(R.color.colorOnBackground));
                 imageView.setImageDrawable(bar);
                 break;
         }

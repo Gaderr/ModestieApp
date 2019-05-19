@@ -17,7 +17,9 @@
         <activity android:name=".activities.CharacterActivity"
             android:label="@string/title_character_activity"
             android:parentActivityName=".activities.MembersListActivity"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.modestie.modestieapp.activities.MembersListActivity" />
@@ -26,7 +28,9 @@
             android:name=".activities.MembersListActivity"
             android:label="@string/title_members_list_activity"
             android:parentActivityName=".activities.HomeActivity"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.modestie.modestieapp.activities.HomeActivity" />
@@ -34,8 +38,9 @@
         <activity
             android:name=".activities.HomeActivity"
             android:label="@string/title_activity_home"
-            android:theme="@style/AppTheme">
-
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation">
         </activity>
         <activity android:name=".activities.MainActivity">
             <intent-filter>

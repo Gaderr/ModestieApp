@@ -11,6 +11,7 @@ public class ClassJob
     private Class _class;
     private Job _job;
     private int level;
+    private String category;
 
     private int expLevel;
     private int expLevelMax;
