@@ -19,7 +19,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.modestie.modestieapp.R;
-import com.modestie.modestieapp.model.character.Character;
 import com.modestie.modestieapp.model.freeCompany.FreeCompany;
 import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
 import com.squareup.picasso.Picasso;
@@ -55,7 +54,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private ProgressBar gcAdderProgressBarView;
     private ProgressBar gcFlamesProgressBarView;
 
-    public static final String TAG = "ACTIVITY - HOME";
+    public static final String TAG = "ACTVT.HOME";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -178,7 +177,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
         else
         {
-            super.onBackPressed();
+            Intent a = new Intent(Intent.ACTION_MAIN);
+            a.addCategory(Intent.CATEGORY_HOME);
+            a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(a);
         }
     }
 
@@ -219,7 +221,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
         else if (id == R.id.nav_events)
         {
-
+            startActivity(new Intent(getApplicationContext(), EventListActivity.class));
         }
         else if (id == R.id.nav_tools)
         {

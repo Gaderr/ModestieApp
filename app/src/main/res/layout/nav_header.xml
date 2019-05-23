@@ -72,6 +72,7 @@
         android:text="@string/nav_header_subtitle"
         android:textColor="#BBBBBB"
         android:textSize="13sp"
+        android:fontFamily="@font/davissans_regular"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/textView2" />
 

@@ -9,7 +9,6 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -18,8 +17,6 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
@@ -27,8 +24,6 @@ import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.model.freeCompany.FreeCompany;
 import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
 import com.modestie.modestieapp.sqlite.FreeCompanyReaderContract;
-
-import org.json.JSONObject;
 
 import static com.android.volley.Request.Method.GET;
 
@@ -52,7 +47,7 @@ public class MainActivity extends AppCompatActivity
 
     private RequestQueue mRequestQueue;
 
-    public static final String TAG = "ACTIVITY - MAIN";
+    public static final String TAG = "ACTVT.MAIN";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -64,18 +59,14 @@ public class MainActivity extends AppCompatActivity
 
         ConstraintLayout layout = findViewById(R.id.mainActivityLayout);
 
-        layout.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
+        layout.setOnClickListener(v ->
             {
                 if(ready)
                 {
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                     ready = false;
                 }
-            }
-        });
+            });
 
         ImageView crestView = findViewById(R.id.crest);
         TextView appNameView = findViewById(R.id.textAppName);
@@ -133,27 +124,15 @@ public class MainActivity extends AppCompatActivity
 
         if(doUpdate)
         {
-            addToRequestQueue(new JsonObjectRequest(GET, apiURLRequest, null,
-                    new Response.Listener<JSONObject>()
-                    {
-                        @Override
-                        public void onResponse(JSONObject response)
-                        {
-                            new FreeCompany(response, dbHelper);
+            addToRequestQueue(new JsonObjectRequest(GET, apiURLRequest, null, response ->
+                {
+                    new FreeCompany(response, dbHelper);
 
-                            touchAppIcon.setVisibility(View.VISIBLE);
-                            bar.setVisibility(View.INVISIBLE);
+                    touchAppIcon.setVisibility(View.VISIBLE);
+                    bar.setVisibility(View.INVISIBLE);
 
-                            ready = true;
-                        }
-                    }, new Response.ErrorListener()
-                    {
-                        @Override
-                        public void onErrorResponse(VolleyError error)
-                        {
-                            Toast.makeText(MainActivity.this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show();
-                        }
-                    }));
+                    ready = true;
+                }, error -> Toast.makeText(MainActivity.this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show()));
         }
         else
         {
@@ -170,10 +149,7 @@ public class MainActivity extends AppCompatActivity
      */
     public RequestQueue getRequestQueue()
     {
-        if (this.mRequestQueue == null)
-        {
-            this.mRequestQueue = Volley.newRequestQueue(getApplicationContext());
-        }
+        if (this.mRequestQueue == null) this.mRequestQueue = Volley.newRequestQueue(getApplicationContext());
 
         return mRequestQueue;
     }

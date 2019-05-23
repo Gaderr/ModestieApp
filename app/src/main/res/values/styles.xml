@@ -12,12 +12,34 @@
         <item name="android:fontFamily">@font/librebaskerville_regular</item>
         <!--<item name="colorAccent">@color/colorAccent</item>-->
 
-        <item name="buttonStyle">@style/ButtonModestie</item>
+        <item name="buttonStyle">@style/ButtonNeutral</item>
         <item name="editTextStyle">@style/EditTextModestie</item>
     </style>
 
-    <style name="ButtonModestie" parent="Widget.AppCompat.Button.Colored">
-        <item name="android:backgroundTint">@color/colorSecondary</item>
+    <style name="ButtonNeutral" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:backgroundTint">@color/colorOnPrimary</item>
+        <item name="android:fontFamily">@font/davissans_medium</item>
+        <item name="android:textColor">@color/colorOnSecondary</item>
+    </style>
+
+    <style name="ButtonValidate" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:backgroundTint">@color/colorValidate</item>
+        <item name="android:fontFamily">@font/davissans_medium</item>
+        <item name="android:textColor">@color/colorOnSecondary</item>
+    </style>
+
+    <style name="ButtonCancel" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:backgroundTint">@color/colorCancel</item>
+        <item name="android:fontFamily">@font/davissans_medium</item>
+        <item name="android:textColor">@color/colorOnSecondary</item>
+    </style>
+    
+    <style name="TextButtonModestie" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:fontFamily">@font/miedinger_regular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/colorSecondaryLight</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:layout_height">36dp</item>
     </style>
 
     <style name="EditTextModestie" parent="Widget.AppCompat.EditText">

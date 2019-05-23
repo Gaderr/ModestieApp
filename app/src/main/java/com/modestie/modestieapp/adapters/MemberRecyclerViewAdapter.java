@@ -1,4 +1,4 @@
-package com.modestie.modestieapp.activities;
+package com.modestie.modestieapp.adapters;
 
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +15,8 @@ import com.modestie.modestieapp.activities.MemberFragment.OnListFragmentInteract
 import com.modestie.modestieapp.model.freeCompany.FreeCompanyMember;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
@@ -34,8 +36,9 @@ public class MemberRecyclerViewAdapter extends RecyclerView.Adapter<MemberRecycl
         mListener = listener;
     }
 
+    @NotNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
+    public ViewHolder onCreateViewHolder(@NotNull ViewGroup parent, int viewType)
     {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fragment_member_item, parent, false);
@@ -43,7 +46,7 @@ public class MemberRecyclerViewAdapter extends RecyclerView.Adapter<MemberRecycl
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position)
+    public void onBindViewHolder(@NotNull final ViewHolder holder, int position)
     {
         holder.mItem = mValues.get(position);
 
@@ -67,10 +70,7 @@ public class MemberRecyclerViewAdapter extends RecyclerView.Adapter<MemberRecycl
                 .transform(transformation)
                 .into(holder.avatarView);
 
-        holder.mView.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
+        holder.mView.setOnClickListener(v ->
             {
                 if (null != mListener)
                 {
@@ -78,8 +78,7 @@ public class MemberRecyclerViewAdapter extends RecyclerView.Adapter<MemberRecycl
                     // fragment is attached to one) that an item has been selected.
                     mListener.onListFragmentInteraction(holder.mItem);
                 }
-            }
-        });
+            });
     }
 
     @Override
@@ -101,12 +100,13 @@ public class MemberRecyclerViewAdapter extends RecyclerView.Adapter<MemberRecycl
         {
             super(view);
             mView = view;
-            avatarView = view.findViewById(R.id.avatar);
+            avatarView = view.findViewById(R.id.promoterAvatar);
             rankIcon = view.findViewById(R.id.rankIcon);
             memberNameView = view.findViewById(R.id.memberName);
             memberRankView = view.findViewById(R.id.memberRank);
         }
 
+        @NotNull
         @Override
         public String toString()
         {

@@ -114,10 +114,10 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
-                android:fontFamily="@font/rubik_regular"
+                android:fontFamily="@font/davissans_italic"
                 android:text="@string/slogan"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="#A8A8A8"
-                android:textStyle="italic"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
@@ -131,7 +131,7 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/member_count_title"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textColor="@color/colorSecondaryLight"
+                android:textColor="@color/colorSecondary"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/slogan" />
 
@@ -140,7 +140,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:fontFamily="@font/rubik_regular"
+                android:fontFamily="@font/davissans_regular"
                 android:text="@string/member_count"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintStart_toStartOf="@+id/memberCountTitle"
@@ -153,7 +153,7 @@
                 android:layout_marginStart="32dp"
                 android:text="@string/rank_title"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textColor="@color/colorSecondaryLight"
+                android:textColor="@color/colorSecondary"
                 app:layout_constraintStart_toEndOf="@+id/memberCountTitle"
                 app:layout_constraintTop_toTopOf="@+id/memberCountTitle" />
 
@@ -162,7 +162,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:fontFamily="@font/rubik_regular"
+                android:fontFamily="@font/davissans_regular"
                 android:text="@string/rank"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintStart_toStartOf="@+id/rankTitle"
@@ -176,7 +176,7 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/grandcompany_title"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textColor="@color/colorSecondaryLight"
+                android:textColor="@color/colorSecondary"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/memberCount" />
 
@@ -208,7 +208,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:fontFamily="@font/rubik_regular"
+                android:fontFamily="@font/davissans_regular"
                 android:text="@string/grandcompany_rank"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintStart_toEndOf="@+id/grandcompanyFlag"
@@ -264,8 +264,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
-                android:fontFamily="@font/rubik_regular"
+                android:fontFamily="@font/davissans_regular"
                 android:text="@string/grandcompany_progress"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintBottom_toBottomOf="@+id/grandcompanyRank"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/grandcompanyRank" />
@@ -278,7 +279,7 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/ranking_title"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textColor="@color/colorSecondaryLight"
+                android:textColor="@color/colorSecondary"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/grandcompanyFlag" />
 
@@ -290,7 +291,7 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/ranking_monthly_title"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="@color/colorSecondaryLight"
+                android:textColor="@color/colorSecondary"
                 app:layout_constraintStart_toStartOf="@+id/rankingTitle"
                 app:layout_constraintTop_toBottomOf="@+id/rankingTitle" />
 
@@ -299,10 +300,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:fontFamily="@font/rubik_regular"
+                android:fontFamily="@font/davissans_regular"
                 android:text="@string/ranking_monthly"
                 android:textAllCaps="false"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintStart_toStartOf="@+id/rankingMonthlyTitle"
                 app:layout_constraintTop_toBottomOf="@+id/rankingMonthlyTitle" />
 
@@ -314,7 +315,7 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/ranking_weekly_title"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="@color/colorSecondaryLight"
+                android:textColor="@color/colorSecondary"
                 app:layout_constraintStart_toEndOf="@+id/rankingMonthlyTitle"
                 app:layout_constraintTop_toBottomOf="@+id/rankingTitle" />
 
@@ -323,9 +324,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:fontFamily="@font/rubik_regular"
+                android:fontFamily="@font/davissans_regular"
                 android:text="@string/ranking_weekly"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintStart_toStartOf="@+id/rankingWeeklyTitle"
                 app:layout_constraintTop_toBottomOf="@+id/rankingWeeklyTitle" />
 

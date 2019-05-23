@@ -13,35 +13,45 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".activities.CharacterActivity"
+        tools:ignore="AllowBackup,GoogleAppIndexingWarning">
+        <activity android:name=".activities.EventListActivity"
+            android:configChanges="orientation"
+            android:label="@string/title_event_list_activity"
+            android:parentActivityName=".activities.HomeActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.modestie.modestieapp.activities.HomeActivity" />
+        </activity>
+        <activity
+            android:name=".activities.CharacterActivity"
+            android:configChanges="orientation"
             android:label="@string/title_character_activity"
             android:parentActivityName=".activities.MembersListActivity"
-            android:theme="@style/AppTheme"
             android:screenOrientation="portrait"
-            android:configChanges="orientation">
+            android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.modestie.modestieapp.activities.MembersListActivity" />
         </activity>
         <activity
             android:name=".activities.MembersListActivity"
+            android:configChanges="orientation"
             android:label="@string/title_members_list_activity"
             android:parentActivityName=".activities.HomeActivity"
-            android:theme="@style/AppTheme"
             android:screenOrientation="portrait"
-            android:configChanges="orientation">
+            android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.modestie.modestieapp.activities.HomeActivity" />
         </activity>
         <activity
             android:name=".activities.HomeActivity"
+            android:configChanges="orientation"
             android:label="@string/title_activity_home"
-            android:theme="@style/AppTheme"
             android:screenOrientation="portrait"
-            android:configChanges="orientation">
-        </activity>
+            android:theme="@style/AppTheme"/>
         <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

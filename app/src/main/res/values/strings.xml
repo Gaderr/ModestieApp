@@ -45,7 +45,7 @@
 
     <!-- CHARACTER ACTIVITY -->
     <string name="title_character_activity">Personnage</string>
-    
+
     <string name="title_attributes">Caractéristiques</string>
     <string name="title_offensive_props">Attributs offensifs</string>
     <string name="title_defensive_props">Attributs défensifs</string>
@@ -54,5 +54,16 @@
     <string name="title_role_props">Rôle</string>
     <string name="title_crafting_props">Artisanat</string>
     <string name="attr_empty">---</string>
+
+    <!-- EVENT LIST ACTIVITY -->
+    <string name="title_event_list_activity">Events</string>
+
+    <string name="event_pariticpation_feedback">Vous participez</string>
+    <string name="event_self_promoter_feedback">Vous êtes l\'organisateur</string>
+
+    <string name="event_description_null">Pas de description</string>
+
+    <string name="button_participate">Participer</string>
+    <string name="button_cancel_participation">Annuler</string>
 
 </resources>

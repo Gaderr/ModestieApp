@@ -12,9 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.modestie.modestieapp.R;
+import com.modestie.modestieapp.adapters.MemberRecyclerViewAdapter;
 import com.modestie.modestieapp.model.freeCompany.FreeCompany;
 import com.modestie.modestieapp.model.freeCompany.FreeCompanyMember;
 import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A fragment representing a list of Items.
@@ -62,8 +65,7 @@ public class MemberFragment extends Fragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
+    public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         View view = inflater.inflate(R.layout.fragment_member_list, container, false);
 

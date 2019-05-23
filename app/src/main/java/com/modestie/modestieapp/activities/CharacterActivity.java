@@ -1,5 +1,6 @@
 package com.modestie.modestieapp.activities;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -13,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -21,8 +23,6 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
@@ -36,8 +36,6 @@ import com.modestie.modestieapp.sqlite.CharacterReaderContract;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
-import org.json.JSONObject;
-
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -47,7 +45,7 @@ import static com.android.volley.Request.Method.GET;
 
 public class CharacterActivity extends AppCompatActivity
 {
-    public static final String TAG = "ACTIVITY - CHARACTER";
+    public static final String TAG = "ACTVT.CHRCTR";
 
     private int characterID;
     private Character character;
@@ -105,6 +103,7 @@ public class CharacterActivity extends AppCompatActivity
     private LinearLayout valuesRolePropsLayout;
 
 
+    @SuppressLint("FindViewByIdCast")
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -112,14 +111,7 @@ public class CharacterActivity extends AppCompatActivity
         setContentView(R.layout.activity_character);
 
         this.upAction = findViewById(R.id.upAction);
-        this.upAction.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                navigateUp();
-            }
-        });
+        this.upAction.setOnClickListener(v -> navigateUp());
 
         Intent intent = getIntent();
         this.characterID = intent.getIntExtra("CharacterID", 0);
@@ -134,20 +126,20 @@ public class CharacterActivity extends AppCompatActivity
         jobIcon = findViewById(R.id.jobIcon);
         portrait = findViewById(R.id.portrait);
         this.itemImageViews = new HashMap<>();
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[0], (ImageView) findViewById(R.id.itemMainHandIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[1], (ImageView) findViewById(R.id.itemHeadIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[2], (ImageView) findViewById(R.id.itemBodyIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[3], (ImageView) findViewById(R.id.itemHandsIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[4], (ImageView) findViewById(R.id.itemWaistIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[5], (ImageView) findViewById(R.id.itemLegsIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[6], (ImageView) findViewById(R.id.itemFeetIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[7], (ImageView) findViewById(R.id.itemOffHandIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[8], (ImageView) findViewById(R.id.itemEarringIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[9], (ImageView) findViewById(R.id.itemNecklaceIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[10], (ImageView) findViewById(R.id.itemBraceletIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[11], (ImageView) findViewById(R.id.itemRing1Icon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[12], (ImageView) findViewById(R.id.itemRing2Icon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[13], (ImageView) findViewById(R.id.itemSoulCrystalIcon));
+        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[0], findViewById(R.id.itemMainHandIcon));
+        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[1], findViewById(R.id.itemHeadIcon));
+        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[2], findViewById(R.id.itemBodyIcon));
+        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[3], findViewById(R.id.itemHandsIcon));
+        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[4], findViewById(R.id.itemWaistIcon));
+        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[5], findViewById(R.id.itemLegsIcon));
+        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[6], findViewById(R.id.itemFeetIcon));
+        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[7], findViewById(R.id.itemOffHandIcon));
+        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[8], findViewById(R.id.itemEarringIcon));
+        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[9], findViewById(R.id.itemNecklaceIcon));
+        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[10], findViewById(R.id.itemBraceletIcon));
+        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[11], findViewById(R.id.itemRing1Icon));
+        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[12], findViewById(R.id.itemRing2Icon));
+        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[13], findViewById(R.id.itemSoulCrystalIcon));
 
         this.ilvlTextView = findViewById(R.id.ilvlValue);
 
@@ -352,8 +344,8 @@ public class CharacterActivity extends AppCompatActivity
 
         for(int i = 0; i < attributesCount - 3; i++)
         {
-            TextView attributeLabel = getAttributeTextView(10 + i);
-            TextView attributeValue = getAttributeTextView(20 + i);
+            TextView attributeLabel = getAttributeTextView(100 + i);
+            TextView attributeValue = getAttributeTextView(200 + i);
             attributeLabel.setText(this.character.getAttributes().get(i).getName());
             attributeValue.setText(String.format(Locale.FRANCE, "%d", this.character.getAttributes().get(i).getValue()));
 
@@ -406,7 +398,13 @@ public class CharacterActivity extends AppCompatActivity
     private TextView getAttributeTextView(int id)
     {
         TextView attribute = new TextView(getApplicationContext());
-        attribute.setTypeface(ResourcesCompat.getFont(getApplicationContext(), R.font.rubik));
+        attribute.setTypeface(ResourcesCompat.getFont(getApplicationContext(), R.font.davidsans));
+        if(id >= 200)
+        {
+            attribute.setLetterSpacing(0.075f);
+        }
+        attribute.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
+        attribute.setGravity(Gravity.CENTER_HORIZONTAL);
         attribute.setPadding(0, 0, 0, 8);
         attribute.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         attribute.setTextSize(18f);
@@ -462,89 +460,63 @@ public class CharacterActivity extends AppCompatActivity
     private void updateCharacterAPI(final CharacterDbHelper dbHelper)
     {
         String request = this.apiURL + this.apiCharacterURL + this.characterID + this.apiCharacterExtra_Update;
-        addToRequestQueue(new StringRequest(GET, request, new Response.Listener<String>()
+        addToRequestQueue(new StringRequest(GET, request, response ->
+            {
+                try
                 {
-                    @Override
-                    public void onResponse(String response)
-                    {
-                        try
-                        {
-                            Log.e(TAG, "Update response received : [" + response + "]");
-                            getCharacterAPI(dbHelper);
-                        }
-                        catch (Exception e)
-                        {
-                            Log.e(TAG, e.getMessage());
-                            Toast.makeText(CharacterActivity.this, "Échec de la mise à jour du personnage", Toast.LENGTH_SHORT).show();
-                            navigateUp();
-                            finish();
-                        }
-                    }
-                }, new Response.ErrorListener()
+                    Log.e(TAG, "Update response received : [" + response + "]");
+                    getCharacterAPI(dbHelper);
+                }
+                catch (Exception e)
                 {
-                    @Override
-                    public void onErrorResponse(VolleyError error)
-                    {
-                        Toast.makeText(CharacterActivity.this, "Échec de la mise à jour du personnage", Toast.LENGTH_SHORT).show();
-                        Log.e(TAG, error.getMessage());
-                        navigateUp();
-                        finish();
-                    }
-                }));
+                    Log.e(TAG, e.getMessage());
+                    Toast.makeText(CharacterActivity.this, "Échec de la mise à jour du personnage", Toast.LENGTH_SHORT).show();
+                    navigateUp();
+                    finish();
+                }
+            }, error ->
+            {
+                Toast.makeText(CharacterActivity.this, "Échec de la mise à jour du personnage", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, error.getMessage());
+                navigateUp();
+                finish();
+            }));
     }
 
     private void getCharacterAPI(final CharacterDbHelper dbHelper)
     {
         String request = this.apiURL + this.apiCharacterURL + this.characterID + this.apiCharacterExtra_Get;
-        addToRequestQueue(new JsonObjectRequest(GET, request, null,
-                new Response.Listener<JSONObject>()
+        addToRequestQueue(new JsonObjectRequest(GET, request, null, response ->
+            {
+                try
                 {
-                    @Override
-                    public void onResponse(JSONObject response)
-                    {
-                        try
-                        {
-                            character = new Character(response.getJSONObject("Character"), dbHelper);
+                    character = new Character(response.getJSONObject("Character"), dbHelper);
 
-                            new Thread(new Runnable()
-                            {
-                                @Override
-                                public void run()
+                    new Thread(() ->
+                        {
+                            //noinspection StatementWithEmptyBody
+                            while(!character.isLoaded()) {}
+
+                            runOnUiThread(() ->
                                 {
-
-                                    //noinspection StatementWithEmptyBody
-                                    while(!character.isLoaded()) {}
-
-                                    runOnUiThread(new Runnable()
-                                    {
-                                        @Override
-                                        public void run()
-                                        {
-                                            Log.e(TAG, "Data acquired");
-                                            updateCharacterViews();
-                                        }
-                                    });
-                                }
-                            }).run();
-                        }
-                        catch (Exception e)
-                        {
-                            Log.e(TAG, e.getMessage());
-                            Toast.makeText(CharacterActivity.this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show();
-                            navigateUp();
-                            finish();
-                        }
-                    }
-                }, new Response.ErrorListener()
+                                    Log.e(TAG, "Data acquired");
+                                    updateCharacterViews();
+                                });
+                        }).run();
+                }
+                catch (Exception e)
                 {
-                    @Override
-                    public void onErrorResponse(VolleyError error)
-                    {
-                        //Toast.makeText(CharacterActivity.this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show();
-                        navigateUp();
-                        finish();
-                    }
-                }));
+                    Log.e(TAG, e.getMessage());
+                    Toast.makeText(CharacterActivity.this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show();
+                    navigateUp();
+                    finish();
+                }
+            }, error ->
+            {
+                //Toast.makeText(CharacterActivity.this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show();
+                navigateUp();
+                finish();
+            }));
     }
 
     /**

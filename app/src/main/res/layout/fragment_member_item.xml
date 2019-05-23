@@ -9,16 +9,17 @@
     tools:ignore="ContentDescription">
 
     <com.makeramen.roundedimageview.RoundedImageView
-        android:id="@+id/avatar"
+        android:id="@+id/promoterAvatar"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:scaleType="fitCenter"
+        android:src="@color/colorPrimaryLight"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:riv_border_width="0dip"
-        app:riv_corner_radius="0dip"
+        app:riv_corner_radius="30dip"
         app:riv_oval="false" />
 
     <TextView
@@ -35,7 +36,7 @@
         app:firstBaselineToTopHeight="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/avatar"
+        app:layout_constraintStart_toEndOf="@+id/promoterAvatar"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -44,17 +45,16 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:fontFamily="@font/rubik_light"
+        android:fontFamily="@font/davidsans"
         android:gravity="start|top"
         android:textAlignment="gravity"
-        android:textAppearance="?attr/textAppearanceListItem"
         android:textColor="#FFFFFF"
-        android:textSize="13sp"
-        app:firstBaselineToTopHeight="20dp"
+        android:textSize="14sp"
+        app:firstBaselineToTopHeight="52dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/avatar"
-        app:layout_constraintTop_toBottomOf="@+id/memberName" />
+        app:layout_constraintStart_toEndOf="@+id/promoterAvatar"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/rankIcon"
@@ -62,6 +62,6 @@
         android:layout_height="15dp"
         android:layout_marginStart="28dp"
         android:layout_marginTop="28dp"
-        app:layout_constraintStart_toStartOf="@+id/avatar"
-        app:layout_constraintTop_toTopOf="@+id/avatar" />
+        app:layout_constraintStart_toStartOf="@+id/promoterAvatar"
+        app:layout_constraintTop_toTopOf="@+id/promoterAvatar" />
 </android.support.constraint.ConstraintLayout>

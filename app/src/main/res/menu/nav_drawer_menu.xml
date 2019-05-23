@@ -7,9 +7,7 @@
         <item
             android:id="@+id/nav_home"
             android:icon="@drawable/ic_home_white_24dp"
-            android:title="@string/menu_home"
-            android:checked="true"
-            android:enabled="false"/>
+            android:title="@string/menu_home" />
         <item
             android:id="@+id/nav_members"
             android:icon="@drawable/ic_group_white_24dp"
@@ -17,8 +15,7 @@
         <item
             android:id="@+id/nav_events"
             android:icon="@drawable/ic_event_white_24dp"
-            android:title="@string/menu_events"
-            android:enabled="false" />
+            android:title="@string/menu_events" />
         <item
             android:id="@+id/nav_tools"
             android:icon="@drawable/ic_menu_manage"
@@ -26,7 +23,7 @@
             android:enabled="false" />
     </group>
 
-    <item android:title="Communication">
+    <item android:title="Communication" tools:ignore="HardcodedText">
         <menu>
             <item
                 android:id="@+id/nav_share"
