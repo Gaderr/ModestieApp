@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -62,7 +62,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/characterName">
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="8dp">
@@ -102,7 +102,7 @@
                 style="?android:attr/progressBarStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:indeterminateTint="@color/colorOnSecondary"
+                android:indeterminateTint="@color/colorOnPrimary"
                 app:layout_constraintBottom_toBottomOf="@+id/portrait"
                 app:layout_constraintEnd_toEndOf="@+id/portrait"
                 app:layout_constraintHorizontal_bias="0.494"
@@ -402,7 +402,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/globalAttributesLayout"
                 android:visibility="gone"/>
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
     <ImageView
@@ -428,4 +428,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/gradient_transparent_to_popup_bottom" />
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

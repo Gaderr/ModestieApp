@@ -10,7 +10,7 @@
     android:orientation="vertical"
     tools:ignore="ContentDescription">
 
-    <android.support.v7.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/eventCardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -24,7 +24,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/eventCardHeader"
                 android:layout_width="match_parent"
                 android:layout_height="72dp">
@@ -74,7 +74,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <ImageView
                 android:id="@+id/eventImage"
@@ -84,7 +84,7 @@
                 android:scaleType="center"
                 app:srcCompat="@drawable/logout_icon1" />
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/eventCardContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -109,12 +109,14 @@
 
                 <TextView
                     android:id="@+id/eventDate"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
                     android:textSize="18sp"
                     app:firstBaselineToTopHeight="34dp"
+                    app:layout_constraintEnd_toStartOf="@+id/expand"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -129,14 +131,14 @@
                     app:layout_constraintTop_toTopOf="parent"
                     card_view:srcCompat="@drawable/ic_expand_more_white_24dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/actionBtn"
-                    style="@style/ButtonNeutral"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="24dp"
-                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/davissans_regular"
                     android:text="@string/button_participate"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -183,7 +185,7 @@
                     android:id="@+id/participantsCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="24dp"
+                    android:layout_marginEnd="16dp"
                     android:fontFamily="@font/davidsans"
                     android:letterSpacing="0.075"
                     android:textSize="15sp"
@@ -191,10 +193,10 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/personIcon" />
 
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
 
-    </android.support.v7.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>

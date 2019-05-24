@@ -4,9 +4,11 @@
     <color name="colorPrimaryLight">#6d6d6d</color>
     <color name="colorPrimaryDark">#1b1b1b</color>
 
-    <color name="colorSecondary">#64b5f6</color>
-    <color name="colorSecondaryLight">#9be7ff</color>
-    <color name="colorSecondaryDark">#2286c3</color>
+    <color name="colorSecondary">#4fc3f7</color>
+    <color name="colorSecondaryLight">#8bf6ff</color>
+    <color name="colorSecondaryDark">#0093c4</color>
+
+    <color name="colorAccent">@color/colorSecondary</color>
 
     <color name="colorBackground">#424242</color>
     <color name="colorSurface">#424242</color>

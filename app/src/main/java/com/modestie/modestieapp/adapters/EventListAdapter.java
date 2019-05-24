@@ -7,9 +7,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.AnimatedVectorDrawable;
-import android.support.constraint.ConstraintLayout;
-import android.support.constraint.ConstraintSet;
-import android.support.v7.widget.RecyclerView;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -188,7 +188,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
 
             ConstraintSet set = new ConstraintSet();
             ConstraintLayout parentLayout = holder.v.findViewById(R.id.eventCardContent);
-            int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, context.getResources().getDisplayMetrics());
+            int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, context.getResources().getDisplayMetrics());
             set.clone(parentLayout);
             set.connect(R.id.participationCheck, ConstraintSet.START, R.id.eventCardContent, ConstraintSet.START, margin);
             set.applyTo(parentLayout);

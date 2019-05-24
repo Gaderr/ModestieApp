@@ -1,10 +1,11 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorSecondary</item>
         <item name="android:windowBackground">@color/colorBackground</item>
         <item name="android:textColor">@color/colorOnPrimary</item>
         <item name="android:textColorPrimary">@color/colorOnPrimary</item>
@@ -12,43 +13,46 @@
         <item name="android:fontFamily">@font/librebaskerville_regular</item>
         <!--<item name="colorAccent">@color/colorAccent</item>-->
 
-        <item name="buttonStyle">@style/ButtonNeutral</item>
-        <item name="editTextStyle">@style/EditTextModestie</item>
+        <item name="buttonStyle">@style/Button</item>
+
+        <item name="android:popupMenuStyle">@style/PopupMenu</item>
+        <item name="popupMenuStyle">@style/PopupMenu</item>
+
+        <item name="textAppearanceHeadline1">@style/TextAppearance.MaterialComponents.Headline1</item>
+        <item name="textAppearanceHeadline2">@style/TextAppearance.MaterialComponents.Headline2</item>
+        <item name="textAppearanceHeadline3">@style/TextAppearance.MaterialComponents.Headline3</item>
+        <item name="textAppearanceHeadline4">@style/TextAppearance.MaterialComponents.Headline4</item>
+        <item name="textAppearanceHeadline5">@style/TextAppearance.MaterialComponents.Headline5</item>
+        <item name="textAppearanceHeadline6">@style/TextAppearance.MaterialComponents.Headline6</item>
+        <item name="textAppearanceSubtitle1">@style/TextAppearance.MaterialComponents.Subtitle1</item>
+        <item name="textAppearanceSubtitle2">@style/TextAppearance.MaterialComponents.Subtitle2</item>
+        <item name="textAppearanceBody1">@style/TextAppearance.MaterialComponents.Body1</item>
+        <item name="textAppearanceBody2">@style/TextAppearance.MaterialComponents.Body2</item>
+        <item name="textAppearanceCaption">@style/TextAppearance.MaterialComponents.Caption</item>
+        <item name="textAppearanceButton">@style/TextAppearance.MaterialComponents.Button</item>
+        <item name="textAppearanceOverline">@style/TextAppearance.MaterialComponents.Overline</item>
     </style>
 
-    <style name="ButtonNeutral" parent="Widget.AppCompat.Button.Colored">
-        <item name="android:backgroundTint">@color/colorOnPrimary</item>
+    <style name="Button" parent="Widget.MaterialComponents.Button">
         <item name="android:fontFamily">@font/davissans_medium</item>
         <item name="android:textColor">@color/colorOnSecondary</item>
     </style>
 
-    <style name="ButtonValidate" parent="Widget.AppCompat.Button.Colored">
+    <style name="ValidateButton" parent="Widget.MaterialComponents.Button">
         <item name="android:backgroundTint">@color/colorValidate</item>
         <item name="android:fontFamily">@font/davissans_medium</item>
         <item name="android:textColor">@color/colorOnSecondary</item>
     </style>
 
-    <style name="ButtonCancel" parent="Widget.AppCompat.Button.Colored">
+    <style name="CancelButton" parent="Widget.MaterialComponents.Button">
         <item name="android:backgroundTint">@color/colorCancel</item>
         <item name="android:fontFamily">@font/davissans_medium</item>
         <item name="android:textColor">@color/colorOnSecondary</item>
     </style>
-    
-    <style name="TextButtonModestie" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:fontFamily">@font/miedinger_regular</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/colorSecondaryLight</item>
-        <item name="android:textAllCaps">true</item>
-        <item name="android:layout_height">36dp</item>
-    </style>
 
-    <style name="EditTextModestie" parent="Widget.AppCompat.EditText">
-        <item name="android:textColor">@color/colorOnPrimary</item>
-        <item name="android:textColorHint">@color/colorOnPrimary</item>
-        <item name="android:textColorHighlight">@color/colorSecondary</item>
-        <item name="android:textColorLink">@color/colorSecondary</item>
-        <item name="android:textCursorDrawable">@drawable/text_cursor</item>
-        <!--<item name="android:background">@drawable/edit_text_bg_shape</item>-->
+    <style name="PopupMenu" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:fontFamily">@font/davissans_regular</item>
+        <item name="android:backgroundTint">@color/colorPrimary</item>
     </style>
 
 </resources>
