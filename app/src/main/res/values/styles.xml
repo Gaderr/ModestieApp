@@ -10,7 +10,7 @@
         <item name="android:textColor">@color/colorOnPrimary</item>
         <item name="android:textColorPrimary">@color/colorOnPrimary</item>
         <item name="android:textColorSecondary">@color/colorOnPrimary</item>
-        <item name="android:fontFamily">@font/librebaskerville_regular</item>
+        <item name="android:fontFamily">@font/davissans_regular</item>
         <!--<item name="colorAccent">@color/colorAccent</item>-->
 
         <item name="buttonStyle">@style/Button</item>
@@ -31,11 +31,25 @@
         <item name="textAppearanceCaption">@style/TextAppearance.MaterialComponents.Caption</item>
         <item name="textAppearanceButton">@style/TextAppearance.MaterialComponents.Button</item>
         <item name="textAppearanceOverline">@style/TextAppearance.MaterialComponents.Overline</item>
+
+        <!-- enable window content transitions -->
+        <item name="android:windowActivityTransitions">true</item>
+
+        <!-- specify shared element transitions -->
+        <!--<item name="android:windowSharedElementEnterTransition">
+            @transition/change_transform</item>
+        <item name="android:windowSharedElementExitTransition">
+            @transition/change_transform</item>-->
     </style>
 
     <style name="Button" parent="Widget.MaterialComponents.Button">
+        <item name="android:backgroundTint">@color/colorSecondary</item>
         <item name="android:fontFamily">@font/davissans_medium</item>
         <item name="android:textColor">@color/colorOnSecondary</item>
+    </style>
+
+    <style name="TextButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/colorSecondary</item>
     </style>
 
     <style name="ValidateButton" parent="Widget.MaterialComponents.Button">
@@ -50,9 +64,37 @@
         <item name="android:textColor">@color/colorOnSecondary</item>
     </style>
 
+    <style name="IconButton" parent="@style/Widget.MaterialComponents.Button.Icon">
+        <item name="android:backgroundTint">@color/colorSecondary</item>
+        <item name="android:fontFamily">@font/davissans_medium</item>
+        <item name="android:textColor">@color/colorOnSecondary</item>
+    </style>
+
     <style name="PopupMenu" parent="Widget.AppCompat.PopupMenu">
         <item name="android:fontFamily">@font/davissans_regular</item>
         <item name="android:backgroundTint">@color/colorPrimary</item>
+    </style>
+
+    <style name="EditTextOutlined" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/colorSecondary</item>
+        <item name="counterTextColor">@color/colorOnBackground</item>
+        <item name="hintTextColor">@color/colorOnBackground</item>
+        <item name="startIconTint">@color/colorOnBackground</item>
+        <item name="helperTextTextColor">@color/colorOnBackground</item>
+    </style>
+
+    <style name="EditTextFilled" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="boxStrokeColor">@color/colorSecondary</item>
+        <item name="boxBackgroundColor">@color/colorPrimaryLight</item>
+        <item name="hintTextColor">@color/colorSecondary</item>
+        <item name="helperTextTextColor">@color/colorOnBackground</item>
+        <item name="colorOnSurface">@color/colorOnBackground</item>
+        <item name="android:textColor">@color/colorOnBackground</item>
+    </style>
+
+    <style name="Dialog" parent="Theme.MaterialComponents.Dialog.Alert">
+        <item name="android:windowBackground">@color/colorPrimary</item>
+        <item name="colorAccent">@color/colorSecondary</item>
     </style>
 
 </resources>

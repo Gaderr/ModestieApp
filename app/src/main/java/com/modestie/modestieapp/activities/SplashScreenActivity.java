@@ -27,8 +27,7 @@ import com.modestie.modestieapp.sqlite.FreeCompanyReaderContract;
 
 import static com.android.volley.Request.Method.GET;
 
-
-public class MainActivity extends AppCompatActivity
+public class SplashScreenActivity extends AppCompatActivity
 {
     private AnimatorSet animatorSetIn;
     private ObjectAnimator animationTextUp;
@@ -47,13 +46,13 @@ public class MainActivity extends AppCompatActivity
 
     private RequestQueue mRequestQueue;
 
-    public static final String TAG = "ACTVT.MAIN";
+    public static final String TAG = "ACTVT.SPLSHSCRN";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_splash);
 
         this.ready = false;
 
@@ -132,7 +131,7 @@ public class MainActivity extends AppCompatActivity
                     bar.setVisibility(View.INVISIBLE);
 
                     ready = true;
-                }, error -> Toast.makeText(MainActivity.this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show()));
+                }, error -> Toast.makeText(SplashScreenActivity.this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show()));
         }
         else
         {

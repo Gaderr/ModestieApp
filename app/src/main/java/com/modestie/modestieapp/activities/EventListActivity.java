@@ -1,12 +1,23 @@
 package com.modestie.modestieapp.activities;
 
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewTreeObserver;
+import android.widget.AbsListView;
+
+import androidx.core.view.MotionEventCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.adapters.EventListAdapter;
 import com.modestie.modestieapp.model.event.Event;
@@ -22,6 +33,8 @@ public class EventListActivity extends AppCompatActivity
     private RecyclerView.Adapter<EventListAdapter.EventListCardViewHolder> adapter;
     private RecyclerView.LayoutManager layoutManager;
 
+    private FloatingActionButton fab;
+
     public static final String TAG = "ACTVT - EVNTLST";
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -34,6 +47,29 @@ public class EventListActivity extends AppCompatActivity
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         recyclerView = findViewById(R.id.eventsCardsView);
+        /*fab = findViewById(R.id.add_event_fab);
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
+        {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy)
+            {
+                super.onScrolled(recyclerView, dx, dy);
+                if (dy > 0) //Up
+                {
+                    fab.hide();
+                }
+                else //Down
+                {
+                    fab.show();
+                }
+            }
+        });
+
+        fab.setOnClickListener(v ->
+            {
+                startActivityForResult(new Intent(getApplicationContext(), NewEventActivity.class), 1);
+            });*/
 
         FreeCompanyDbHelper dbHelper = new FreeCompanyDbHelper(getApplicationContext());
         SQLiteDatabase database = dbHelper.getReadableDatabase();
@@ -104,5 +140,54 @@ public class EventListActivity extends AppCompatActivity
 
         adapter = new EventListAdapter(events, database, getApplicationContext());
         recyclerView.setAdapter(adapter);
+
+        /*findViewById(R.id.add_event_fab).setOnClickListener(v ->
+            {
+                ArrayList<Integer> parts = new ArrayList<>();
+                participants.add(6287877);
+                participants.add(14416025);
+                participants.add(11572096);
+                participants.add(6710801);
+                participants.add(14194163);
+
+                events.add(new Event(
+                        "Nouvel event",
+                        11148489,
+                        System.currentTimeMillis() / 1000,
+                        null,
+                        null,
+                        -1,
+                        parts));
+
+                Collections.sort(events, Event.EventDateComparator);
+
+                adapter.notifyDataSetChanged();
+            });*/
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.event_list_bar_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the HomeActivity/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.add_event)
+        {
+            startActivityForResult(new Intent(getApplicationContext(), NewEventActivity.class), 1);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

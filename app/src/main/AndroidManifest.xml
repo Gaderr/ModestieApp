@@ -14,7 +14,19 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-        <activity android:name=".activities.EventListActivity"
+        <activity
+            android:name=".activities.NewEventActivity"
+            android:configChanges="orientation"
+            android:label="@string/title_new_event_activity"
+            android:parentActivityName=".activities.EventListActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.modestie.modestieapp.activities.EventListActivity"/>
+        </activity>
+        <activity
+            android:name=".activities.EventListActivity"
             android:configChanges="orientation"
             android:label="@string/title_event_list_activity"
             android:parentActivityName=".activities.HomeActivity"
@@ -51,8 +63,8 @@
             android:configChanges="orientation"
             android:label="@string/title_activity_home"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme"/>
-        <activity android:name=".activities.MainActivity">
+            android:theme="@style/AppTheme"></activity>
+        <activity android:name=".activities.SplashScreenActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

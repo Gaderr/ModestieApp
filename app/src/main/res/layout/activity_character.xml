@@ -19,17 +19,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/upAction"
-        style="@style/Widget.AppCompat.ActionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="18dp"
-        android:src="@drawable/ic_arrow_back_white_24dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <TextView
         android:id="@+id/characterName"
         android:layout_width="0dp"
@@ -42,12 +31,24 @@
         android:maxLines="2"
         android:singleLine="false"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:transitionName="character_name"
         app:autoSizeMaxTextSize="34sp"
         app:autoSizeMinTextSize="25sp"
         app:autoSizeTextType="uniform"
         app:layout_constraintEnd_toEndOf="@+id/include"
         app:layout_constraintStart_toEndOf="@+id/upAction"
         app:layout_constraintTop_toTopOf="@+id/include" />
+
+    <ImageView
+        android:id="@+id/upAction"
+        style="@style/Widget.AppCompat.ActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="18dp"
+        android:src="@drawable/ic_arrow_back_white_24dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
         android:id="@+id/scrollView"

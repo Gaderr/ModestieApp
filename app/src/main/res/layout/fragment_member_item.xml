@@ -33,6 +33,7 @@
         android:textAlignment="gravity"
         android:textAppearance="?attr/textAppearanceListItem"
         android:textSize="15sp"
+        android:transitionName="character_name"
         app:firstBaselineToTopHeight="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"

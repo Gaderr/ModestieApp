@@ -24,4 +24,13 @@
 
     <include layout="@layout/content_event_list"/>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add_event_fab"
+        style="@style/Widget.MaterialComponents.FloatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        app:srcCompat="@drawable/ic_add_black_24dp"/>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
