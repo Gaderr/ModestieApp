@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.AnimatedVectorDrawable;
 
@@ -158,6 +159,10 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
 
         //Expand More/Less icon
         AnimatedVectorDrawable animatedExpandMore = (AnimatedVectorDrawable) context.getResources().getDrawable(R.drawable.ic_expand_more_animatable, null);
+        if(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
+            animatedExpandMore.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+        else
+            animatedExpandMore.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
         holder.expand.setImageDrawable(animatedExpandMore);
         holder.expand.setOnClickListener(v -> expandOrCollapseDescription(holder));
 
@@ -269,6 +274,10 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         {
             AnimatedVectorDrawable animatedExpandLess = (AnimatedVectorDrawable) context.getResources().getDrawable(R.drawable.ic_expand_less_animatable, null);
             holder.expand.setImageDrawable(animatedExpandLess);
+            if(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
+                animatedExpandLess.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+            else
+                animatedExpandLess.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
             animatedExpandLess.start();
             holder.description.setMaxLines(2);
         }
@@ -276,6 +285,10 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         {
             AnimatedVectorDrawable animatedExpandMore = (AnimatedVectorDrawable) context.getResources().getDrawable(R.drawable.ic_expand_more_animatable, null);
             holder.expand.setImageDrawable(animatedExpandMore);
+            if(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
+                animatedExpandMore.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+            else
+                animatedExpandMore.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
             animatedExpandMore.start();
             holder.description.setMaxLines(Integer.MAX_VALUE);
         }
