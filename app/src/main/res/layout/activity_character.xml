@@ -30,7 +30,8 @@
         android:gravity="center_vertical"
         android:maxLines="2"
         android:singleLine="false"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textAppearance="@style/TextAppearance.ModestieTheme.Headline4"
+        android:textColor="#FFFFFF"
         android:transitionName="character_name"
         app:autoSizeMaxTextSize="34sp"
         app:autoSizeMinTextSize="25sp"
@@ -46,7 +47,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="18dp"
-        android:src="@drawable/ic_arrow_back_white_24dp"
+        android:src="@drawable/ic_arrow_back_24dp"
+        android:tint="#FFFFFF"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -83,7 +85,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textAppearance="@style/TextAppearance.ModestieTheme.Headline6"
+                android:textColor="#FFFFFF"
                 app:layout_constraintBottom_toBottomOf="@+id/jobIcon"
                 app:layout_constraintStart_toEndOf="@+id/jobIcon"
                 app:layout_constraintTop_toTopOf="@+id/jobIcon" />
@@ -94,7 +97,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:fontFamily="@font/davissans_regular"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textAppearance="@style/TextAppearance.ModestieTheme.Headline6"
+                android:textColor="#FFFFFF"
                 app:layout_constraintBaseline_toBaselineOf="@+id/classJobName"
                 app:layout_constraintStart_toEndOf="@+id/classJobName" />
 
@@ -103,7 +107,7 @@
                 style="?android:attr/progressBarStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:indeterminateTint="@color/colorOnPrimary"
+                android:indeterminateTint="#FFFFFF"
                 app:layout_constraintBottom_toBottomOf="@+id/portrait"
                 app:layout_constraintEnd_toEndOf="@+id/portrait"
                 app:layout_constraintHorizontal_bias="0.494"
@@ -120,8 +124,7 @@
                 android:scaleType="center"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/jobIcon"
-                app:srcCompat="@drawable/portrait_argus" />
+                app:layout_constraintTop_toBottomOf="@+id/jobIcon" />
 
             <ImageView
                 android:id="@+id/ilvlIcon"
@@ -140,6 +143,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="12dp"
                 android:fontFamily="@font/miedinger_regular"
+                android:textColor="#FFFFFF"
                 app:layout_constraintEnd_toEndOf="@+id/portrait"
                 app:layout_constraintTop_toTopOf="@+id/portrait" />
 
@@ -385,10 +389,10 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/globalAttributesLayout"
-                android:visibility="gone"/>
+                app:layout_constraintTop_toBottomOf="@+id/globalAttributesLayout" />
 
             <include
                 android:id="@+id/crafterAttributesLayout"
@@ -398,10 +402,10 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/globalAttributesLayout"
-                android:visibility="gone"/>
+                app:layout_constraintTop_toBottomOf="@+id/globalAttributesLayout" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

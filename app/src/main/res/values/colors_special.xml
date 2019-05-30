@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <color name="colorPrimary">#424242</color>
+    <!--<color name="colorPrimary">#424242</color>
     <color name="colorPrimaryLight">#6d6d6d</color>
     <color name="colorPrimaryDark">#1b1b1b</color>
 
@@ -18,9 +18,15 @@
     <color name="colorOnSecondary">#000000</color>
     <color name="colorOnBackground">#FFFFFF</color>
     <color name="colorOnSurface">#FFFFFF</color>
-    <color name="colorOnError">#FFFFFF</color>
-    <color name="colorValidate">#aed581</color>
-    <color name="colorValidateLight">#60ad5e</color>
+    <color name="colorOnError">#FFFFFF</color>-->
+
+    <color name="characterAttributesTitle">#4fc3f7</color>
+    <color name="characterOnBackground">#FFFFFF</color>
+    <!--<color name="colorSecondaryLight">#8bf6ff</color>
+    <color name="colorSecondaryDark">#0093c4</color>-->
+
+    <color name="colorValidate">#689f38</color>
+    <color name="colorValidateLight">#99d066</color>
     <color name="colorCancel">#e57373</color>
 
     <color name="maelstromColor">#E53935</color>
@@ -32,8 +38,4 @@
     <color name="paramPS">#BB99FF</color>
     <color name="paramPM">#DC7D9D</color>
     <color name="paramPT">#F59D26</color>
-
-    <!--<color name="colorAccent">#D81B60</color>-->
-
-    <color name="mtrl_textinput_default_box_stroke_color" tools:override="true">#FFFFFF</color>
 </resources>

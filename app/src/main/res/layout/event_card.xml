@@ -6,7 +6,6 @@
     android:id="@+id/eventCardLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorPrimaryDark"
     android:orientation="vertical"
     tools:ignore="ContentDescription">
 
@@ -14,7 +13,6 @@
         android:id="@+id/eventCardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="@color/colorBackground"
         card_view:cardCornerRadius="4dp"
         card_view:cardElevation="4dp"
         card_view:cardUseCompatPadding="true">
@@ -36,7 +34,7 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
                     android:scaleType="fitCenter"
-                    android:src="@color/colorPrimaryLight"
+                    android:src="@color/color_on_background"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:riv_border_width="0dp"
@@ -52,7 +50,7 @@
                     android:ellipsize="end"
                     android:singleLine="true"
                     android:text=""
-                    android:textSize="20sp"
+                    android:textAppearance="@style/TextAppearance.ModestieTheme.Headline6"
                     app:firstBaselineToTopHeight="34dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -65,10 +63,8 @@
                     android:layout_marginStart="72dp"
                     android:layout_marginEnd="8dp"
                     android:ellipsize="end"
-                    android:fontFamily="@font/davissans_regular"
                     android:singleLine="true"
-                    android:textColor="#C7C7C7"
-                    android:textSize="14sp"
+                    android:textAppearance="@style/TextAppearance.ModestieTheme.Subtitle2"
                     app:firstBaselineToTopHeight="56dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -80,7 +76,6 @@
                 android:id="@+id/eventImage"
                 android:layout_width="match_parent"
                 android:layout_height="194dp"
-                android:background="@color/colorPrimary"
                 android:scaleType="center"
                 app:srcCompat="@drawable/logout_icon1" />
 
@@ -97,10 +92,8 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="16dp"
                     android:ellipsize="end"
-                    android:fontFamily="@font/davissans_regular"
                     android:maxLines="2"
-                    android:textColor="#C7C7C7"
-                    android:textSize="15sp"
+                    android:textAppearance="@style/TextAppearance.ModestieTheme.Body2"
                     app:firstBaselineToTopHeight="68dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
@@ -114,7 +107,7 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
-                    android:textSize="18sp"
+                    android:textAppearance="@style/TextAppearance.ModestieTheme.Headline6"
                     app:firstBaselineToTopHeight="34dp"
                     app:layout_constraintEnd_toStartOf="@+id/expand"
                     app:layout_constraintStart_toStartOf="parent"
@@ -129,16 +122,15 @@
                     android:layout_marginEnd="8dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    card_view:srcCompat="@drawable/ic_expand_more_white_24dp" />
+                    app:srcCompat="@drawable/ic_expand_more_24dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/actionBtn"
-                    style="@style/TextButton"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="24dp"
-                    android:fontFamily="@font/davissans_regular"
                     android:text="@string/button_participate"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -150,9 +142,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:layout_marginEnd="8dp"
-                    android:fontFamily="@font/davissans_medium"
+                    android:textAppearance="@style/TextAppearance.ModestieTheme.Body2"
                     android:textColor="@color/colorValidate"
-                    android:textSize="15sp"
                     android:visibility="invisible"
                     app:layout_constraintBottom_toBottomOf="@+id/participationCheck"
                     app:layout_constraintEnd_toStartOf="@+id/personIcon"
@@ -168,8 +159,7 @@
                     app:layout_constraintBottom_toBottomOf="@+id/actionBtn"
                     app:layout_constraintStart_toEndOf="@+id/actionBtn"
                     app:layout_constraintTop_toTopOf="@+id/actionBtn"
-                    card_view:srcCompat="@drawable/ic_check_white_24dp"
-                    />
+                    app:srcCompat="@drawable/ic_check_24dp" />
 
                 <ImageView
                     android:id="@+id/personIcon"
@@ -179,7 +169,7 @@
                     app:layout_constraintBottom_toBottomOf="@+id/participationText"
                     app:layout_constraintEnd_toStartOf="@+id/participantsCount"
                     app:layout_constraintTop_toTopOf="@+id/participationText"
-                    card_view:srcCompat="@drawable/ic_person_white_24dp" />
+                    app:srcCompat="@drawable/ic_person_24dp" />
 
                 <TextView
                     android:id="@+id/participantsCount"
@@ -188,7 +178,7 @@
                     android:layout_marginEnd="16dp"
                     android:fontFamily="@font/davidsans"
                     android:letterSpacing="0.075"
-                    android:textSize="15sp"
+                    android:textAppearance="@style/TextAppearance.ModestieTheme.Caption"
                     app:layout_constraintBottom_toBottomOf="@+id/personIcon"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/personIcon" />

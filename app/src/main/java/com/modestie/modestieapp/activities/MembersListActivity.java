@@ -1,9 +1,15 @@
 package com.modestie.modestieapp.activities;
 
 import android.content.Intent;
+
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+
 import androidx.appcompat.widget.Toolbar;
 
 import com.modestie.modestieapp.R;
@@ -22,6 +28,18 @@ public class MembersListActivity extends AppCompatActivity implements MemberFrag
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    protected void onRestart()
+    {
+        super.onRestart();
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        if(sharedPref.getBoolean("nightmode", false))
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        else
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.modestie.modestieapp.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
 
 import android.annotation.SuppressLint;
@@ -8,15 +10,23 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.modestie.modestieapp.R;
 
@@ -32,6 +42,8 @@ public class NewEventActivity extends AppCompatActivity
     private static TextInputLayout formEventName;
     private static TextInputLayout formEventDate;
     private static TextInputLayout formEventTime;
+
+    private Button newPrice;
 
     private boolean today;
 
@@ -50,6 +62,7 @@ public class NewEventActivity extends AppCompatActivity
         formEventName = findViewById(R.id.FormEventName);
         formEventDate = findViewById(R.id.FormEventDate);
         formEventTime = findViewById(R.id.FormEventTime);
+        newPrice = findViewById(R.id.addPriceButton);
 
         today = true;
 
@@ -72,7 +85,7 @@ public class NewEventActivity extends AppCompatActivity
         formEventDate.getEditText().setText(String.format(Locale.FRANCE, "%s/%s/%d", cDay, cMonth, year));
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(this,
-            R.style.Dialog,
+            R.style.ThemeOverlay_ModestieTheme_Dialog,
             (view, pickedYear, pickedMonth, pickedDay) ->
             {
                 String sDay, sMonth;
@@ -116,12 +129,17 @@ public class NewEventActivity extends AppCompatActivity
 
                 try
                 {
-                    if(Integer.parseInt(s.subSequence(0, 1).toString()) == day
-                            && Integer.parseInt(s.subSequence(3, 4).toString()) == month
-                            && Integer.parseInt(s.subSequence(6, 9).toString()) == year)
+                    if(Integer.parseInt(s.subSequence(0, 2).toString()) == day
+                            && Integer.parseInt(s.subSequence(3, 5).toString()) == (month + 1)
+                            && Integer.parseInt(s.subSequence(6, 10).toString()) == year)
                         today = true;
                     else
                         today = false;
+
+                    //Log.e(TAG, "Today : [" + Integer.parseInt(s.subSequence(0, 2).toString()) + "|" + day + "]["
+                    //        + Integer.parseInt(s.subSequence(3, 5).toString()) + "|" + (month + 1) + "]["
+                    //        + Integer.parseInt(s.subSequence(6, 10).toString()) + "|" + year + "]");
+                    //Log.e(TAG, "Today : " + today);
 
                     SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
                     df.setTimeZone(TimeZone.getDefault());
@@ -155,7 +173,7 @@ public class NewEventActivity extends AppCompatActivity
         });
 
         TimePickerDialog timePickerDialog = new TimePickerDialog(this,
-            R.style.Dialog,
+            R.style.ThemeOverlay_ModestieTheme_Dialog,
             (view, pickedHour, pickedMinute) ->
             {
                 String sHour, sMinute;
@@ -208,19 +226,99 @@ public class NewEventActivity extends AppCompatActivity
                 int cMinute = Integer.parseInt(currentTime.subSequence(3, 5).toString());
                 long cSeconds = cHour * 3600 + cMinute * 60;
 
-                if(today && (sSeconds - cSeconds) / 60 < 30)
+                final long timediff = (sSeconds - cSeconds) / 60;
+
+                //Log.e(TAG, "Today : " + today);
+                //Log.e(TAG, timediff + "");
+
+                if(today)
                 {
-                    Toast.makeText(NewEventActivity.this, "Veuillez organiser votre événement au moins une demie-heure en avance", Toast.LENGTH_LONG).show();
-                    s.clear();
+                    if(timediff <= 0)
+                    {
+                        Toast.makeText(NewEventActivity.this, "Veuillez choisir un horaire supérieur à l'heure actuelle", Toast.LENGTH_LONG).show();
+                        s.clear();
+                    }
+                    else if(timediff < 30)
+                    {
+                        Toast.makeText(NewEventActivity.this, "Veuillez organiser votre événement au moins une demie-heure en avance", Toast.LENGTH_LONG).show();
+                        s.clear();
+                    }
                 }
             }
         });
+
+        newPrice.setOnClickListener(v ->
+            {
+                PopupMenu popup = new PopupMenu(this, v);
+                popup.setOnMenuItemClickListener(item ->
+                    {
+                        switch (item.getItemId())
+                        {
+                            case R.id.itemPrice:
+                                createSnackbar("En cours de développpement");
+                                return true;
+
+                            case R.id.gilsPrice:
+                                createSnackbar("En cours de développpement");
+                                return true;
+
+                            default:
+                                return true;
+                        }
+                    });
+                popup.getMenuInflater().inflate(R.menu.new_event_selection_menu, popup.getMenu());
+                popup.show();
+            });
+    }
+
+    @Override
+    protected void onRestart()
+    {
+        super.onRestart();
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        if(sharedPref.getBoolean("nightmode", false))
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        else
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
     }
 
     @Override
     protected void onResume()
     {
         super.onResume();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.new_event_bar_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the HomeActivity/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.save_event)
+        {
+            createSnackbar("En cours de développpement");
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void createSnackbar(String text)
+    {
+        Snackbar.make(findViewById(R.id.context_view), text, Snackbar.LENGTH_LONG)
+                .show();
     }
 
     //TODO Override up action to confirm cancelling

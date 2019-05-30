@@ -1,0 +1,19 @@
+<resources>
+    <!--Shape-->
+
+    <!--Shape Appearance for small components like chips, buttons, text fields and FABs-->
+    <style name="ShapeAppearance.ModestieTheme.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <!--Custom shape here-->
+    </style>
+
+    <!--Shape Appearance for medium components like cards, alert dialogs-->
+    <style name="ShapeAppearance.ModestieTheme.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <!--Custom shape here-->
+    </style>
+
+    <!--Shape Appearance for large components like side and bottom navigation drawers-->
+    <style name="ShapeAppearance.ModestieTheme.LargeComponent" parent="ShapeAppearance.MaterialComponents.LargeComponent">
+        <!--Custom shape here-->
+    </style>
+
+</resources>

@@ -1,100 +1,59 @@
-<resources>
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!--Components-->
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorSecondary</item>
-        <item name="android:windowBackground">@color/colorBackground</item>
-        <item name="android:textColor">@color/colorOnPrimary</item>
-        <item name="android:textColorPrimary">@color/colorOnPrimary</item>
-        <item name="android:textColorSecondary">@color/colorOnPrimary</item>
+    <!--Bottom Sheets-->
+    <style name="ThemeOverlay.ModestieTheme.BottomSheetDialog" parent="ThemeOverlay.MaterialComponents.Dialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@style/Animation.ModestieTheme.BottomSheet.Modal</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="bottomSheetStyle">@style/Widget.ModestieTheme.BottomSheet.Modal</item>
+        <item name="android:navigationBarColor">?colorSurface</item>
+        <item name="android:navigationBarDividerColor" tools:ignore="NewApi">@android:color/transparent</item>
+    </style>
+    <style name="Widget.ModestieTheme.BottomSheet.Modal" parent="Widget.MaterialComponents.BottomSheet.Modal">
+        <item name="shapeAppearanceOverlay">?shapeAppearanceLargeComponent</item>
+    </style>
+
+    <style name="ThemeOverlay.ModestieTheme.Dialog" parent="Theme.MaterialComponents.Dialog">
+        <item name="android:windowBackground">@color/color_background</item>
+        <!--<item name="android:backgroundTint">@color/color_background</item>-->
+        <item name="android:textColorPrimary">@color/color_on_background</item>
+        <item name="android:textColorSecondaryInverse">@color/color_background</item>
+        <item name="android:textColorSecondary">@color/color_on_background</item>
+        <item name="android:timePickerStyle">@style/ThemeOverlay.ModestieTheme.TimePicker</item>
+        <item name="android:datePickerStyle">@style/ThemeOverlay.ModestieTheme.DatePicker</item>
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorPrimaryDark">@color/color_primary_variant</item>
+        <item name="colorSecondary">@color/color_secondary</item>
+        <item name="colorSurface">@color/color_surface</item>
+        <item name="colorAccent">@color/color_secondary</item>
         <item name="android:fontFamily">@font/davissans_regular</item>
-        <!--<item name="colorAccent">@color/colorAccent</item>-->
-
-        <item name="buttonStyle">@style/Button</item>
-
-        <item name="android:popupMenuStyle">@style/PopupMenu</item>
-        <item name="popupMenuStyle">@style/PopupMenu</item>
-
-        <item name="textAppearanceHeadline1">@style/TextAppearance.MaterialComponents.Headline1</item>
-        <item name="textAppearanceHeadline2">@style/TextAppearance.MaterialComponents.Headline2</item>
-        <item name="textAppearanceHeadline3">@style/TextAppearance.MaterialComponents.Headline3</item>
-        <item name="textAppearanceHeadline4">@style/TextAppearance.MaterialComponents.Headline4</item>
-        <item name="textAppearanceHeadline5">@style/TextAppearance.MaterialComponents.Headline5</item>
-        <item name="textAppearanceHeadline6">@style/TextAppearance.MaterialComponents.Headline6</item>
-        <item name="textAppearanceSubtitle1">@style/TextAppearance.MaterialComponents.Subtitle1</item>
-        <item name="textAppearanceSubtitle2">@style/TextAppearance.MaterialComponents.Subtitle2</item>
-        <item name="textAppearanceBody1">@style/TextAppearance.MaterialComponents.Body1</item>
-        <item name="textAppearanceBody2">@style/TextAppearance.MaterialComponents.Body2</item>
-        <item name="textAppearanceCaption">@style/TextAppearance.MaterialComponents.Caption</item>
-        <item name="textAppearanceButton">@style/TextAppearance.MaterialComponents.Button</item>
-        <item name="textAppearanceOverline">@style/TextAppearance.MaterialComponents.Overline</item>
-
-        <!-- enable window content transitions -->
-        <item name="android:windowActivityTransitions">true</item>
-
-        <!-- specify shared element transitions -->
-        <!--<item name="android:windowSharedElementEnterTransition">
-            @transition/change_transform</item>
-        <item name="android:windowSharedElementExitTransition">
-            @transition/change_transform</item>-->
+        <item name="android:buttonBarPositiveButtonStyle">@style/Widget.MaterialComponents.Button.TextButton</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/Widget.MaterialComponents.Button.TextButton</item>
+        <item name="android:buttonBarNeutralButtonStyle">@style/Widget.MaterialComponents.Button.TextButton</item>
     </style>
 
-    <style name="Button" parent="Widget.MaterialComponents.Button">
-        <item name="android:backgroundTint">@color/colorSecondary</item>
-        <item name="android:fontFamily">@font/davissans_medium</item>
-        <item name="android:textColor">@color/colorOnSecondary</item>
+    <style name="ThemeOverlay.ModestieTheme.TimePicker" parent="android:Widget.Material.TimePicker">
+        <item name="android:numbersBackgroundColor">@color/color_surface</item>
+        <item name="android:headerBackground">@color/color_surface</item>
     </style>
 
-    <style name="TextButton" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:textColor">@color/colorSecondary</item>
+    <style name="ThemeOverlay.ModestieTheme.DatePicker" parent="android:Widget.Material.DatePicker">
+        <item name="android:headerBackground">@color/color_surface</item>
+        <item name="android:dayOfWeekBackground">@color/color_surface</item>
     </style>
 
-    <style name="ValidateButton" parent="Widget.MaterialComponents.Button">
-        <item name="android:backgroundTint">@color/colorValidate</item>
-        <item name="android:fontFamily">@font/davissans_medium</item>
-        <item name="android:textColor">@color/colorOnSecondary</item>
+    <!--Navigation Drawer-->
+    <style name="Widget.ModestieTheme.NavigationView" parent="Widget.MaterialComponents.NavigationView">
+        <item name="itemTextAppearance">?textAppearanceBody2</item>
     </style>
+    
+    <!--Toolbar-->
+    <style name="Widget.ModestieTheme.Toolbar" parent="Widget.MaterialComponents.Toolbar"/>
 
-    <style name="CancelButton" parent="Widget.MaterialComponents.Button">
-        <item name="android:backgroundTint">@color/colorCancel</item>
-        <item name="android:fontFamily">@font/davissans_medium</item>
-        <item name="android:textColor">@color/colorOnSecondary</item>
+    <style name="Widget.ModestieTheme.CharacterToolbar" parent="Widget.MaterialComponents.Toolbar">
+        <item name="android:windowLightStatusBar" tools:ignore="NewApi">false</item>
     </style>
-
-    <style name="IconButton" parent="@style/Widget.MaterialComponents.Button.Icon">
-        <item name="android:backgroundTint">@color/colorSecondary</item>
-        <item name="android:fontFamily">@font/davissans_medium</item>
-        <item name="android:textColor">@color/colorOnSecondary</item>
-    </style>
-
-    <style name="PopupMenu" parent="Widget.AppCompat.PopupMenu">
-        <item name="android:fontFamily">@font/davissans_regular</item>
-        <item name="android:backgroundTint">@color/colorPrimary</item>
-    </style>
-
-    <style name="EditTextOutlined" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="boxStrokeColor">@color/colorSecondary</item>
-        <item name="counterTextColor">@color/colorOnBackground</item>
-        <item name="hintTextColor">@color/colorOnBackground</item>
-        <item name="startIconTint">@color/colorOnBackground</item>
-        <item name="helperTextTextColor">@color/colorOnBackground</item>
-    </style>
-
-    <style name="EditTextFilled" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
-        <item name="boxStrokeColor">@color/colorSecondary</item>
-        <item name="boxBackgroundColor">@color/colorPrimaryLight</item>
-        <item name="hintTextColor">@color/colorSecondary</item>
-        <item name="helperTextTextColor">@color/colorOnBackground</item>
-        <item name="colorOnSurface">@color/colorOnBackground</item>
-        <item name="android:textColor">@color/colorOnBackground</item>
-    </style>
-
-    <style name="Dialog" parent="Theme.MaterialComponents.Dialog.Alert">
-        <item name="android:windowBackground">@color/colorPrimary</item>
-        <item name="colorAccent">@color/colorSecondary</item>
-    </style>
-
 </resources>

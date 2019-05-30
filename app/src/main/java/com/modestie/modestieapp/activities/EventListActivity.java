@@ -1,18 +1,15 @@
 package com.modestie.modestieapp.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewTreeObserver;
-import android.widget.AbsListView;
 
-import androidx.core.view.MotionEventCompat;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
@@ -41,6 +38,8 @@ public class EventListActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_list);
+
+        //TODO Use setItemAnimator() for animating changes to the items in the RecyclerView
 
         Toolbar toolbar = findViewById(R.id.eventListToolbar);
         setSupportActionBar(toolbar);
@@ -163,6 +162,18 @@ public class EventListActivity extends AppCompatActivity
 
                 adapter.notifyDataSetChanged();
             });*/
+    }
+
+    @Override
+    protected void onRestart()
+    {
+        super.onRestart();
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        if(sharedPref.getBoolean("nightmode", false))
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        else
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
     }
 
     @Override

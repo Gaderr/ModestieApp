@@ -10,8 +10,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/title_attributes"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textColor="@color/colorSecondaryLight"
+        android:textAppearance="@style/TextAppearance.ModestieTheme.Headline6"
+        android:textColor="@color/characterAttributesTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -47,8 +47,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="@string/title_offensive_props"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textColor="@color/colorSecondaryLight"
+        android:textAppearance="@style/TextAppearance.ModestieTheme.Headline6"
+        android:textColor="@color/characterAttributesTitle"
         android:visibility="visible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/baseAttributeLayout" />
@@ -85,8 +85,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="@string/title_defensive_props"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textColor="@color/colorSecondaryLight"
+        android:textAppearance="@style/TextAppearance.ModestieTheme.Headline6"
+        android:textColor="@color/characterAttributesTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/baseOffensivePropsLayout" />
 
@@ -122,8 +122,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="@string/title_physical_props"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textColor="@color/colorSecondaryLight"
+        android:textAppearance="@style/TextAppearance.ModestieTheme.Headline6"
+        android:textColor="@color/characterAttributesTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/baseDefensivePropsLayout" />
 

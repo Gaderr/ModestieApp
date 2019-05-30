@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/content_home"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -9,7 +10,7 @@
     tools:context=".activities.HomeActivity"
     tools:showIn="@layout/app_bar_home">
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -17,28 +18,39 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/headerBackground"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
-                android:alpha="0.25"
+                android:alpha="0.35"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/photo_groupe" />
 
-            <ImageView
-                android:id="@+id/greyGradient"
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imageGradientBlack"
                 android:layout_width="0dp"
                 android:layout_height="30dp"
                 app:layout_constraintBottom_toBottomOf="@+id/headerBackground"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:srcCompat="@drawable/gradient_transparent_to_grey" />
+                app:srcCompat="@drawable/gradient_transparent_to_black"
+                android:visibility="invisible"/>
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imageGradientWhite"
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                app:layout_constraintBottom_toBottomOf="@+id/headerBackground"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:srcCompat="@drawable/gradient_transparent_to_white"
+                android:visibility="invisible"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/crestBackground"
                 android:layout_width="75dp"
                 android:layout_height="75dp"
@@ -47,7 +59,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/crestFrame"
                 android:layout_width="75dp"
                 android:layout_height="75dp"
@@ -55,14 +67,14 @@
                 app:layout_constraintStart_toStartOf="@+id/crestLogo"
                 app:layout_constraintTop_toTopOf="@+id/crestLogo" />
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/crestLogo"
                 android:layout_width="75dp"
                 android:layout_height="75dp"
                 app:layout_constraintStart_toStartOf="@+id/crestBackground"
                 app:layout_constraintTop_toTopOf="@+id/crestBackground" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/freeCompanyName"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -71,8 +83,8 @@
                 android:fontFamily="@font/jupiter_pro_bold"
                 android:gravity="center|start"
                 android:text="@string/free_company_name"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textSize="34sp"
+                android:textAppearance="@style/TextAppearance.ModestieTheme.Headline1"
+                android:textColor="@color/color_on_background"
                 app:autoSizeMaxTextSize="37sp"
                 app:autoSizeMinTextSize="22sp"
                 app:autoSizeTextType="uniform"
@@ -82,32 +94,30 @@
                 app:layout_constraintStart_toEndOf="@+id/crestLogo"
                 app:layout_constraintTop_toTopOf="@+id/crestLogo" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/freeCompanySigle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:text="@string/free_company_sigle"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                android:textColor="#DBDBDB"
+                android:textAppearance="@style/TextAppearance.ModestieTheme.Subtitle1"
                 app:layout_constraintBottom_toBottomOf="@+id/crestLogo"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/crestLogo" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/formationDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:text="@string/formationDate"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="#DBDBDB"
+                android:textAppearance="@style/TextAppearance.ModestieTheme.Subtitle1"
                 app:layout_constraintStart_toStartOf="@+id/headerBackground"
                 app:layout_constraintTop_toBottomOf="@+id/crestLogo" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/slogan"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -116,105 +126,101 @@
                 android:layout_marginEnd="16dp"
                 android:fontFamily="@font/davissans_italic"
                 android:text="@string/slogan"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="#A8A8A8"
+                android:textAppearance="@style/TextAppearance.ModestieTheme.Body1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/formationDate" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/memberCountTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:text="@string/member_count_title"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textColor="@color/colorSecondary"
+                android:textAppearance="@style/TextAppearance.ModestieTheme.Headline5"
+                android:textColor="@color/color_secondary"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/slogan" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/memberCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:fontFamily="@font/davissans_regular"
                 android:text="@string/member_count"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textAppearance="@style/TextAppearance.ModestieTheme.Body1"
                 app:layout_constraintStart_toStartOf="@+id/memberCountTitle"
                 app:layout_constraintTop_toBottomOf="@+id/memberCountTitle" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/rankTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
                 android:text="@string/rank_title"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textColor="@color/colorSecondary"
+                android:textAppearance="@style/TextAppearance.ModestieTheme.Headline5"
+                android:textColor="@color/color_secondary"
                 app:layout_constraintStart_toEndOf="@+id/memberCountTitle"
                 app:layout_constraintTop_toTopOf="@+id/memberCountTitle" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/rank"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:fontFamily="@font/davissans_regular"
                 android:text="@string/rank"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textAppearance="@style/TextAppearance.ModestieTheme.Body1"
                 app:layout_constraintStart_toStartOf="@+id/rankTitle"
                 app:layout_constraintTop_toBottomOf="@+id/rankTitle" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/grandcompanyTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:text="@string/grandcompany_title"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textColor="@color/colorSecondary"
+                android:textAppearance="@style/TextAppearance.ModestieTheme.Headline5"
+                android:textColor="@color/color_secondary"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/memberCount" />
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/grandcompanyFlag"
                 android:layout_width="75dp"
                 android:layout_height="75dp"
                 android:layout_marginTop="8dp"
                 app:layout_constraintStart_toStartOf="@+id/grandcompanyTitle"
                 app:layout_constraintTop_toBottomOf="@+id/grandcompanyTitle"
-                app:srcCompat="@color/colorOnBackground" />
+                app:srcCompat="@color/color_on_background" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/grandcompanyName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:fontFamily="@font/eorzea"
                 android:text="@string/grandcompany_name"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="@color/colorOnBackground"
-                android:textSize="24sp"
+                android:textAppearance="@style/TextAppearance.ModestieTheme.Headline6"
                 app:layout_constraintStart_toEndOf="@+id/grandcompanyFlag"
                 app:layout_constraintTop_toTopOf="@+id/grandcompanyFlag" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/grandcompanyRank"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:fontFamily="@font/davissans_regular"
                 android:text="@string/grandcompany_rank"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textAppearance="@style/TextAppearance.ModestieTheme.Body1"
                 app:layout_constraintStart_toEndOf="@+id/grandcompanyFlag"
                 app:layout_constraintTop_toBottomOf="@+id/grandcompanyName" />
 
-            <ProgressBar
+            <androidx.core.widget.ContentLoadingProgressBar
                 android:id="@+id/grandcompanyMaelProgressbar"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="0dp"
@@ -229,7 +235,7 @@
                 app:layout_constraintStart_toEndOf="@+id/grandcompanyRank"
                 app:layout_constraintTop_toTopOf="@+id/grandcompanyRank" />
 
-            <ProgressBar
+            <androidx.core.widget.ContentLoadingProgressBar
                 android:id="@+id/grandcompanyAdderProgressbar"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="0dp"
@@ -244,7 +250,7 @@
                 app:layout_constraintStart_toEndOf="@+id/grandcompanyRank"
                 app:layout_constraintTop_toTopOf="@+id/grandcompanyRank" />
 
-            <ProgressBar
+            <androidx.core.widget.ContentLoadingProgressBar
                 android:id="@+id/grandcompanyFlamesProgressbar"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="0dp"
@@ -259,78 +265,74 @@
                 app:layout_constraintStart_toEndOf="@+id/grandcompanyRank"
                 app:layout_constraintTop_toTopOf="@+id/grandcompanyRank" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/grandcompanyProgressText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
-                android:fontFamily="@font/davissans_regular"
                 android:text="@string/grandcompany_progress"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textAppearance="@style/TextAppearance.ModestieTheme.Body1"
                 app:layout_constraintBottom_toBottomOf="@+id/grandcompanyRank"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/grandcompanyRank" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/rankingTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:text="@string/ranking_title"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textColor="@color/colorSecondary"
+                android:textAppearance="@style/TextAppearance.ModestieTheme.Headline5"
+                android:textColor="@color/color_secondary"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/grandcompanyFlag" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/rankingMonthlyTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:text="@string/ranking_monthly_title"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="@color/colorSecondary"
+                android:textAppearance="@style/TextAppearance.ModestieTheme.Headline6"
+                android:textColor="@color/color_secondary"
                 app:layout_constraintStart_toStartOf="@+id/rankingTitle"
                 app:layout_constraintTop_toBottomOf="@+id/rankingTitle" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/rankingMonthly"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:fontFamily="@font/davissans_regular"
                 android:text="@string/ranking_monthly"
-                android:textAllCaps="false"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textAppearance="@style/TextAppearance.ModestieTheme.Body1"
                 app:layout_constraintStart_toStartOf="@+id/rankingMonthlyTitle"
                 app:layout_constraintTop_toBottomOf="@+id/rankingMonthlyTitle" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/rankingWeeklyTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
                 android:layout_marginTop="8dp"
                 android:text="@string/ranking_weekly_title"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="@color/colorSecondary"
+                android:textAppearance="@style/TextAppearance.ModestieTheme.Headline6"
+                android:textColor="@color/color_secondary"
                 app:layout_constraintStart_toEndOf="@+id/rankingMonthlyTitle"
                 app:layout_constraintTop_toBottomOf="@+id/rankingTitle" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/rankingWeekly"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:fontFamily="@font/davissans_regular"
                 android:text="@string/ranking_weekly"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textAppearance="@style/TextAppearance.ModestieTheme.Body1"
                 app:layout_constraintStart_toStartOf="@+id/rankingWeeklyTitle"
                 app:layout_constraintTop_toBottomOf="@+id/rankingWeeklyTitle" />
 
-
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

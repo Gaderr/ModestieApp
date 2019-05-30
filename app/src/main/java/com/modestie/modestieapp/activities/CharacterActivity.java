@@ -2,20 +2,26 @@ package com.modestie.modestieapp.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.NavUtils;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -210,6 +216,18 @@ public class CharacterActivity extends AppCompatActivity
         }
 
         cursor.close();
+    }
+
+    @Override
+    protected void onRestart()
+    {
+        super.onRestart();
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        if(sharedPref.getBoolean("nightmode", false))
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        else
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
     }
 
     @Override
@@ -408,7 +426,7 @@ public class CharacterActivity extends AppCompatActivity
         attribute.setPadding(0, 0, 0, 8);
         attribute.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         attribute.setTextSize(18f);
-        attribute.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorOnBackground));
+        attribute.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.characterOnBackground));
         attribute.setText(this.character.getAttributes().get(0).getName());
         attribute.setId(id);
         return attribute;
@@ -451,7 +469,7 @@ public class CharacterActivity extends AppCompatActivity
 
             default:
                 assert bar != null;
-                bar.setTint(getResources().getColor(R.color.colorOnBackground));
+                bar.setTint(getResources().getColor(R.color.characterOnBackground));
                 imageView.setImageDrawable(bar);
                 break;
         }

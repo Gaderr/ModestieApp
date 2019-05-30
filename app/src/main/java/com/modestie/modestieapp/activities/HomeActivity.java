@@ -1,12 +1,17 @@
 package com.modestie.modestieapp.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+
+import android.preference.PreferenceManager;
 import android.view.MenuItem;
 import com.google.android.material.navigation.NavigationView;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -18,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.model.freeCompany.FreeCompany;
 import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
@@ -48,6 +54,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private ImageView crestBackgroundView;
     private ImageView crestFrameView;
     private ImageView crestLogoView;
+    private ImageView gradientBlack;
+    private ImageView gradientWhite;
     private ImageView gcFlagView;
 
     private ProgressBar gcMaelProgressBarView;
@@ -87,21 +95,39 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         this.crestBackgroundView = findViewById(R.id.crestBackground);
         this.crestFrameView = findViewById(R.id.crestFrame);
         this.crestLogoView = findViewById(R.id.crestLogo);
+        this.gradientBlack = findViewById(R.id.imageGradientBlack);
+        this.gradientWhite = findViewById(R.id.imageGradientWhite);
         this.gcFlagView = findViewById(R.id.grandcompanyFlag);
         this.gcMaelProgressBarView = findViewById(R.id.grandcompanyMaelProgressbar);
         this.gcAdderProgressBarView = findViewById(R.id.grandcompanyAdderProgressbar);
         this.gcFlamesProgressBarView = findViewById(R.id.grandcompanyFlamesProgressbar);
+    }
 
-        FreeCompanyDbHelper dbHelper = new FreeCompanyDbHelper(getApplicationContext());
-        SQLiteDatabase database = dbHelper.getReadableDatabase();
+    @Override
+    protected void onRestart()
+    {
+        super.onRestart();
 
-        this.freeCompany = new FreeCompany(database, 0);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        if(sharedPref.getBoolean("nightmode", false))
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        else
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
     }
 
     @Override
     public void onStart()
     {
         super.onStart();
+
+        FreeCompanyDbHelper dbHelper = new FreeCompanyDbHelper(getApplicationContext());
+        SQLiteDatabase database = dbHelper.getReadableDatabase();
+        this.freeCompany = new FreeCompany(database, 0);
+
+        if(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
+            this.gradientBlack.setVisibility(View.VISIBLE);
+        else
+            this.gradientWhite.setVisibility(View.VISIBLE);
 
         hideGcProgressBars();
 
@@ -203,6 +229,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings)
         {
+            startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
             return true;
         }
 

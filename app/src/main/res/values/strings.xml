@@ -8,7 +8,8 @@
     <string name="nav_header_title">Modestie App</string>
     <string name="nav_header_subtitle">www.modestie.fr</string>
     <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">Paramètres</string>
+    <string name="action_night_mode">Mode nuit</string>
 
     <string name="free_company_name">Compagnie</string>
     <string name="free_company_sigle">«Sigle»</string>
@@ -71,7 +72,8 @@
     <string name="action_refresh">Rafraichir</string>
 
     <!-- NEW EVENT ACTIVITY -->
-    <string name="title_new_event_activity">Nouvel événement</string>
+    <string name="title_new_event_activity">Nouvel événement (preview)</string>
+    <string name="action_save_event">Enregistrer</string>
 
     <string name="form_required">*requis</string>
     <string name="form_event_name">Nom de l\'événement</string>
@@ -79,5 +81,30 @@
     <string name="form_event_date_helper">jj/mm/aaaa *requis</string>
     <string name="form_event_hour">Heure</string>
     <string name="form_event_description">Description</string>
+
+    <string name="button_add_price">Ajouter un prix</string>
+    <string name="action_delete_price">Supprimer</string>
+
+    <!-- PREFERENCES ACTIVITY -->
+    <string name="title_settings_activity">Paramètres</string>
+    <!-- Preference Titles -->
+    <string name="appearance_header">Apparence</string>
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Appearance Preferences -->
+    <string name="nightmode_title">Mode nuit</string>
+    <string name="nightmode_summary">Utiliser le thème sombre, adapté pour une utilisation dans des environnements où la lumière est faible</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
 
 </resources>

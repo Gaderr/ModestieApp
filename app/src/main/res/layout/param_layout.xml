@@ -16,6 +16,7 @@
         android:fontFamily="@font/miedinger_regular"
         android:textSize="13sp"
         android:textStyle="bold"
+        android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/paramValue"
         app:layout_constraintStart_toStartOf="parent"
@@ -37,6 +38,7 @@
         android:fontFamily="@font/miedinger_regular"
         android:letterSpacing="0.075"
         android:textSize="13sp"
+        android:textColor="#FFFFFF"
         app:layout_constraintBaseline_toBaselineOf="@+id/paramLabel"
         app:layout_constraintEnd_toEndOf="parent" />
 

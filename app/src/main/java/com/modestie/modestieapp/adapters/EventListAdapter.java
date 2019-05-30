@@ -1,12 +1,13 @@
 package com.modestie.modestieapp.adapters;
 
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.AnimatedVectorDrawable;
+
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.recyclerview.widget.RecyclerView;
@@ -47,7 +48,6 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
     // This class provide a reference to the views for each data item
     public static class EventListCardViewHolder extends RecyclerView.ViewHolder
     {
-        // each data item is just a string in this case
         View v;
         TextView title;
         TextView promoter;
@@ -61,12 +61,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         ImageView participationCheck;
         TextView participationText;
 
-        AnimatorSet animatorSetExpandMore;
-        AnimatorSet animatorSetExpandLess;
-        ObjectAnimator animationExpandMore;
-        ObjectAnimator animationExpandLess;
         boolean expanded;
-
         int userID;
         boolean participation;
 
@@ -84,16 +79,15 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
             this.participationCheck = v.findViewById(R.id.participationCheck);
             this.participationText = v.findViewById(R.id.participationText);
 
+            if(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
+            {
+                this.participationCheck.setColorFilter(v.getResources().getColor(R.color.colorValidateLight));
+                this.participationText.setTextColor(v.getResources().getColor(R.color.colorValidateLight));
+            }
+
             this.expand = v.findViewById(R.id.expand);
             this.action = v.findViewById(R.id.actionBtn);
             this.expanded = false;
-
-            this.animatorSetExpandMore = new AnimatorSet();
-            this.animatorSetExpandLess = new AnimatorSet();
-            this.animationExpandLess = ObjectAnimator.ofFloat(this.expand, "rotation", 180f).setDuration(100);
-            this.animationExpandMore = ObjectAnimator.ofFloat(this.expand, "rotation", -180f).setDuration(100);
-            this.animatorSetExpandMore.play(animationExpandMore);
-            this.animatorSetExpandLess.play(animationExpandLess);
 
             this.userID = 11148489;
             this.participation = false;
@@ -169,7 +163,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
 
         //Date
         Date eventTime = new Date(event.getEventEpochTime() * 1000);
-        SimpleDateFormat eventDateFormat = new SimpleDateFormat("d MMMM YYYY", Locale.FRANCE);
+        SimpleDateFormat eventDateFormat = new SimpleDateFormat("dd MMMM yyyy", Locale.FRANCE);
         SimpleDateFormat eventTimeFormat = new SimpleDateFormat("HH:mm", Locale.FRANCE);
         holder.date.setText(String.format(Locale.FRANCE, "Le %s à %s", eventDateFormat.format(eventTime), eventTimeFormat.format(eventTime)));
 
@@ -257,16 +251,12 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
     {
         if (holder.participation)
         {
-            //holder.action.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorEventCancelParticipation)));
-            //holder.action.setTextColor(ContextCompat.getColor(context, R.color.colorOnBackground));
             holder.action.setText(R.string.button_cancel_participation);
             holder.participationCheck.setVisibility(View.VISIBLE);
             holder.participationText.setVisibility(View.VISIBLE);
         }
         else
         {
-            //holder.action.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorOnBackground)));
-            //holder.action.setTextColor(ContextCompat.getColor(context, R.color.colorPrimary));
             holder.action.setText(R.string.button_participate);
             holder.participationCheck.setVisibility(View.INVISIBLE);
             holder.participationText.setVisibility(View.INVISIBLE);

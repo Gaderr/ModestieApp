@@ -25,7 +25,8 @@
         android:fontFamily="@font/jupiter_pro"
         android:text="Modestie\nApp"
         android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display2"
+        android:textAppearance="@style/TextAppearance.ModestieTheme.Headline3"
+        android:textColor="@color/color_on_background"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/crest" />
@@ -38,14 +39,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textAppName"
-        app:srcCompat="@drawable/ic_touch_app_white_24dp" />
+        app:srcCompat="@drawable/ic_touch_app_24dp" />
 
     <ProgressBar
         android:id="@+id/progressBar"
         style="@style/Widget.AppCompat.ProgressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:indeterminateTint="@color/colorSecondary"
+        android:indeterminateTint="@color/color_secondary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
