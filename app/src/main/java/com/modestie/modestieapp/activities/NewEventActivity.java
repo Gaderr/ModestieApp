@@ -10,7 +10,6 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -21,11 +20,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.modestie.modestieapp.R;
@@ -37,11 +36,15 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
 
+import static java.security.AccessController.getContext;
+
 public class NewEventActivity extends AppCompatActivity
 {
     private static TextInputLayout formEventName;
     private static TextInputLayout formEventDate;
     private static TextInputLayout formEventTime;
+    private static TextInputLayout formEventMaxParticipants;
+    private static AutoCompleteTextView formEventMaxParticipantsType;
 
     private Button newPrice;
 
@@ -62,6 +65,8 @@ public class NewEventActivity extends AppCompatActivity
         formEventName = findViewById(R.id.FormEventName);
         formEventDate = findViewById(R.id.FormEventDate);
         formEventTime = findViewById(R.id.FormEventTime);
+        formEventMaxParticipants = findViewById(R.id.FormMaxParticipants);
+        formEventMaxParticipantsType = findViewById(R.id.FormMaxParticipantsType);
         newPrice = findViewById(R.id.addPriceButton);
 
         today = true;
@@ -246,6 +251,12 @@ public class NewEventActivity extends AppCompatActivity
                 }
             }
         });
+
+        String[] MAXPARTSTYPE = new String[] {"Illimitées", "Limitées"};
+
+        final ArrayAdapter adapter = new ArrayAdapter<>(this, R.layout.dropdown_menu_popup_item, MAXPARTSTYPE);
+
+        formEventMaxParticipantsType.setAdapter(adapter);
 
         newPrice.setOnClickListener(v ->
             {

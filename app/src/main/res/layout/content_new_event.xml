@@ -77,6 +77,50 @@
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/FormMaxParticipants"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:hint="@string/form_event_max_participants"
+                android:layout_weight="1"
+                app:helperText="@string/form_required">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1.25"
+                android:hint="@string/form_event_max_participants_type"
+                app:helperText="@string/form_required">
+
+                <AutoCompleteTextView
+                    android:id="@+id/FormMaxParticipantsType"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Illimitées"
+                    android:editable="false"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/FormEventDescription"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
