@@ -83,23 +83,24 @@ public class EventListActivity extends AppCompatActivity
         ArrayList<Integer> participants2 = (ArrayList<Integer>) participants.clone();
         ArrayList<Integer> participants3 = (ArrayList<Integer>) participants.clone();
         ArrayList<Integer> participants4 = (ArrayList<Integer>) participants.clone();
+        participants3.add(11148489);
         participants4.add(11148489);
 
         //https://img.finalfantasyxiv.com/lds/promo/h/T/1dnML8rMAkaWePJz0AZsY9Vf18.jpg
 
         ArrayList<Event> events = new ArrayList<>();
-        events.add(new Event(
+        /*events.add(new Event(
                 "Top des tops",
                 6655397,
                 1559390400L,
                 "https://cdn.discordapp.com/attachments/503700802242609162/580093259007787008/tdtr.png",
-                "Ca y est, Shadow Bringer arrive et l'été est avec lui. Jamais deux sans trois, le top des tops fête aussi son grand retour. \n\n" +
+                "Ca y est, Shadow Bringer arrive et l'été est avec lui. Jamais deux sans trois, le top des tops fête aussi son grand retour.\n\n" +
                 "Immanquablement, toute cette hype, toute cette tension et toute cette chaleur provoquent des réactions chimiques, souvent prétextes à des " +
                         "manifestations douteuses. Mais pas ici, nous continuerons à réagir aux stimulis modestement. Je profite donc de l'éveil de nos sens, " +
                         "pour vous proposer cette fois-çi, un concours de screenshot incroyable, qui mettra à l'épreuve votre sens de l'observation et l'ardeur " +
                         "de vos désirs.\n\nMoult goudizes à gagner, dignes d'une arnaque moldave !",
                 20,
-                participants));
+                participants));*/
 
         events.add(new Event(
                 "Banco Bingo",
@@ -108,7 +109,8 @@ public class EventListActivity extends AppCompatActivity
                 "https://xivapi.com/img-misc/061643.png",
                 null,
                 -1,
-                participants4));
+                participants4,
+                new ArrayList<>()));
 
         events.add(new Event(
                 "Modeste booty contest",
@@ -117,16 +119,18 @@ public class EventListActivity extends AppCompatActivity
                 null,
                 "Statut «Modeste booty» à la clé !",
                 10,
-                participants2));
+                participants2,
+                new ArrayList<>()));
 
         events.add(new Event(
-                "Practice O12S",
-                6655397,
+                "Practice O12S",+
+                11148489,
                 1558634400L,
                 "https://i.ytimg.com/vi/RxfoGKxNzb0/maxresdefault.jpg",
                 "\"SORTEZ-VOUS LES DOIGTS DU CUUUUUUUUUUUL !\" A dit un grand homme. Marchons dans sa lumière.",
                 8,
-                participants3));
+                participants3,
+                new ArrayList<>()));
 
         Collections.sort(events, Event.EventDateComparator);
 

@@ -2,9 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/save_event"
+        android:id="@+id/editPrice"
+        android:title="Modifier"
         android:orderInCategory="100"
-        android:title="@string/action_save_event"
-        android:icon="@drawable/ic_check_24dp"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/deletePrice"
+        android:title="Supprimer"
+        android:orderInCategory="101"
+        app:showAsAction="ifRoom"/>
 </menu>

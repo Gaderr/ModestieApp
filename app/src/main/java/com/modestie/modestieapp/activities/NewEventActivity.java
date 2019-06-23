@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.util.Pair;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -28,15 +30,21 @@ import android.widget.Toast;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.modestie.modestieapp.R;
+import com.modestie.modestieapp.adapters.EventPriceAdapter;
+import com.modestie.modestieapp.model.event.Event;
+import com.modestie.modestieapp.model.event.EventPrice;
+import com.woxthebox.draglistview.DragListView;
+import com.woxthebox.draglistview.swipe.ListSwipeHelper;
+import com.woxthebox.draglistview.swipe.ListSwipeItem;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
-
-import static java.security.AccessController.getContext;
 
 public class NewEventActivity extends AppCompatActivity
 {
@@ -46,11 +54,20 @@ public class NewEventActivity extends AppCompatActivity
     private static TextInputLayout formEventMaxParticipants;
     private static AutoCompleteTextView formEventMaxParticipantsType;
 
+    private DragListView pricesList;
+    private EventPriceAdapter adapter;
+    private EventPriceOptionsModal priceBottomModal;
+
     private Button newPrice;
+
+    private Event event;
+    private ArrayList<Pair<Long, EventPrice>> listPrices;
+
+    private int count = 0;
 
     private boolean today;
 
-    public static final String TAG = "ACTVT.NWEVNT";
+    public static final String TAG = "ACTVT.NEWEVNT";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -67,8 +84,14 @@ public class NewEventActivity extends AppCompatActivity
         formEventTime = findViewById(R.id.FormEventTime);
         formEventMaxParticipants = findViewById(R.id.FormMaxParticipants);
         formEventMaxParticipantsType = findViewById(R.id.FormMaxParticipantsType);
+
+        pricesList = findViewById(R.id.PricesLayout);
+
         newPrice = findViewById(R.id.addPriceButton);
 
+        event = new Event();
+
+        //Event date field
         today = true;
 
         final Calendar c = Calendar.getInstance(Locale.FRANCE);
@@ -177,6 +200,7 @@ public class NewEventActivity extends AppCompatActivity
             }
         });
 
+        //Event time field
         TimePickerDialog timePickerDialog = new TimePickerDialog(this,
             R.style.ThemeOverlay_ModestieTheme_Dialog,
             (view, pickedHour, pickedMinute) ->
@@ -252,29 +276,54 @@ public class NewEventActivity extends AppCompatActivity
             }
         });
 
-        String[] MAXPARTSTYPE = new String[] {"Illimitées", "Limitées"};
+        //Participations type dropdown
+        String[] MAXPARTSTYPE = new String[] {getString(R.string.form_participations_type_0), getString(R.string.form_participations_type_1)};
+        final ArrayAdapter newPriceTypeAdapter = new ArrayAdapter<>(this, R.layout.dropdown_menu_popup_item, MAXPARTSTYPE);
+        formEventMaxParticipantsType.setAdapter(newPriceTypeAdapter);
 
-        final ArrayAdapter adapter = new ArrayAdapter<>(this, R.layout.dropdown_menu_popup_item, MAXPARTSTYPE);
+        //Prices
 
-        formEventMaxParticipantsType.setAdapter(adapter);
+        this.listPrices = new ArrayList<>();
+        this.adapter = new EventPriceAdapter(this.listPrices, false, this.event, this);
 
-        newPrice.setOnClickListener(v ->
+        this.pricesList.getRecyclerView().setHorizontalScrollBarEnabled(false);
+        this.pricesList.setScrollingEnabled(false);
+        this.pricesList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        this.pricesList.setAdapter(this.adapter, true);
+        this.pricesList.setCanDragHorizontally(false);
+
+        //New price button
+        this.newPrice.setOnClickListener(v ->
             {
                 PopupMenu popup = new PopupMenu(this, v);
                 popup.setOnMenuItemClickListener(item ->
                     {
+                        EventPrice newPrice = null;
+
                         switch (item.getItemId())
                         {
                             case R.id.itemPrice:
-                                createSnackbar("En cours de développpement");
-                                return true;
+                                newPrice = new EventPrice(0, 1, 0, 2, "Éclat de feu", "https://xivapi.com/i/020000/020001.png", 0);
+                                break;
 
                             case R.id.gilsPrice:
-                                createSnackbar("En cours de développpement");
-                                return true;
+                                newPrice = new EventPrice(0, 0, 0, -1, "", "", 0);
+                                newPrice.setItemIconURL("https://xivapi.com/i/065000/065002.png");
+                                break;
 
                             default:
-                                return true;
+                                break;
+                        }
+
+                        if(newPrice != null)
+                        {
+                            listPrices.add(new Pair<>((long) ++count, newPrice));
+                            adapter.notifyDataSetChanged();
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
                         }
                     });
                 popup.getMenuInflater().inflate(R.menu.new_event_selection_menu, popup.getMenu());
@@ -319,17 +368,16 @@ public class NewEventActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.save_event)
         {
-            createSnackbar("En cours de développpement");
+            snackbar("En cours de développement");
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    public void createSnackbar(String text)
+    public void snackbar(String text)
     {
-        Snackbar.make(findViewById(R.id.context_view), text, Snackbar.LENGTH_LONG)
-                .show();
+        Snackbar.make(findViewById(R.id.context_view), text, Snackbar.LENGTH_LONG).show();
     }
 
     //TODO Override up action to confirm cancelling

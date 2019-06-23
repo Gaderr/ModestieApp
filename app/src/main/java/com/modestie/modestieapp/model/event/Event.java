@@ -2,7 +2,13 @@ package com.modestie.modestieapp.model.event;
 
 import android.util.Log;
 
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 
 public class Event
@@ -14,12 +20,27 @@ public class Event
     private String description;
     private int maxParticipants;
     private ArrayList<Integer> participantsIDs;
+    private ArrayList<EventPrice> prices;
 
     public static Comparator<Event> EventDateComparator = (e1, e2) -> Long.compare(e1.getEventEpochTime(), e2.getEventEpochTime());
 
+    public static Comparator<EventPrice> PriceDegreeComparator = (e1, e2) -> Integer.compare(e1.getPriceRewardDegree(), e2.getPriceRewardDegree());
+
     public static final String TAG = "MODL.EVENT";
 
-    public Event(String name, int promoterID, Long eventEpochTime, String imageURL, String description, int maxParticipants, ArrayList<Integer> participantsIDs)
+    public Event()
+    {
+        this.name = "";
+        this.promoterID = 0;
+        this.eventEpochTime = 0L;
+        this.imageURL = "";
+        this.description = "";
+        this.maxParticipants = 0;
+        this.participantsIDs = new ArrayList<>();
+        this.prices = new ArrayList<>();
+    }
+
+    public Event(String name, int promoterID, Long eventEpochTime, String imageURL, String description, int maxParticipants, ArrayList<Integer> participantsIDs, ArrayList<EventPrice> prices)
     {
         this.name = name;
         this.promoterID = promoterID;
@@ -28,7 +49,109 @@ public class Event
         this.description = description;
         this.maxParticipants = maxParticipants;
         this.participantsIDs = participantsIDs;
+        this.prices = prices;
     }
+
+    public Event(@NotNull JSONObject obj)
+    {
+        try
+        {
+            JSONObject event = obj.getJSONObject("Event");
+            JSONArray participants = obj.getJSONArray("Participants");
+            JSONArray prices = obj.getJSONArray("Prices");
+
+            this.name = event.getString("eventName");
+            this.promoterID = Integer.parseInt(obj.getString("promoterID"));
+            this.eventEpochTime = Long.parseLong(obj.getString("eventEPOCH"));
+            this.imageURL = obj.getString("image_url");
+            this.description = obj.getString("description");
+            this.maxParticipants = Integer.parseInt("maxParticipants");
+
+            this.participantsIDs = new ArrayList<>();
+            for(int i = 0; i < participants.length(); i++)
+            {
+                this.participantsIDs.add(Integer.parseInt(participants.getJSONObject(i).getString("participantID")));
+            }
+
+            this.prices = new ArrayList<>();
+            for(int i = 0; i < prices.length(); i++)
+            {
+                this.prices.add(new EventPrice(prices.getJSONObject(i)));
+            }
+        }
+        catch (JSONException e)
+        {
+            Log.e(TAG, e.getLocalizedMessage());
+        }
+    }
+
+    /*
+        METHODS
+     */
+
+    /**
+     * Adds a blank price into this event with the given degree reward. If a reward with the given
+     * degree already exists, it returns a false result and true if not.
+     * @param degree Price degree
+     * @param priceType Price type, 0 = gils, other = item;
+     * @return Add result
+     */
+    public Boolean addPrice(int degree, int priceType)
+    {
+        for(int i = 0; i < this.prices.size(); i++)
+        {
+            if(this.prices.get(i).getPriceRewardDegree() == degree)
+            {
+                return false;
+            }
+        }
+
+        this.prices.add(new EventPrice(0, priceType, degree, -1, "", "", 0));
+        Collections.sort(this.prices, PriceDegreeComparator);
+
+        return true;
+    }
+
+    public Boolean removePrice(int degree)
+    {
+        boolean removed = false;
+        for(int i = 0; i < this.prices.size(); i++)
+        {
+            if(this.prices.get(i).getPriceRewardDegree() == degree)
+            {
+                this.prices.remove(i);
+                removed = true;
+                break;
+            }
+        }
+
+        if(removed) Collections.sort(this.prices, PriceDegreeComparator);
+
+        return removed;
+    }
+
+    public void reattributeDegrees()
+    {
+        for(int i = 0; i < this.prices.size(); i++)
+        {
+            this.prices.get(i).setPriceRewardDegree(i + 1);
+        }
+    }
+
+    public String pricesToString()
+    {
+        StringBuilder s = new StringBuilder();
+        s.append("Prices : \n");
+        for (EventPrice price: prices)
+        {
+            s.append(price.priceToString() + "\n");
+        }
+        return s.toString();
+    }
+
+    /*
+        GETTERS & SETTERS
+     */
 
     public String getName()
     {
@@ -98,6 +221,16 @@ public class Event
     public void setParticipantsIDs(ArrayList<Integer> participantsIDs)
     {
         this.participantsIDs = participantsIDs;
+    }
+
+    public ArrayList<EventPrice> getPrices()
+    {
+        return prices;
+    }
+
+    public void setPrices(ArrayList<EventPrice> prices)
+    {
+        this.prices = prices;
     }
 
     public void removeParticipant(Integer ID)

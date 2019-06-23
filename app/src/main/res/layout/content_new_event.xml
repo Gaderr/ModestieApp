@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
+    android:scrollbarAlwaysDrawVerticalTrack="true"
+    android:scrollbars="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".activities.NewEventActivity"
-    tools:showIn="@layout/activity_new_event"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    tools:showIn="@layout/activity_new_event">
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/FormEventName"
@@ -21,14 +23,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/form_event_name"
-            app:helperText="@string/form_required"
+            app:endIconDrawable="@drawable/ic_clear_24dp"
             app:endIconMode="clear_text"
-            app:endIconDrawable="@drawable/ic_clear_24dp">
+            app:helperText="@string/form_required">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:lines="1"/>
+                android:lines="1" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -44,15 +46,15 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
-                android:hint="@string/form_event_date"
                 android:layout_weight="1"
-                app:startIconDrawable="@drawable/ic_event_24dp"
-                app:helperText="@string/form_required">
+                android:hint="@string/form_event_date"
+                app:helperText="@string/form_required"
+                app:startIconDrawable="@drawable/ic_event_24dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="date"/>
+                    android:inputType="date" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -61,17 +63,17 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:layout_marginStart="8dp"
-                android:hint="@string/form_event_hour"
+                android:layout_marginTop="8dp"
                 android:layout_weight="1.25"
-                app:startIconDrawable="@drawable/ic_alarm_24dp"
-                app:helperText="@string/form_required">
+                android:hint="@string/form_event_hour"
+                app:helperText="@string/form_required"
+                app:startIconDrawable="@drawable/ic_alarm_24dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="time"/>
+                    android:inputType="time" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -89,14 +91,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
-                android:hint="@string/form_event_max_participants"
                 android:layout_weight="1"
+                android:hint="@string/form_event_max_participants"
                 app:helperText="@string/form_required">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="number"/>
+                    android:inputType="number" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -104,8 +106,8 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
                 android:layout_weight="1.25"
                 android:hint="@string/form_event_max_participants_type"
                 app:helperText="@string/form_required">
@@ -114,8 +116,8 @@
                     android:id="@+id/FormMaxParticipantsType"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Illimitées"
-                    android:editable="false"/>
+                    android:editable="false"
+                    android:text="@string/form_participations_type_0" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -129,8 +131,8 @@
             android:layout_marginTop="8dp"
             android:hint="@string/form_event_description"
             android:textCursorDrawable="@null"
-            app:endIconMode="clear_text"
-            app:endIconDrawable="@drawable/ic_clear_24dp">
+            app:endIconDrawable="@drawable/ic_clear_24dp"
+            app:endIconMode="clear_text">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -139,20 +141,21 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:id="@+id/pricesLayout"
+        <com.woxthebox.draglistview.DragListView
+            android:id="@+id/PricesLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-        </androidx.appcompat.widget.LinearLayoutCompat>
+            android:layout_marginTop="16dp"
+            android:orientation="vertical"
+            android:animateLayoutChanges="true" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/addPriceButton"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/button_add_price"
-            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"/>
+            android:layout_marginTop="16dp"
+            android:text="@string/button_add_price" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
