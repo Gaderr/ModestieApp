@@ -89,6 +89,19 @@
     <string name="button_add_price">Ajouter un prix</string>
     <string name="action_delete_price">Supprimer</string>
 
+    <string name="title_edit_price_dialogfrag">Modification du prix</string>
+    <string name="price_type_radiogroup_label">Type de récompense</string>
+    <string name="gils_price_type">Gils</string>
+    <string name="item_price_type">Item</string>
+    <string name="price_attributes_label">Attributs</string>
+    <string name="attribute_item_field_label">Item</string>
+    <string name="attribute_quantity_field_label">Quantité</string>
+
+    <string name="item_search_field_label">Recherche</string>
+    <string name="item_search_placeholder_instruction">Effectuez une recherche d\'item dans le champ ci-dessus</string>
+    <string name="item_search_placeholder_no_result">Aucun résultat</string>
+    <string name="item_search_placeholder_error">Échec de la récupération des données</string>
+
     <!-- PREFERENCES ACTIVITY -->
     <string name="title_settings_activity">Paramètres</string>
     <!-- Preference Titles -->

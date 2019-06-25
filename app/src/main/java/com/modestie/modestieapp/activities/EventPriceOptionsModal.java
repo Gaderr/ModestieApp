@@ -1,5 +1,6 @@
 package com.modestie.modestieapp.activities;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +10,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -18,11 +20,15 @@ import com.modestie.modestieapp.adapters.EventPriceAdapter;
 public class EventPriceOptionsModal extends BottomSheetDialogFragment
 {
     private EventPriceAdapter adapter;
+    private Context context;
     private int itemPosition;
 
-    public EventPriceOptionsModal(EventPriceAdapter adapter, int position)
+    private static final String TAG = "ACTVT.EVNTPRCEOPTMODAL";
+
+    public EventPriceOptionsModal(EventPriceAdapter adapter, Context context, int position)
     {
         this.adapter = adapter;
+        this.context = context;
         this.itemPosition = position;
     }
 
@@ -38,6 +44,16 @@ public class EventPriceOptionsModal extends BottomSheetDialogFragment
     {
         ConstraintLayout editLayout = view.findViewById(R.id.optionEdit);
         ConstraintLayout deleteLayout = view.findViewById(R.id.optionDelete);
+
+        editLayout.setOnClickListener(v ->
+            {
+                //Log.e(TAG, itemPosition+"");
+                Bundle bundle = adapter.dataset.get(itemPosition).second.toBundle();
+                bundle.putInt("position", itemPosition);
+                //((NewEventActivity) getContext()).editPriceFragment(bundle);
+                EventPriceEditDialogFragment.display(((AppCompatActivity) getContext()).getSupportFragmentManager(), bundle);
+                dismiss();
+            });
 
         deleteLayout.setOnClickListener(v ->
             {

@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.util.Pair;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.annotation.SuppressLint;
@@ -33,20 +34,23 @@ import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.adapters.EventPriceAdapter;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.event.EventPrice;
+import com.modestie.modestieapp.model.item.LightItem;
 import com.woxthebox.draglistview.DragListView;
-import com.woxthebox.draglistview.swipe.ListSwipeHelper;
-import com.woxthebox.draglistview.swipe.ListSwipeItem;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
 
-public class NewEventActivity extends AppCompatActivity
+public class NewEventActivity
+        extends AppCompatActivity
+        implements EventPriceEditDialogFragment.OnFragmentInteractionListener,
+        ItemSelectionDialogFragment.OnItemSelectedListener
 {
     private static TextInputLayout formEventName;
     private static TextInputLayout formEventDate;
@@ -249,7 +253,7 @@ public class NewEventActivity extends AppCompatActivity
                 int sMinute = Integer.parseInt(s.toString().substring(3, 5));
                 long sSeconds = sHour * 3600 + sMinute * 60;
 
-                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+                @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
                 final String currentTime = sdf.format(Calendar.getInstance().getTime());
                 int cHour = Integer.parseInt(currentTime.subSequence(0, 2).toString());
                 int cMinute = Integer.parseInt(currentTime.subSequence(3, 5).toString());
@@ -303,12 +307,11 @@ public class NewEventActivity extends AppCompatActivity
                         switch (item.getItemId())
                         {
                             case R.id.itemPrice:
-                                newPrice = new EventPrice(0, 1, 0, 2, "Éclat de feu", "https://xivapi.com/i/020000/020001.png", 0);
+                                newPrice = new EventPrice(0, 0, 2, "Éclat de feu", "https://xivapi.com/i/020000/020001.png", 1);
                                 break;
 
                             case R.id.gilsPrice:
-                                newPrice = new EventPrice(0, 0, 0, -1, "", "", 0);
-                                newPrice.setItemIconURL("https://xivapi.com/i/065000/065002.png");
+                                newPrice = new EventPrice(0, 0, 1, "Gil", "https://xivapi.com/i/065000/065002.png", 100000);
                                 break;
 
                             default:
@@ -355,6 +358,35 @@ public class NewEventActivity extends AppCompatActivity
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.new_event_bar_menu, menu);
         return true;
+    }
+
+    @Override
+    public void onAttachFragment(@NotNull Fragment fragment)
+    {
+        if (fragment instanceof EventPriceEditDialogFragment)
+        {
+            EventPriceEditDialogFragment dialogFragment = (EventPriceEditDialogFragment) fragment;
+            dialogFragment.setOnFragmentInteractionListener(this);
+        }
+        if (fragment instanceof ItemSelectionDialogFragment)
+        {
+            ItemSelectionDialogFragment dialogFragment = (ItemSelectionDialogFragment) fragment;
+            dialogFragment.setOnItemSelectedListener(this);
+        }
+    }
+
+    @Override
+    public void onFragmentInteraction(EventPrice editedPrice, int position)
+    {
+
+    }
+
+    @Override
+    public void OnItemSelectedListener(LightItem item)
+    {
+        EventPriceEditDialogFragment fragment = (EventPriceEditDialogFragment) getSupportFragmentManager().findFragmentByTag(EventPriceEditDialogFragment.TAG);
+        assert fragment != null;
+        fragment.updatePriceItem(item);
     }
 
     @Override

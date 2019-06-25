@@ -1,8 +1,8 @@
 package com.modestie.modestieapp.model.event;
 
+import android.os.Bundle;
 import android.util.Log;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -11,31 +11,20 @@ public class EventPrice
     private static final String TAG = "XIVAPI.EVN.EVNTPRCE";
 
     private int eventID;
-    private int priceType;
     private int priceRewardDegree;
     private int itemID;
     private String itemName;
     private String itemIconURL;
-    private int gilsAmount;
+    private int amount;
 
-    public EventPrice(int eventID, int priceType, int priceRewardDegree, int itemID, String itemName, String iconURL, int gilsAmount)
+    public EventPrice(int eventID, int priceRewardDegree, int itemID, String itemName, String iconURL, int amount)
     {
         this.eventID = eventID;
-        this.priceType = priceType;
         this.priceRewardDegree = priceRewardDegree;
         this.itemIconURL = iconURL;
-        if(this.priceType == 0)
-        {
-            this.itemID = -1;
-            this.itemName = "";
-            this.gilsAmount = gilsAmount;
-        }
-        else
-        {
-            this.itemID = itemID;
-            this.itemName = itemName;
-            this.gilsAmount = 0;
-        }
+        this.itemID = itemID;
+        this.itemName = itemName;
+        this.amount = amount;
     }
 
     public EventPrice(JSONObject obj)
@@ -43,21 +32,11 @@ public class EventPrice
         try
         {
             this.eventID = Integer.parseInt(obj.getString("eventID"));
-            this.priceType = Integer.parseInt(obj.getString("priceType"));
             this.priceRewardDegree = Integer.parseInt(obj.getString("priceRewardDegree"));
-            if(this.priceType == 0)
-            {
-                this.itemID = -1;
-                this.itemName = "";
-                this.gilsAmount = Integer.parseInt(obj.getString("gilsAmount"));
-            }
-            else
-            {
-                this.itemID = Integer.parseInt(obj.getString("itemID"));
-                this.itemName = obj.getString("itemName");
-                this.gilsAmount = 0;
-            }
+            this.itemID = Integer.parseInt(obj.getString("itemID"));
+            this.itemName = obj.getString("itemName");
             this.itemIconURL = obj.getString("itemIconURL");
+            this.amount = obj.getInt("amount");
         }
         catch (JSONException e)
         {
@@ -65,12 +44,31 @@ public class EventPrice
         }
     }
 
+    public EventPrice(Bundle attrs)
+    {
+        this.eventID = attrs.getInt("eventID");
+        this.priceRewardDegree = attrs.getInt("priceRewardDegree");
+        this.itemID = attrs.getInt("itemID");
+        this.itemName = attrs.getString("itemName");
+        this.itemIconURL = attrs.getString("itemIconURL");
+        this.amount = attrs.getInt("amount");
+    }
+
+    public Bundle toBundle()
+    {
+        Bundle attrs = new Bundle();
+        attrs.putInt("eventID", this.eventID);
+        attrs.putInt("priceRewardDegree", this.priceRewardDegree);
+        attrs.putInt("itemID", this.itemID);
+        attrs.putString("itemName", this.itemName);
+        attrs.putString("itemIconURL", this.itemIconURL);
+        attrs.putInt("amount", this.amount);
+        return attrs;
+    }
+
     public String priceToString()
     {
-        if(this.priceType == 0)
-            return this.gilsAmount + "";
-        else
-            return this.itemName;
+        return this.itemName + " x" + this.amount;
     }
 
     public int getEventID()
@@ -81,16 +79,6 @@ public class EventPrice
     public void setEventID(int eventID)
     {
         this.eventID = eventID;
-    }
-
-    public int getPriceType()
-    {
-        return priceType;
-    }
-
-    public void setPriceType(int priceType)
-    {
-        this.priceType = priceType;
     }
 
     public int getPriceRewardDegree()
@@ -133,13 +121,13 @@ public class EventPrice
         this.itemIconURL = itemIconURL;
     }
 
-    public int getGilsAmount()
+    public int getAmount()
     {
-        return gilsAmount;
+        return amount;
     }
 
-    public void setGilsAmount(int gilsAmount)
+    public void setAmount(int amount)
     {
-        this.gilsAmount = gilsAmount;
+        this.amount = amount;
     }
 }

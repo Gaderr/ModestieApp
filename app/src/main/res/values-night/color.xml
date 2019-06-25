@@ -10,7 +10,9 @@
     <color name="color_secondary_variant">#caae53</color>
 
     <color name="color_background">#232732</color>
+    <color name="color_background_dimmed">#40232732</color>
     <color name="color_surface">#4b4f5b</color>
+    <color name="color_surface_dimmed">#404b4f5b</color>
     <color name="color_error">#cf6679</color>
 
     <color name="color_on_primary">#000000</color>

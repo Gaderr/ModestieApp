@@ -106,7 +106,7 @@ public class Event
             }
         }
 
-        this.prices.add(new EventPrice(0, priceType, degree, -1, "", "", 0));
+        this.prices.add(new EventPrice(0, 0, 1, "Gil", "https://xivapi.com/i/065000/065002.png", 100000));
         Collections.sort(this.prices, PriceDegreeComparator);
 
         return true;

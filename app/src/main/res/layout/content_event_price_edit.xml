@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbarAlwaysDrawVerticalTrack="true"
+    android:scrollbars="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".activities.EventPriceEditDialogFragment"
+    tools:showIn="@layout/dialog_event_price_edit"
+    android:theme="@style/ModestieTheme.DayNight">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/price_type_radiogroup_label"
+            android:paddingBottom="12dp"
+            style="@style/TextAppearance.ModestieTheme.Body1"/>
+
+        <RadioGroup
+            android:id="@+id/selectPriceTypeGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkedButton="@+id/selectGilsType"
+            android:orientation="vertical"
+            app:useMaterialThemeColors="false">
+            <RadioButton
+                android:id="@+id/selectGilsType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gils_price_type"
+                style="@style/Widget.MaterialComponents.CompoundButton.RadioButton"/>
+            <RadioButton
+                android:id="@+id/selectItemType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/item_price_type"
+                style="@style/Widget.MaterialComponents.CompoundButton.RadioButton"/>
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/price_attributes_label"
+            android:paddingTop="16dp"
+            android:paddingBottom="12dp"
+            style="@style/TextAppearance.ModestieTheme.Body1"/>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/priceIcon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="10dp"
+                android:scaleType="center"
+                android:src="@color/color_on_background"
+                app:riv_border_width="0dp"
+                app:riv_corner_radius="3dp"
+                app:riv_oval="false"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/fieldItemName"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/attribute_item_field_label">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/fieldItemQuantity"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="@string/attribute_quantity_field_label">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:lines="1" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</androidx.core.widget.NestedScrollView>

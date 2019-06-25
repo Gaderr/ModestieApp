@@ -44,7 +44,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
     private ArrayList<Event> events;
     private Map<Integer, FreeCompanyMember> members;
 
-    public static final String TAG = "ACTVT.EVNTLSTADPTR";
+    public static final String TAG = "ADPTR.EVENTLIST";
 
     // This class provide a reference to the views for each data item
     public static class EventListCardViewHolder extends RecyclerView.ViewHolder
@@ -66,7 +66,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         int userID;
         boolean participation;
 
-        public EventListCardViewHolder(View v)
+        public EventListCardViewHolder(View v, Context context)
         {
             super(v);
             this.v = v;
@@ -82,8 +82,8 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
 
             if(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
             {
-                this.participationCheck.setColorFilter(v.getResources().getColor(R.color.colorValidateLight));
-                this.participationText.setTextColor(v.getResources().getColor(R.color.colorValidateLight));
+                this.participationCheck.setColorFilter(context.getColor(R.color.colorValidateLight));
+                this.participationText.setTextColor(context.getColor(R.color.colorValidateLight));
             }
 
             this.expand = v.findViewById(R.id.expand);
@@ -128,7 +128,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         // create a new view
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.event_card, parent, false);
 
-        return new EventListCardViewHolder(v);
+        return new EventListCardViewHolder(v, this.context);
     }
 
     // Replace the contents of a view (invoked by the layout manager)

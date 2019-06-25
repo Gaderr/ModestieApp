@@ -1,6 +1,5 @@
 package com.modestie.modestieapp.adapters;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Pair;
 
 import android.graphics.Color;
@@ -46,7 +45,7 @@ public class EventPriceAdapter extends DragItemAdapter<Pair<Long, EventPrice>, E
 
     private int lastPosition = -1;
 
-    public static final String TAG = "ACTVT.EVNTPRCEADPTR";
+    public static final String TAG = "ADPTR.EVENTPRICE";
 
     public class ViewHolder extends DragItemAdapter.ViewHolder
     {
@@ -67,16 +66,6 @@ public class EventPriceAdapter extends DragItemAdapter<Pair<Long, EventPrice>, E
             this.reward = v.findViewById(R.id.priceReward);
             this.priceIcon = v.findViewById(R.id.priceIcon);
             this.dragHandle = v.findViewById(R.id.dragHandle);
-        }
-
-        public void setModal(int itemPosition, EventPriceAdapter adapter, FragmentManager fragmentManager)
-        {
-            this.rootview.setOnLongClickListener(view ->
-            {
-                EventPriceOptionsModal modal = new EventPriceOptionsModal(adapter, itemPosition);
-                modal.show(fragmentManager, "bottom_sheet_modal");
-                return true;
-            });
         }
 
         public void clearAnimation()
@@ -123,15 +112,15 @@ public class EventPriceAdapter extends DragItemAdapter<Pair<Long, EventPrice>, E
         holder.title.setText(title);
 
         String reward;
-        if(price.getPriceType() == 1)
-            reward = price.getItemName();
+        if(price.getItemID() != 1)
+            reward = price.priceToString();
         else
         {
             String pattern = "###,###.###";
             NumberFormat nf = NumberFormat.getNumberInstance(Locale.FRANCE);
             DecimalFormat df = (DecimalFormat) nf;
             df.applyPattern(pattern);
-            String output = df.format(price.getGilsAmount());
+            String output = df.format(price.getAmount());
             reward = output + " gils";
         }
         holder.reward.setText(reward);
@@ -156,7 +145,11 @@ public class EventPriceAdapter extends DragItemAdapter<Pair<Long, EventPrice>, E
         if(this.readonly)
             holder.dragHandle.setVisibility(View.INVISIBLE);
 
-        holder.setModal(position, this, this.fragmentManager);
+        holder.rootview.setOnClickListener(view ->
+        {
+            EventPriceOptionsModal modal = new EventPriceOptionsModal(this, parent, position);
+            modal.show(fragmentManager, "bottom_sheet_modal");
+        });
 
         setAnimation(holder.itemView, position);
     }
