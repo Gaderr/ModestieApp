@@ -101,6 +101,7 @@ public class EventPriceEditDialogFragment extends DialogFragment
                         this.price = this.tempItemPrice;
                     this.price.setAmount(Integer.parseInt(this.itemQuantity.getEditText().getText() + ""));
                     callback.onFragmentInteraction(this.price, this.position);
+                    ((NewEventActivity) getContext()).hideKeyboardFrom(getContext(), this.itemQuantity);
                     dismiss();
                     return true;
                 }

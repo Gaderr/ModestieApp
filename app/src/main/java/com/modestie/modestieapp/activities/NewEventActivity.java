@@ -23,9 +23,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -56,7 +55,7 @@ public class NewEventActivity
     private static TextInputLayout formEventDate;
     private static TextInputLayout formEventTime;
     private static TextInputLayout formEventMaxParticipants;
-    private static AutoCompleteTextView formEventMaxParticipantsType;
+    private static RadioGroup formEventMaxParticipantsType;
 
     private DragListView pricesList;
     private EventPriceAdapter adapter;
@@ -90,7 +89,9 @@ public class NewEventActivity
         formEventDate = findViewById(R.id.FormEventDate);
         formEventTime = findViewById(R.id.FormEventTime);
         formEventMaxParticipants = findViewById(R.id.FormMaxParticipants);
-        formEventMaxParticipantsType = findViewById(R.id.FormMaxParticipantsType);
+        formEventMaxParticipants.setEnabled(false);
+        formEventMaxParticipants.setHelperText("");
+        formEventMaxParticipantsType = findViewById(R.id.selectParticipationTypes);
 
         pricesList = findViewById(R.id.PricesLayout);
 
@@ -275,13 +276,27 @@ public class NewEventActivity
             }
         });
 
-        //Participations type dropdown
-        String[] MAXPARTSTYPE = new String[] {getString(R.string.form_participations_type_0), getString(R.string.form_participations_type_1)};
-        final ArrayAdapter newPriceTypeAdapter = new ArrayAdapter<>(this, R.layout.dropdown_menu_popup_item, MAXPARTSTYPE);
-        formEventMaxParticipantsType.setAdapter(newPriceTypeAdapter);
+        //Participation type radio group
+        formEventMaxParticipantsType.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId)
+            {
+                switch (checkedId)
+                {
+                    case R.id.participationType0: //Unlimited
+                        formEventMaxParticipants.setEnabled(false);
+                        formEventMaxParticipants.setHelperText("");
+                        break;
+
+                    case R.id.participationType1: //Limited
+                        formEventMaxParticipants.setEnabled(true);
+                        formEventMaxParticipants.setHelperText(getString(R.string.form_required));
+                        break;
+                }
+            }
+        });
 
         //Prices
-
         this.listPrices = new ArrayList<>();
         this.adapter = new EventPriceAdapter(this.listPrices, false, this.event, this);
 

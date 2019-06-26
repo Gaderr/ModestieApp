@@ -31,13 +31,13 @@
             android:checkedButton="@+id/selectGilsType"
             android:orientation="vertical"
             app:useMaterialThemeColors="false">
-            <RadioButton
+            <com.google.android.material.radiobutton.MaterialRadioButton
                 android:id="@+id/selectGilsType"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/gils_price_type"
                 style="@style/Widget.MaterialComponents.CompoundButton.RadioButton"/>
-            <RadioButton
+            <com.google.android.material.radiobutton.MaterialRadioButton
                 android:id="@+id/selectItemType"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
