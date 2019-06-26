@@ -27,24 +27,32 @@
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/priceTitle"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="end"
         android:fontFamily="@font/miedinger_regular"
+        android:singleLine="true"
         android:text="Premier prix"
         android:textAppearance="@style/TextAppearance.ModestieTheme.Subtitle1"
         app:firstBaselineToTopHeight="32dp"
+        app:layout_constraintEnd_toStartOf="@+id/dragHandle"
         app:layout_constraintStart_toEndOf="@+id/priceIcon"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/priceReward"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        android:singleLine="true"
         android:text="100 000 gils"
         android:textAppearance="@style/TextAppearance.ModestieTheme.Body2"
         app:firstBaselineToTopHeight="52dp"
+        app:layout_constraintEnd_toStartOf="@+id/dragHandle"
         app:layout_constraintStart_toEndOf="@+id/priceIcon"
         app:layout_constraintTop_toTopOf="parent" />
 
