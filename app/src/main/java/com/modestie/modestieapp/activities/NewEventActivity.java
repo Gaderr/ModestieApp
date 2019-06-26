@@ -62,6 +62,9 @@ public class NewEventActivity
     private EventPriceAdapter adapter;
     private EventPriceOptionsModal priceBottomModal;
 
+    private EventPriceEditDialogFragment editDialogFragment;
+    private ItemSelectionDialogFragment selectionDialogFragment;
+
     private Button newPrice;
 
     private Event event;
@@ -168,11 +171,6 @@ public class NewEventActivity
                     else
                         today = false;
 
-                    //Log.e(TAG, "Today : [" + Integer.parseInt(s.subSequence(0, 2).toString()) + "|" + day + "]["
-                    //        + Integer.parseInt(s.subSequence(3, 5).toString()) + "|" + (month + 1) + "]["
-                    //        + Integer.parseInt(s.subSequence(6, 10).toString()) + "|" + year + "]");
-                    //Log.e(TAG, "Today : " + today);
-
                     SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
                     df.setTimeZone(TimeZone.getDefault());
                     long millis = df.parse(s.toString()).getTime() + 86399000; //This date + 23:59:59
@@ -260,9 +258,6 @@ public class NewEventActivity
                 long cSeconds = cHour * 3600 + cMinute * 60;
 
                 final long timediff = (sSeconds - cSeconds) / 60;
-
-                //Log.e(TAG, "Today : " + today);
-                //Log.e(TAG, timediff + "");
 
                 if(today)
                 {
@@ -365,28 +360,30 @@ public class NewEventActivity
     {
         if (fragment instanceof EventPriceEditDialogFragment)
         {
-            EventPriceEditDialogFragment dialogFragment = (EventPriceEditDialogFragment) fragment;
-            dialogFragment.setOnFragmentInteractionListener(this);
+            this.editDialogFragment = (EventPriceEditDialogFragment) fragment;
+            this.editDialogFragment.setOnFragmentInteractionListener(this);
         }
-        if (fragment instanceof ItemSelectionDialogFragment)
+        else if (fragment instanceof ItemSelectionDialogFragment)
         {
-            ItemSelectionDialogFragment dialogFragment = (ItemSelectionDialogFragment) fragment;
-            dialogFragment.setOnItemSelectedListener(this);
+            this.selectionDialogFragment = (ItemSelectionDialogFragment) fragment;
+            this.selectionDialogFragment.setOnItemSelectedListener(this);
         }
     }
 
     @Override
-    public void onFragmentInteraction(EventPrice editedPrice, int position)
+    public void onFragmentInteraction(@NotNull EventPrice editedPrice, int position)
     {
-
+        assert this.selectionDialogFragment != null;
+        Long id = this.listPrices.get(position-1).first;
+        this.listPrices.set(position - 1, new Pair<>(id, editedPrice));
+        this.adapter.notifyDataSetChanged();
     }
 
     @Override
-    public void OnItemSelectedListener(LightItem item)
+    public void OnItemSelectedListener(@NotNull LightItem item)
     {
-        EventPriceEditDialogFragment fragment = (EventPriceEditDialogFragment) getSupportFragmentManager().findFragmentByTag(EventPriceEditDialogFragment.TAG);
-        assert fragment != null;
-        fragment.updatePriceItem(item);
+        assert this.editDialogFragment != null;
+        this.editDialogFragment.updatePriceItem(item);
     }
 
     @Override

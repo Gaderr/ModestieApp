@@ -30,6 +30,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:fontFamily="@font/miedinger_regular"
         android:text="Premier prix"
         android:textAppearance="@style/TextAppearance.ModestieTheme.Subtitle1"
         app:firstBaselineToTopHeight="32dp"

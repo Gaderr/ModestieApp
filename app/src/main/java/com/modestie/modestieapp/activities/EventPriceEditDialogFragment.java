@@ -34,13 +34,14 @@ public class EventPriceEditDialogFragment extends DialogFragment
     private View rootview;
     private Toolbar toolbar;
 
+    private RadioGroup selectPriceType;
     private ImageView priceIcon;
     private TextInputLayout itemName;
     private TextInputLayout itemQuantity;
 
     private EventPrice price;
-    private EventPrice dumpGilsPrice;
-    private EventPrice dumpItemPrice;
+    private EventPrice tempGilsPrice;
+    private EventPrice tempItemPrice;
     private String tempIconURL;
     private int position;
     private OnFragmentInteractionListener callback;
@@ -94,7 +95,12 @@ public class EventPriceEditDialogFragment extends DialogFragment
                 if(!this.itemQuantity.getEditText().getText().toString().equals(""))
                 {
                     this.itemQuantity.setError("");
-                    //callback.onFragmentInteraction(); TODO
+                    if(this.selectPriceType.getCheckedRadioButtonId() == R.id.selectGilsType)
+                        this.price = this.tempGilsPrice;
+                    else
+                        this.price = this.tempItemPrice;
+                    this.price.setAmount(Integer.parseInt(this.itemQuantity.getEditText().getText() + ""));
+                    callback.onFragmentInteraction(this.price, this.position);
                     dismiss();
                     return true;
                 }
@@ -125,24 +131,24 @@ public class EventPriceEditDialogFragment extends DialogFragment
 
         /* INIT */
 
-        RadioGroup selectPriceType = this.rootview.findViewById(R.id.selectPriceTypeGroup);
+        this.selectPriceType = this.rootview.findViewById(R.id.selectPriceTypeGroup);
         this.priceIcon = this.rootview.findViewById(R.id.priceIcon);
         this.itemName = this.rootview.findViewById(R.id.fieldItemName);
         this.itemQuantity = this.rootview.findViewById(R.id.fieldItemQuantity);
 
         //Init dump prices + radiogroup
-        this.dumpGilsPrice = new EventPrice(0, 0, 1, "Gil", "https://xivapi.com/i/065000/065002.png", 100000);
-        this.dumpItemPrice = new EventPrice(0, 0, 2, "Éclat de feu", "https://xivapi.com/i/020000/020001.png", 1);
+        this.tempGilsPrice = new EventPrice(0, 0, 1, "Gil", "https://xivapi.com/i/065000/065002.png", 100000);
+        this.tempItemPrice = new EventPrice(0, 0, 2, "Éclat de feu", "https://xivapi.com/i/020000/020001.png", 1);
         if(this.price.getItemID() == 1)
         {
-            selectPriceType.check(R.id.selectGilsType);
-            this.dumpGilsPrice = this.price;
+            this.selectPriceType.check(R.id.selectGilsType);
+            this.tempGilsPrice = this.price;
             this.itemName.setEnabled(false);
         }
         else
         {
-            selectPriceType.check(R.id.selectItemType);
-            this.dumpItemPrice = this.price;
+            this.selectPriceType.check(R.id.selectItemType);
+            this.tempItemPrice = this.price;
             this.tempIconURL = this.price.getItemIconURL();
         }
 
@@ -163,15 +169,15 @@ public class EventPriceEditDialogFragment extends DialogFragment
                     //Save item price
                     this.itemName.setEnabled(false);
                     //Load gils price
-                    priceToLoad = this.dumpGilsPrice;
+                    priceToLoad = this.tempGilsPrice;
                     break;
 
                 case R.id.selectItemType :
                     //Save gils price
-                    this.dumpGilsPrice.setAmount(Integer.parseInt(this.itemQuantity.getEditText().getText() + ""));
+                    this.tempGilsPrice.setAmount(Integer.parseInt(this.itemQuantity.getEditText().getText() + ""));
                     this.itemName.setEnabled(true);
                     //Load item price
-                    priceToLoad = this.dumpItemPrice;
+                    priceToLoad = this.tempItemPrice;
                     break;
             }
             //Load price
@@ -197,9 +203,9 @@ public class EventPriceEditDialogFragment extends DialogFragment
     {
         this.itemName.getEditText().setText(item.itemName);
         Picasso.get().load(item.iconURL).fit().centerInside().into(this.priceIcon);
-        this.dumpItemPrice.setItemID(item.itemID);
-        this.dumpItemPrice.setItemName(item.itemName);
-        this.dumpItemPrice.setItemIconURL(item.iconURL);
+        this.tempItemPrice.setItemID(item.itemID);
+        this.tempItemPrice.setItemName(item.itemName);
+        this.tempItemPrice.setItemIconURL(item.iconURL);
         this.tempIconURL = this.price.getItemIconURL();
     }
 
