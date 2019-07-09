@@ -13,12 +13,14 @@ import java.util.Comparator;
 
 public class Event
 {
+    private int ID;
     private String name;
     private int promoterID;
     private Long eventEpochTime;
     private String imageURL;
     private String description;
     private int maxParticipants;
+    private boolean promoterIsParticipant;
     private ArrayList<Integer> participantsIDs;
     private ArrayList<EventPrice> prices;
 
@@ -36,11 +38,12 @@ public class Event
         this.imageURL = "";
         this.description = "";
         this.maxParticipants = 0;
+        this.promoterIsParticipant = false;
         this.participantsIDs = new ArrayList<>();
         this.prices = new ArrayList<>();
     }
 
-    public Event(String name, int promoterID, Long eventEpochTime, String imageURL, String description, int maxParticipants, ArrayList<Integer> participantsIDs, ArrayList<EventPrice> prices)
+    public Event(String name, int promoterID, Long eventEpochTime, String imageURL, String description, int maxParticipants, boolean promoterIsParticipant, ArrayList<Integer> participantsIDs, ArrayList<EventPrice> prices)
     {
         this.name = name;
         this.promoterID = promoterID;
@@ -48,6 +51,7 @@ public class Event
         this.imageURL = imageURL;
         this.description = description;
         this.maxParticipants = maxParticipants;
+        this.promoterIsParticipant = promoterIsParticipant;
         this.participantsIDs = participantsIDs;
         this.prices = prices;
     }
@@ -60,12 +64,14 @@ public class Event
             JSONArray participants = obj.getJSONArray("Participants");
             JSONArray prices = obj.getJSONArray("Prices");
 
+            this.ID = event.getInt("id");
             this.name = event.getString("eventName");
-            this.promoterID = Integer.parseInt(obj.getString("promoterID"));
-            this.eventEpochTime = Long.parseLong(obj.getString("eventEPOCH"));
-            this.imageURL = obj.getString("image_url");
-            this.description = obj.getString("description");
-            this.maxParticipants = Integer.parseInt("maxParticipants");
+            this.promoterID = Integer.parseInt(event.getString("promoterID"));
+            this.eventEpochTime = Long.parseLong(event.getString("eventEPOCH"));
+            this.imageURL = event.getString("image_url");
+            this.description = event.getString("description");
+            this.maxParticipants = Integer.parseInt(event.getString("maxParticipants"));
+            this.promoterIsParticipant = Boolean.parseBoolean(event.getString("promoterIsParticipant"));
 
             this.participantsIDs = new ArrayList<>();
             for(int i = 0; i < participants.length(); i++)
@@ -213,6 +219,16 @@ public class Event
         this.maxParticipants = maxParticipants;
     }
 
+    public boolean isPromoterParticipant()
+    {
+        return promoterIsParticipant;
+    }
+
+    public void setPromoterIsParticipant(boolean promoterIsParticipant)
+    {
+        this.promoterIsParticipant = promoterIsParticipant;
+    }
+
     public ArrayList<Integer> getParticipantsIDs()
     {
         return participantsIDs;
@@ -244,5 +260,20 @@ public class Event
                 break;
             }
         }
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Event{" +
+                "ID=" + ID +
+                ", name='" + name + '\'' +
+                ", promoterID=" + promoterID +
+                ", eventEpochTime=" + eventEpochTime +
+                ", imageURL='" + imageURL + '\'' +
+                ", description='" + description + '\'' +
+                ", maxParticipants=" + maxParticipants +
+                ", promoterIsParticipant=" + promoterIsParticipant +
+                '}';
     }
 }

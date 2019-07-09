@@ -1,9 +1,13 @@
 package com.modestie.modestieapp.activities;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -13,10 +17,17 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
@@ -24,9 +35,25 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.HttpHeaderParser;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.modestie.modestieapp.R;
@@ -34,46 +61,82 @@ import com.modestie.modestieapp.adapters.EventPriceAdapter;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.event.EventPrice;
 import com.modestie.modestieapp.model.item.LightItem;
+import com.modestie.modestieapp.utils.Utils;
 import com.woxthebox.draglistview.DragListView;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NewEventActivity
         extends AppCompatActivity
         implements EventPriceEditDialogFragment.OnFragmentInteractionListener,
         ItemSelectionDialogFragment.OnItemSelectedListener
 {
-    private static TextInputLayout formEventName;
-    private static TextInputLayout formEventDate;
-    private static TextInputLayout formEventTime;
-    private static TextInputLayout formEventMaxParticipants;
-    private static RadioGroup formEventMaxParticipantsType;
-
-    private DragListView pricesList;
+    private LinearLayoutCompat loadingLayout;
+    private LinearLayoutCompat formLayout;
+    private TextInputLayout formEventName;
+    private TextInputLayout formEventDate;
+    private TextInputLayout formEventTime;
+    private TextInputLayout formEventMaxParticipants;
+    private CheckBox formEventPromoterParticipant;
+    private TextInputLayout formEventDescription;
+    private TextInputLayout formEventImage;
+    private ImageView formUploadImageIcon;
+    private RadioGroup formEventMaxParticipantsType;
+    private DragListView formPricesList;
     private EventPriceAdapter adapter;
-    private EventPriceOptionsModal priceBottomModal;
 
     private EventPriceEditDialogFragment editDialogFragment;
     private ItemSelectionDialogFragment selectionDialogFragment;
 
-    private Button newPrice;
+    private Button formNewPrice;
 
     private Event event;
     private ArrayList<Pair<Long, EventPrice>> listPrices;
-
     private int count = 0;
 
     private boolean today;
+    private Uri pickedImage;
+    private Bitmap bitmapConvertedImage;
+
+    private AlertDialog imageUploadError;
 
     public static final String TAG = "ACTVT.NEWEVNT";
+    public static final int IMAGE_PICK_INTENT = 1;
+
+    private String MODESTIE_ADDEVENT = "https://modestie.fr/wp-json/modestieevents/v1/addevent";
+
+    private String IMGUR_IMG_UPLOAD = "https://api.imgur.com/3/upload";
+    private String IMGUR_TAG_IMAGE = "image";
+    private String IMGUR_TAG_TYPE = "type";
+    private String IMGUR_TAG_TITLE = "title";
+    private String IMGUR_TAG_NAME = "name";
+    private String IMGUR_ALBUM_HASH = "jLDde4Z";
+    private String IMGUR_CLIENT_ID = "1a437e09e459eab";
+
+    private RequestQueue mRequestQueue;
+    private int SOCKET_TIMEOUT = 3000;
+    private int MAX_RETRIES = 3;
+
+    /*
+        ----------------------------
+        LIFECYCLE OVERRIDDEN METHODS
+        ----------------------------
+     */
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -85,22 +148,43 @@ public class NewEventActivity
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
-        formEventName = findViewById(R.id.FormEventName);
-        formEventDate = findViewById(R.id.FormEventDate);
-        formEventTime = findViewById(R.id.FormEventTime);
-        formEventMaxParticipants = findViewById(R.id.FormMaxParticipants);
-        formEventMaxParticipants.setEnabled(false);
-        formEventMaxParticipants.setHelperText("");
-        formEventMaxParticipantsType = findViewById(R.id.selectParticipationTypes);
+        /*----------
+            Init
+        ----------*/
 
-        pricesList = findViewById(R.id.PricesLayout);
+        this.loadingLayout = findViewById(R.id.loadingLayout);
+        this.formLayout = findViewById(R.id.formLayout);
+        this.formEventName = findViewById(R.id.FormEventName);
+        this.formEventDate = findViewById(R.id.FormEventDate);
+        this.formEventTime = findViewById(R.id.FormEventTime);
+        this.formEventDescription = findViewById(R.id.FormEventDescription);
+        this.formEventImage = findViewById(R.id.FormEventImage);
+        this.formUploadImageIcon = findViewById(R.id.fileUploadIcon);
+        this.formEventMaxParticipants = findViewById(R.id.FormMaxParticipants);
+        this.formEventMaxParticipantsType = findViewById(R.id.selectParticipationTypes);
+        this.formEventPromoterParticipant = findViewById(R.id.FormEventPromoterParticipant);
+        this.formPricesList = findViewById(R.id.PricesLayout);
+        this.formNewPrice = findViewById(R.id.addPriceButton);
 
-        newPrice = findViewById(R.id.addPriceButton);
+        this.formEventMaxParticipants.setEnabled(false);
+        this.formEventMaxParticipants.setHelperText("");
 
-        event = new Event();
+        this.event = new Event();
+        this.pickedImage = null;
+        this.bitmapConvertedImage = null;
 
-        //Event date field
-        today = true;
+        AlertDialog.Builder builder = new AlertDialog.Builder(NewEventActivity.this, R.style.ThemeOverlay_ModestieTheme_Dialog);
+        builder.setTitle(getString(R.string.image_upload_error_dialog_title))
+                .setMessage(getString(R.string.image_upload_error_dialog_message))
+                .setPositiveButton(getString(R.string.image_upload_error_dialog_pos_btn), null)
+                .setNegativeButton(R.string.image_upload_error_dialog_neg_btn, (dialog, which) -> postNewEvent(""));
+        this.imageUploadError = builder.create();
+
+        /*----------------------
+            Event date field
+        ----------------------*/
+
+        this.today = true;
 
         final Calendar c = Calendar.getInstance(Locale.FRANCE);
         int year = c.get(Calendar.YEAR);
@@ -109,42 +193,52 @@ public class NewEventActivity
 
         String cDay, cMonth;
 
-        if(day < 10)
+        if (day < 10)
             cDay = "0" + day;
         else
             cDay = day + "";
-        if(month < 10)
+        if (month < 10)
             cMonth = "0" + (month + 1);
         else
             cMonth = (month + 1) + "";
 
         formEventDate.getEditText().setText(String.format(Locale.FRANCE, "%s/%s/%d", cDay, cMonth, year));
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
-            R.style.ThemeOverlay_ModestieTheme_Dialog,
-            (view, pickedYear, pickedMonth, pickedDay) ->
-            {
-                String sDay, sMonth;
-                if(pickedDay < 10)
-                    sDay = "0" + pickedDay;
-                else
-                    sDay = pickedDay + "";
-                if(++pickedMonth < 10)
-                    sMonth = "0" + pickedMonth;
-                else
-                    sMonth = pickedMonth + "";
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this, R.style.ThemeOverlay_ModestieTheme_Dialog,
+                (view, pickedYear, pickedMonth, pickedDay) ->
+                {
+                    String sDay, sMonth;
+                    if (pickedDay < 10)
+                        sDay = "0" + pickedDay;
+                    else
+                        sDay = pickedDay + "";
+                    if (++pickedMonth < 10)
+                        sMonth = "0" + pickedMonth;
+                    else
+                        sMonth = pickedMonth + "";
 
-                formEventDate.getEditText().setText(String.format(Locale.FRANCE, "%s/%s/%d", sDay, sMonth, pickedYear));
-            },
-            year,
-            month,
-            day
+                    formEventDate.getEditText().setText(String.format(Locale.FRANCE, "%s/%s/%d", sDay, sMonth, pickedYear));
+                },
+                year,
+                month,
+                day
         );
-        datePickerDialog.setOnCancelListener(dialog ->
-             {formEventDate.getEditText().clearFocus(); hideKeyboardFrom(getApplicationContext(), formEventDate);});
-        formEventDate.setStartIconOnClickListener(v ->  datePickerDialog.show());
-        formEventDate.getEditText().setOnFocusChangeListener((v, hasFocus) -> {if(hasFocus) datePickerDialog.show();});
-        formEventDate.getEditText().addTextChangedListener(new TextWatcher()
+        datePickerDialog.setOnCancelListener(
+                dialog ->
+                {
+                    formEventDate.getEditText().clearFocus();
+                    hideKeyboardFrom(getApplicationContext(), formEventDate);
+                });
+        this.formEventDate.setStartIconOnClickListener(
+                v -> datePickerDialog.show());
+        this.formEventDate.getEditText().setOnFocusChangeListener(
+                (v, hasFocus) ->
+                {
+                    if (hasFocus)
+                        datePickerDialog.show();
+                });
+        this.formEventDate.getEditText().addTextChangedListener(new TextWatcher()
         {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
@@ -160,12 +254,12 @@ public class NewEventActivity
                 formEventDate.getEditText().clearFocus();
                 hideKeyboardFrom(getApplicationContext(), formEventDate);
 
-                if(s.length() == 0)
+                if (s.length() == 0)
                     return;
 
                 try
                 {
-                    if(Integer.parseInt(s.subSequence(0, 2).toString()) == day
+                    if (Integer.parseInt(s.subSequence(0, 2).toString()) == day
                             && Integer.parseInt(s.subSequence(3, 5).toString()) == (month + 1)
                             && Integer.parseInt(s.subSequence(6, 10).toString()) == year)
                         today = true;
@@ -176,23 +270,9 @@ public class NewEventActivity
                     df.setTimeZone(TimeZone.getDefault());
                     long millis = df.parse(s.toString()).getTime() + 86399000; //This date + 23:59:59
 
-                    if(millis >= System.currentTimeMillis())
-                    {
-                        //Toast.makeText(NewEventActivity.this, "Superior", Toast.LENGTH_SHORT).show();
-                        /*if(formEventDate.getHelperText() != null)
-                            formEventDate.setHelperText("jj/mm/aaaa *requis");
-                        if(formEventDate.getError() != null)
-                            formEventDate.setError(null);*/
-                        //TODO Watch andoidx updates : setError() is making incorrect layout requests
-                        // indefinitely and overloads the processor;
-                    }
-                    else
+                    if (millis < System.currentTimeMillis())
                     {
                         Toast.makeText(NewEventActivity.this, "Veuillez entrer une date supérieure ou égale à celle d'aujourd'hui", Toast.LENGTH_LONG).show();
-                        /*if(formEventDate.getHelperText() != null)
-                            formEventDate.setHelperText(null);
-                        if(formEventDate.getError() != null)
-                            formEventDate.setError("Veuillez entrer une date valide");*/
                         s.clear();
                     }
                 }
@@ -203,35 +283,52 @@ public class NewEventActivity
             }
         });
 
-        //Event time field
-        TimePickerDialog timePickerDialog = new TimePickerDialog(this,
-            R.style.ThemeOverlay_ModestieTheme_Dialog,
-            (view, pickedHour, pickedMinute) ->
-            {
-                String sHour, sMinute;
-                if(pickedHour < 10)
-                    sHour = "0" + pickedHour;
-                else
-                    sHour = pickedHour + "";
+        /*----------------------
+            Event time field
+        ----------------------*/
 
-                if(pickedMinute < 10)
-                    sMinute = "0" + pickedMinute;
-                else
-                    sMinute = pickedMinute + "";
+        TimePickerDialog timePickerDialog = new TimePickerDialog(
+                this, R.style.ThemeOverlay_ModestieTheme_Dialog,
+                (view, pickedHour, pickedMinute) ->
+                {
+                    String sHour, sMinute;
+                    if (pickedHour < 10)
+                        sHour = "0" + pickedHour;
+                    else
+                        sHour = pickedHour + "";
 
-                formEventTime.getEditText().setText(String.format(Locale.FRANCE, "%s:%s", sHour, sMinute));
-            },
-            12,
-            0,
-            true
+                    if (pickedMinute < 10)
+                        sMinute = "0" + pickedMinute;
+                    else
+                        sMinute = pickedMinute + "";
+
+                    formEventTime.getEditText().setText(String.format(Locale.FRANCE, "%s:%s", sHour, sMinute));
+                },
+                12,
+                0,
+                true
         );
-        timePickerDialog.setOnCancelListener(dialog ->
-            {formEventTime.getEditText().clearFocus(); hideKeyboardFrom(getApplicationContext(), formEventTime);});
-        timePickerDialog.setOnDismissListener(dialog ->
-            {formEventTime.getEditText().clearFocus(); hideKeyboardFrom(getApplicationContext(), formEventTime);});
-        formEventTime.setStartIconOnClickListener(v -> timePickerDialog.show());
-        formEventTime.getEditText().setOnFocusChangeListener((v, hasFocus) -> {if(hasFocus) timePickerDialog.show();});
-        formEventTime.getEditText().addTextChangedListener(new TextWatcher()
+        timePickerDialog.setOnCancelListener(
+                dialog ->
+                {
+                    formEventTime.getEditText().clearFocus();
+                    hideKeyboardFrom(getApplicationContext(), formEventTime);
+                });
+        timePickerDialog.setOnDismissListener(
+                dialog ->
+                {
+                    formEventTime.getEditText().clearFocus();
+                    hideKeyboardFrom(getApplicationContext(), formEventTime);
+                });
+        this.formEventTime.setStartIconOnClickListener(
+                v -> timePickerDialog.show());
+        this.formEventTime.getEditText().setOnFocusChangeListener(
+                (v, hasFocus) ->
+                {
+                    if (hasFocus)
+                        timePickerDialog.show();
+                });
+        this.formEventTime.getEditText().addTextChangedListener(new TextWatcher()
         {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
@@ -245,7 +342,7 @@ public class NewEventActivity
                 formEventDate.getEditText().clearFocus();
                 hideKeyboardFrom(getApplicationContext(), formEventDate);
 
-                if(s.length() == 0)
+                if (s.length() == 0)
                     return;
 
                 int sHour = Integer.parseInt(s.toString().substring(0, 2));
@@ -260,14 +357,14 @@ public class NewEventActivity
 
                 final long timediff = (sSeconds - cSeconds) / 60;
 
-                if(today)
+                if (today)
                 {
-                    if(timediff <= 0)
+                    if (timediff <= 0)
                     {
                         Toast.makeText(NewEventActivity.this, "Veuillez choisir un horaire supérieur à l'heure actuelle", Toast.LENGTH_LONG).show();
                         s.clear();
                     }
-                    else if(timediff < 30)
+                    else if (timediff < 30)
                     {
                         Toast.makeText(NewEventActivity.this, "Veuillez organiser votre événement au moins une demie-heure en avance", Toast.LENGTH_LONG).show();
                         s.clear();
@@ -276,72 +373,100 @@ public class NewEventActivity
             }
         });
 
-        //Participation type radio group
-        formEventMaxParticipantsType.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId)
-            {
-                switch (checkedId)
+        /*------------------------------------
+            Participation type radio group
+        ------------------------------------*/
+
+        this.formEventMaxParticipantsType.setOnCheckedChangeListener(
+                (group, checkedId) ->
                 {
-                    case R.id.participationType0: //Unlimited
-                        formEventMaxParticipants.setEnabled(false);
-                        formEventMaxParticipants.setHelperText("");
-                        break;
+                    switch (checkedId)
+                    {
+                        case R.id.participationType0: //Unlimited
+                            this.formEventMaxParticipants.setEnabled(false);
+                            this.formEventMaxParticipants.setHelperText("");
+                            break;
 
-                    case R.id.participationType1: //Limited
-                        formEventMaxParticipants.setEnabled(true);
-                        formEventMaxParticipants.setHelperText(getString(R.string.form_required));
-                        break;
-                }
-            }
-        });
+                        case R.id.participationType1: //Limited
+                            this.formEventMaxParticipants.setEnabled(true);
+                            this.formEventMaxParticipants.setHelperText(getString(R.string.form_required));
+                            break;
+                    }
+                });
 
-        //Prices
+        /*---------------------
+            Image selection
+        ---------------------*/
+
+        this.formEventImage.setEnabled(false);
+        this.formEventImage.setHelperText("10MB max");
+        this.formUploadImageIcon.setOnClickListener(
+                v ->
+                {
+                    //Create an Intent with action as ACTION_PICK
+                    Intent intent = new Intent(Intent.ACTION_PICK);
+                    // Sets the type as image/*. This ensures only components of type image are selected
+                    intent.setType("image/*");
+                    //We pass an extra array with the accepted mime types. This will ensure only components with these MIME types as targeted.
+                    String[] mimeTypes = {"image/jpeg", "image/png"};
+                    intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+                    // Launching the Intent
+                    startActivityForResult(intent, IMAGE_PICK_INTENT);
+                });
+
+        /*-----------------
+            Prices list
+        -----------------*/
+
         this.listPrices = new ArrayList<>();
         this.adapter = new EventPriceAdapter(this.listPrices, false, this.event, this);
+        this.formPricesList.getRecyclerView().setHorizontalScrollBarEnabled(false);
+        this.formPricesList.setScrollingEnabled(false);
+        this.formPricesList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        this.formPricesList.setAdapter(this.adapter, true);
+        this.formPricesList.setCanDragHorizontally(false);
 
-        this.pricesList.getRecyclerView().setHorizontalScrollBarEnabled(false);
-        this.pricesList.setScrollingEnabled(false);
-        this.pricesList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-        this.pricesList.setAdapter(this.adapter, true);
-        this.pricesList.setCanDragHorizontally(false);
+        /*----------------------
+            New price button
+        ----------------------*/
 
-        //New price button
-        this.newPrice.setOnClickListener(v ->
-            {
-                PopupMenu popup = new PopupMenu(this, v);
-                popup.setOnMenuItemClickListener(item ->
-                    {
-                        EventPrice newPrice = null;
+        this.formNewPrice.setOnClickListener(
+                v ->
+                {
+                    PopupMenu popup = new PopupMenu(this, v);
+                    popup.setOnMenuItemClickListener(
+                            item ->
+                            {
+                                EventPrice newPrice = null;
 
-                        switch (item.getItemId())
-                        {
-                            case R.id.itemPrice:
-                                newPrice = new EventPrice(0, 0, 2, "Éclat de feu", "https://xivapi.com/i/020000/020001.png", 1);
-                                break;
+                                switch (item.getItemId())
+                                {
+                                    case R.id.itemPrice:
+                                        newPrice = new EventPrice(0, 0, 2, "Éclat de feu", "https://xivapi.com/i/020000/020001.png", 1);
+                                        break;
 
-                            case R.id.gilsPrice:
-                                newPrice = new EventPrice(0, 0, 1, "Gil", "https://xivapi.com/i/065000/065002.png", 100000);
-                                break;
+                                    case R.id.gilsPrice:
+                                        newPrice = new EventPrice(0, 0, 1, "Gil", "https://xivapi.com/i/065000/065002.png", 100000);
+                                        break;
 
-                            default:
-                                break;
-                        }
+                                    default:
+                                        break;
+                                }
 
-                        if(newPrice != null)
-                        {
-                            listPrices.add(new Pair<>((long) ++count, newPrice));
-                            adapter.notifyDataSetChanged();
-                            return true;
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    });
-                popup.getMenuInflater().inflate(R.menu.new_event_selection_menu, popup.getMenu());
-                popup.show();
-            });
+                                if (newPrice != null)
+                                {
+                                    this.listPrices.add(new Pair<>((long) ++count, newPrice));
+                                    this.adapter.notifyDataSetChanged();
+                                    return true;
+                                }
+                                else
+                                {
+                                    return false;
+                                }
+                            });
+                    popup.getMenuInflater().inflate(R.menu.new_event_selection_menu, popup.getMenu());
+                    popup.show();
+                });
     }
 
     @Override
@@ -350,7 +475,7 @@ public class NewEventActivity
         super.onRestart();
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        if(sharedPref.getBoolean("nightmode", false))
+        if (sharedPref.getBoolean("nightmode", false))
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         else
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
@@ -362,12 +487,43 @@ public class NewEventActivity
         super.onResume();
     }
 
+    /*
+        -----------------------------------
+        OUT-OF-LIFECYCLE OVERRIDDEN METHODS
+        -----------------------------------
+     */
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.new_event_bar_menu, menu);
         return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK)
+            switch (requestCode)
+            {
+                case IMAGE_PICK_INTENT:
+                    //data.getData returns the content URI for the selected Image
+                    this.pickedImage = data.getData();
+                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                    Cursor cursor = getContentResolver().query(this.pickedImage, filePathColumn, null, null, null);
+                    if (cursor.moveToFirst())
+                    {
+                        String imagePath = cursor.getString(cursor.getColumnIndex(filePathColumn[0]));
+                        BitmapFactory.Options options = new BitmapFactory.Options();
+                        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                        this.bitmapConvertedImage = BitmapFactory.decodeFile(imagePath, options);
+                        this.formEventImage.getEditText().setText(new File(imagePath).getName());
+                    }
+                    cursor.close();
+                    break;
+            }
     }
 
     @Override
@@ -389,7 +545,7 @@ public class NewEventActivity
     public void onFragmentInteraction(@NotNull EventPrice editedPrice, int position)
     {
         assert this.selectionDialogFragment != null;
-        Long id = this.listPrices.get(position-1).first;
+        Long id = this.listPrices.get(position - 1).first;
         this.listPrices.set(position - 1, new Pair<>(id, editedPrice));
         this.adapter.notifyDataSetChanged();
     }
@@ -406,17 +562,255 @@ public class NewEventActivity
     {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the HomeActivity/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+        // as you specify a parentView activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.save_event)
         {
-            snackbar("En cours de développement");
+            //snackbar("En cours de développement");
+            if (validateForm() && bitmapConvertedImage != null) //TODO REWORK : IMAGE FIELD CAN BE VOID
+            {
+                this.loadingLayout.setVisibility(View.VISIBLE);
+                //this.loadingLayout.setClickable(false);
+                this.formLayout.setAlpha(0f);
+                //this.formLayout.setClickable(false);
+                ((ConstraintLayout) this.formLayout.getParent()).setClickable(false);
+                beginEventPost();
+            }
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /*
+        --------------
+        CUSTOM METHODS
+        --------------
+     */
+
+    public boolean validateForm()
+    {
+        boolean result = true;
+        String error = getString(R.string.form_required);
+
+        if ((this.formEventName.getEditText().getText() + "").equals(""))
+        {
+            this.formEventName.setError(error);
+            result = result && false;
+        }
+        else
+        {
+            this.formEventName.setError("");
+            result = result && true;
+        }
+
+        if ((this.formEventDate.getEditText().getText() + "").equals(""))
+        {
+            this.formEventDate.setError(error);
+            result = result && false;
+        }
+        else
+        {
+            this.formEventDate.setError("");
+            result = result && true;
+        }
+
+        if ((this.formEventTime.getEditText().getText() + "").equals(""))
+        {
+            this.formEventTime.setError(error);
+            result = result && false;
+        }
+        else
+        {
+            this.formEventTime.setError("");
+            result = result && true;
+        }
+
+        if (this.formEventMaxParticipantsType.getCheckedRadioButtonId() == R.id.participationType1)
+        {
+            if ((this.formEventMaxParticipants.getEditText().getText() + "").equals(""))
+            {
+                this.formEventMaxParticipants.setError(error);
+                result = result && false;
+            }
+            else
+            {
+                if (Integer.parseInt(this.formEventMaxParticipants.getEditText().getText() + "") < 2
+                        && this.formEventPromoterParticipant.isChecked())
+                {
+                    this.formEventMaxParticipants.setError(getString(R.string.form_too_few_participants));
+                    result = result && false;
+                }
+                else
+                {
+                    this.formEventMaxParticipants.setError("");
+                    result = result && true;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private void beginEventPost()
+    {
+        StringRequest imageUploadRequest = new StringRequest(
+                Request.Method.POST, IMGUR_IMG_UPLOAD,
+                response ->
+                {
+                    try
+                    {
+                        JSONObject jsonResponse = new JSONObject(response);
+                        Log.e(TAG, jsonResponse.toString());
+                        if (jsonResponse.getBoolean("success"))
+                        {
+                            Log.e(TAG, "go");
+                            //postNewEvent(jsonResponse.getJSONObject("data").getString("link"));
+                            imageUploadError.show();
+                        }
+                        else
+                        {
+                            Log.e(TAG, "nogo");
+                            imageUploadError.show();
+                        }
+                    }
+                    catch (JSONException e)
+                    {
+                        Log.e(TAG, e.getLocalizedMessage());
+                    }
+                },
+                error ->
+                {
+                    Log.e(TAG, error.toString());
+                    Log.e(TAG, "finish/error upload");
+                    imageUploadError.show();
+                })
+        {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError
+            {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Authorization", "Client-ID " + IMGUR_CLIENT_ID);
+                return headers;
+            }
+
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError
+            {
+                Map<String, String> params = new HashMap<>();
+                params.put(IMGUR_TAG_IMAGE, Utils.getBase64Image(bitmapConvertedImage));
+                params.put(IMGUR_TAG_TYPE, "base64");
+                params.put(IMGUR_TAG_TITLE, formEventImage.getEditText().getText() + "");
+                params.put(IMGUR_TAG_NAME, String.valueOf(System.currentTimeMillis()));
+                return params;
+            }
+        };
+
+        //Retry MAX_RETRIES times, one every SOCKET_TIMEOUT milliseconds
+        imageUploadRequest.setRetryPolicy(new DefaultRetryPolicy(SOCKET_TIMEOUT, MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        addToRequestQueue(imageUploadRequest);
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    public boolean postNewEvent(String imageLink)
+    {
+        SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+        df.setTimeZone(TimeZone.getDefault());
+
+        AtomicBoolean imageUploadErrorContinue = new AtomicBoolean(false);
+
+        if (imageUploadErrorContinue.get())
+        {
+            this.loadingLayout.setVisibility(View.GONE);
+            this.formLayout.setAlpha(1f);
+            return false;
+        }
+
+        Log.e(TAG, "image ok");
+
+        AtomicBoolean postResult = new AtomicBoolean(false);
+
+        try
+        {
+            JSONObject postparams = new JSONObject();
+            postparams.put("name", this.formEventName.getEditText().getText());
+            postparams.put("promoter", "11148489");
+            postparams.put("epoch", df.parse(this.formEventDate.getEditText().getText() + "").getTime() + 86399000);
+            postparams.put("description", this.formEventDescription.getEditText().getText() + "");
+            if (this.formEventMaxParticipantsType.getCheckedRadioButtonId() == R.id.participationType1)
+                postparams.put("maxparticipants", this.formEventMaxParticipants.getEditText().getText() + "");
+            else
+                postparams.put("maxparticipants", "-1");
+            if (this.formEventPromoterParticipant.isChecked())
+                postparams.put("promoterParticipant", "1");
+            else
+                postparams.put("promoterParticipant", "0");
+            postparams.put("image", imageLink);
+
+            String requestBody = postparams.toString();
+
+            StringRequest request = new StringRequest(
+                    Request.Method.POST, MODESTIE_ADDEVENT,
+                    response ->
+                    {
+                        Log.e(TAG, response);
+                        loadingLayout.setVisibility(View.GONE);
+                        this.formLayout.setAlpha(1f);
+                        Toast.makeText(this, "Événement créé", Toast.LENGTH_SHORT).show();
+                        onBackPressed();
+                        postResult.set(!response.equals("-1"));
+                    },
+                    error ->
+                    {/*error = VolleyError*/})
+            {
+                @Override
+                public String getBodyContentType()
+                {
+                    return "application/json; charset=utf-8";
+                }
+
+                @Override
+                public byte[] getBody() throws AuthFailureError
+                {
+                    try
+                    {
+                        return requestBody == null ? null : requestBody.getBytes("utf-8");
+                    }
+                    catch (UnsupportedEncodingException uee)
+                    {
+                        VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s", requestBody, "utf-8");
+                        return null;
+                    }
+                }
+
+                @Override
+                protected Response<String> parseNetworkResponse(NetworkResponse response)
+                {
+                    String responseString = "";
+                    if (response != null)
+                    {
+                        responseString = String.valueOf(response.statusCode);
+                        // can get more details such as response.headers
+                    }
+                    return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
+                }
+            };
+
+            addToRequestQueue(request, "newEventPostRequest");
+        }
+        catch (JSONException e)
+        {
+            Log.e(TAG, e.getLocalizedMessage());
+        }
+        catch (ParseException e)
+        {
+            Log.e(TAG, e.getMessage());
+        }
+
+        return postResult.get();
     }
 
     public void snackbar(String text)
@@ -424,11 +818,47 @@ public class NewEventActivity
         Snackbar.make(findViewById(R.id.context_view), text, Snackbar.LENGTH_LONG).show();
     }
 
-    //TODO Override up action to confirm cancelling
-
     public static void hideKeyboardFrom(Context context, View view)
     {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    /**
+     * Lazy initialize the request queue, the queue instance will be created when it is accessed
+     * for the first time
+     *
+     * @return Request Queue
+     */
+    public RequestQueue getRequestQueue()
+    {
+        if (this.mRequestQueue == null)
+            this.mRequestQueue = Volley.newRequestQueue(getApplicationContext());
+
+        return mRequestQueue;
+    }
+
+    public <T> void addToRequestQueue(Request<T> req, String tag)
+    {
+        // set the default tag if tag is empty
+        req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
+
+        VolleyLog.d("Adding request to queue: %s", req.getUrl());
+
+        getRequestQueue().add(req);
+    }
+
+    public <T> void addToRequestQueue(Request<T> req)
+    {
+        // set the default tag if tag is empty
+        req.setTag(TAG);
+
+        getRequestQueue().add(req);
+    }
+
+    public void cancelPendingRequests(Object tag)
+    {
+        if (mRequestQueue != null)
+            mRequestQueue.cancelAll(tag);
     }
 }

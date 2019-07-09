@@ -6,31 +6,52 @@ import android.database.sqlite.SQLiteDatabase;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.adapters.EventListAdapter;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
+
+import static com.android.volley.Request.Method.GET;
 
 public class EventListActivity extends AppCompatActivity
 {
     private RecyclerView recyclerView;
     private RecyclerView.Adapter<EventListAdapter.EventListCardViewHolder> adapter;
     private RecyclerView.LayoutManager layoutManager;
+    private ProgressBar progressBar;
 
-    private FloatingActionButton fab;
+    private ArrayList<Event> events;
+
+    private String MODESTIE_GETEVENTS = "https://modestie.fr/wp-json/modestieevents/v1/events";
+
+    private RequestQueue mRequestQueue;
 
     public static final String TAG = "ACTVT - EVNTLST";
     @Override
@@ -45,35 +66,13 @@ public class EventListActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
-        recyclerView = findViewById(R.id.eventsCardsView);
-        /*fab = findViewById(R.id.add_event_fab);
-
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
-        {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy)
-            {
-                super.onScrolled(recyclerView, dx, dy);
-                if (dy > 0) //Up
-                {
-                    fab.hide();
-                }
-                else //Down
-                {
-                    fab.show();
-                }
-            }
-        });
-
-        fab.setOnClickListener(v ->
-            {
-                startActivityForResult(new Intent(getApplicationContext(), NewEventActivity.class), 1);
-            });*/
+        this.recyclerView = findViewById(R.id.eventsCardsView);
+        this.progressBar = findViewById(R.id.progressBar);
 
         FreeCompanyDbHelper dbHelper = new FreeCompanyDbHelper(getApplicationContext());
         SQLiteDatabase database = dbHelper.getReadableDatabase();
 
-        ArrayList<Integer> participants = new ArrayList<>();
+        /*ArrayList<Integer> participants = new ArrayList<>();
         participants.add(6287877);
         participants.add(14416025);
         participants.add(11572096);
@@ -84,11 +83,42 @@ public class EventListActivity extends AppCompatActivity
         ArrayList<Integer> participants3 = (ArrayList<Integer>) participants.clone();
         ArrayList<Integer> participants4 = (ArrayList<Integer>) participants.clone();
         participants3.add(11148489);
-        participants4.add(11148489);
+        participants4.add(11148489);*/
+
+        this.events = new ArrayList<>();
+
+        this.layoutManager = new LinearLayoutManager(this);
+        this.recyclerView.setLayoutManager(this.layoutManager);
+
+        this.adapter = new EventListAdapter(this.events, database, getApplicationContext());
+        this.recyclerView.setAdapter(this.adapter);
+
+        addToRequestQueue(new JsonObjectRequest(
+                GET, this.MODESTIE_GETEVENTS, null,
+                response ->
+                {
+                    try
+                    {
+                        JSONArray eventsArray = response.getJSONArray("Events");
+                        int count = response.getInt("Count");
+                        for(int i = 0; i < count - 1 ; i++)
+                        {
+                            JSONObject tempEvent = eventsArray.getJSONObject(i);
+                            this.events.add(new Event(tempEvent));
+                        }
+                        this.adapter.notifyDataSetChanged();
+                        this.progressBar.setVisibility(View.INVISIBLE);
+                    }
+                    catch (JSONException e)
+                    {
+                        Log.e(TAG, e.getLocalizedMessage());
+                    }
+
+                }, error -> Toast.makeText(EventListActivity.this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show()
+                ));
 
         //https://img.finalfantasyxiv.com/lds/promo/h/T/1dnML8rMAkaWePJz0AZsY9Vf18.jpg
 
-        ArrayList<Event> events = new ArrayList<>();
         /*events.add(new Event(
                 "Top des tops",
                 6655397,
@@ -102,7 +132,7 @@ public class EventListActivity extends AppCompatActivity
                 20,
                 participants));*/
 
-        events.add(new Event(
+        /*events.add(new Event(
                 "Banco Bingo",
                 11148489,
                 1559563200L,
@@ -123,49 +153,20 @@ public class EventListActivity extends AppCompatActivity
                 new ArrayList<>()));
 
         events.add(new Event(
-                "Practice O12S",+
+                "Practice O12S",
                 11148489,
                 1558634400L,
                 "https://i.ytimg.com/vi/RxfoGKxNzb0/maxresdefault.jpg",
                 "\"SORTEZ-VOUS LES DOIGTS DU CUUUUUUUUUUUL !\" A dit un grand homme. Marchons dans sa lumière.",
                 8,
                 participants3,
-                new ArrayList<>()));
+                new ArrayList<>()));*/
 
-        Collections.sort(events, Event.EventDateComparator);
+        Collections.sort(this.events, Event.EventDateComparator);
 
         // used to improve performance if changes in content do not change the layout size of
         // the RecyclerView
         //recyclerView.setHasFixedSize(true);
-
-        layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-
-        adapter = new EventListAdapter(events, database, getApplicationContext());
-        recyclerView.setAdapter(adapter);
-
-        /*findViewById(R.id.add_event_fab).setOnClickListener(v ->
-            {
-                ArrayList<Integer> parts = new ArrayList<>();
-                participants.add(6287877);
-                participants.add(14416025);
-                participants.add(11572096);
-                participants.add(6710801);
-                participants.add(14194163);
-
-                events.add(new Event(
-                        "Nouvel event",
-                        11148489,
-                        System.currentTimeMillis() / 1000,
-                        null,
-                        null,
-                        -1,
-                        parts));
-
-                Collections.sort(events, Event.EventDateComparator);
-
-                adapter.notifyDataSetChanged();
-            });*/
     }
 
     @Override
@@ -204,5 +205,43 @@ public class EventListActivity extends AppCompatActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Lazy initialize the request queue, the queue instance will be created when it is accessed
+     * for the first time
+     *
+     * @return Request Queue
+     */
+    public RequestQueue getRequestQueue()
+    {
+        if (this.mRequestQueue == null)
+            this.mRequestQueue = Volley.newRequestQueue(getApplicationContext());
+
+        return mRequestQueue;
+    }
+
+    public <T> void addToRequestQueue(Request<T> req, String tag)
+    {
+        // set the default tag if tag is empty
+        req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
+
+        VolleyLog.d("Adding request to queue: %s", req.getUrl());
+
+        getRequestQueue().add(req);
+    }
+
+    public <T> void addToRequestQueue(Request<T> req)
+    {
+        // set the default tag if tag is empty
+        req.setTag(TAG);
+
+        getRequestQueue().add(req);
+    }
+
+    public void cancelPendingRequests(Object tag)
+    {
+        if (mRequestQueue != null)
+            mRequestQueue.cancelAll(tag);
     }
 }

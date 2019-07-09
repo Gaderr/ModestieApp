@@ -136,11 +136,12 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
     public void onBindViewHolder(@NotNull EventListCardViewHolder holder, int position)
     {
         Event event = this.events.get(position);
+        Log.e(TAG, event.toString());
         FreeCompanyMember member = this.members.get(event.getPromoterID());
         assert member != null;
 
         //Get participation status
-        holder.participation = event.getParticipantsIDs().contains(holder.userID);
+        holder.participation = event.isPromoterParticipant();
 
         //Initialize views
 
@@ -153,9 +154,12 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
 
         //Event image
         if(event.getImageURL() != null)
+        {
+            Log.e(TAG, event.getImageURL());
             Picasso.get()
                     .load(event.getImageURL())
                     .into(holder.image);
+        }
 
         //Expand More/Less icon
         AnimatedVectorDrawable animatedExpandMore = (AnimatedVectorDrawable) context.getResources().getDrawable(R.drawable.ic_expand_more_animatable, null);
@@ -180,7 +184,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         holder.description.setOnClickListener(v -> expandOrCollapseDescription(holder));
 
         //Participation text feedback
-        if(event.getPromoterID() == holder.userID)
+        if(event.isPromoterParticipant())
         {
             holder.action.setVisibility(View.INVISIBLE);
             holder.participationText.setText(R.string.event_self_promoter_feedback);
@@ -246,6 +250,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
 
     private void updateParticipantsViews(EventListCardViewHolder holder, Event event)
     {
+
         if(event.getMaxParticipants() == -1)
             holder.participantCount.setText(String.format(Locale.FRANCE, "%d/∞", event.getParticipantsIDs().size()));
         else

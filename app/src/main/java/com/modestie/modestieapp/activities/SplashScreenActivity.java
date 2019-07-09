@@ -1,10 +1,12 @@
 package com.modestie.modestieapp.activities;
 
+import android.Manifest;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -55,6 +57,8 @@ public class SplashScreenActivity extends AppCompatActivity
 
     public static final String TAG = "ACTVT.SPLSHSCRN";
 
+    private static final int READ_EXTERNAL_STORAGE_REQUEST = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -63,7 +67,7 @@ public class SplashScreenActivity extends AppCompatActivity
         //Load theme preference
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         //Log.e(TAG, "Nightmode : " + sharedPref.getBoolean("nightmode", false));
-        if(sharedPref.getBoolean("nightmode", false))
+        if (sharedPref.getBoolean("nightmode", false))
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         else
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
@@ -76,14 +80,15 @@ public class SplashScreenActivity extends AppCompatActivity
 
         ConstraintLayout layout = findViewById(R.id.mainActivityLayout);
 
-        layout.setOnClickListener(v ->
-            {
-                if(ready)
+        layout.setOnClickListener(
+                v ->
                 {
-                    startActivity(new Intent(getApplicationContext(), HomeActivity.class));
-                    ready = false;
-                }
-            });
+                    if (ready)
+                    {
+                        startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+                        ready = false;
+                    }
+                });
 
         ImageView crestView = findViewById(R.id.crest);
         TextView appNameView = findViewById(R.id.textAppName);
@@ -116,7 +121,7 @@ public class SplashScreenActivity extends AppCompatActivity
         super.onRestart();
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        if(sharedPref.getBoolean("nightmode", false))
+        if (sharedPref.getBoolean("nightmode", false))
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         else
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
@@ -140,10 +145,10 @@ public class SplashScreenActivity extends AppCompatActivity
         this.dbHelper = new FreeCompanyDbHelper(getApplicationContext());
         SQLiteDatabase database = dbHelper.getReadableDatabase();
         Cursor cursor = database.rawQuery("SELECT * FROM " + FreeCompanyReaderContract.FreeCompanyEntry.TABLE_NAME, null);
-        if(cursor.moveToFirst())
+        if (cursor.moveToFirst())
         {
             long lastUpdate = cursor.getInt(cursor.getColumnIndex(FreeCompanyReaderContract.FreeCompanyEntry.COLUMN_NAME_UPDATED));
-            if(currentTime - lastUpdate < 3600)
+            if (currentTime - lastUpdate < 3600)
             {
                 doUpdate = false;
             }
@@ -151,34 +156,60 @@ public class SplashScreenActivity extends AppCompatActivity
 
         cursor.close();
 
-        if(doUpdate)
+        if (doUpdate)
         {
             addToRequestQueue(new JsonObjectRequest(GET, apiURLRequest, null, response ->
-                {
-                    new FreeCompany(response, dbHelper);
+            {
+                new FreeCompany(response, dbHelper);
 
-                    touchAppIcon.setVisibility(View.VISIBLE);
-                    bar.setVisibility(View.INVISIBLE);
+                touchAppIcon.setVisibility(View.VISIBLE);
+                bar.setVisibility(View.INVISIBLE);
 
-                    ready = true;
-                }, error -> Toast.makeText(SplashScreenActivity.this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show()));
+                checkPermissions();
+            }, error -> Toast.makeText(SplashScreenActivity.this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show()));
         }
         else
         {
             touchAppIcon.setVisibility(View.VISIBLE);
             bar.setVisibility(View.INVISIBLE);
+            checkPermissions();
+        }
+    }
+
+    public void checkPermissions()
+    {
+        if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_REQUEST);
+        else
             ready = true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+    {
+        switch (requestCode)
+        {
+            case READ_EXTERNAL_STORAGE_REQUEST:
+            {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    ready = true;
+                else
+                    finish();
+            }
         }
     }
 
     /**
      * Lazy initialize the request queue, the queue instance will be created when it is accessed
      * for the first time
+     *
      * @return Request Queue
      */
     public RequestQueue getRequestQueue()
     {
-        if (this.mRequestQueue == null) this.mRequestQueue = Volley.newRequestQueue(getApplicationContext());
+        if (this.mRequestQueue == null)
+            this.mRequestQueue = Volley.newRequestQueue(getApplicationContext());
 
         return mRequestQueue;
     }

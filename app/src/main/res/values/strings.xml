@@ -75,18 +75,27 @@
     <string name="title_new_event_activity">Nouvel événement (preview)</string>
     <string name="action_save_event">Enregistrer</string>
 
+    <string name="event_sending">Envoi en cours</string>
+
     <string name="form_required">*requis</string>
+    <string name="form_too_few_participants">Au moins 2 participants requis</string>
     <string name="form_event_name">Nom de l\'événement</string>
     <string name="form_event_date">Date</string>
     <string name="form_event_date_helper">jj/mm/aaaa *requis</string>
     <string name="form_event_hour">Heure</string>
     <string name="form_event_max_participants">Participants max</string>
+    <string name="form_event_promoter_participant">Je participe à l\'événement</string>
     <string name="form_event_description">Description</string>
-    <string name="form_participations_type_label">Participations</string>
+    <string name="form_event_image">Image</string>
     <string name="form_participations_type_0">Illimitées</string>
     <string name="form_participations_type_1">Limitées</string>
 
-    <string name="button_add_price">Ajouter un prix</string>
+    <string name="form_general_label">Général</string>
+    <string name="form_participations_type_label">Participations</string>
+    <string name="form_details_label">Détails</string>
+    <string name="form_prices_label">Récompenses</string>
+
+    <string name="button_add_price">Ajouter</string>
     <string name="action_delete_price">Supprimer</string>
 
     <string name="title_edit_price_dialogfrag">Modification du prix</string>
@@ -101,6 +110,11 @@
     <string name="item_search_placeholder_instruction">Effectuez une recherche d\'item dans le champ ci-dessus</string>
     <string name="item_search_placeholder_no_result">Aucun résultat</string>
     <string name="item_search_placeholder_error">Échec de la récupération des données</string>
+
+    <string name="image_upload_error_dialog_title">Échec upload image</string>
+    <string name="image_upload_error_dialog_message">Le téléversement de votre image n\'a pas fonctionné, continuer la mise en ligne de votre événement sans illustration ? Une image par défaut sera utilisée.</string>
+    <string name="image_upload_error_dialog_pos_btn">Continuer</string>
+    <string name="image_upload_error_dialog_neg_btn">Annuler</string>
 
     <!-- PREFERENCES ACTIVITY -->
     <string name="title_settings_activity">Paramètres</string>

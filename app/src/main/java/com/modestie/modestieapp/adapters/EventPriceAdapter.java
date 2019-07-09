@@ -10,9 +10,11 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.FragmentManager;
 
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
@@ -78,7 +80,7 @@ public class EventPriceAdapter extends DragItemAdapter<Pair<Long, EventPrice>, E
     {
         this.dataset = list;
         this.grabHandleId = R.id.dragHandle;
-        this.dragOnLongPress = true;
+        this.dragOnLongPress = false;
         this.readonly = readonly;
         this.event = event;
         this.parent = context;
@@ -152,6 +154,14 @@ public class EventPriceAdapter extends DragItemAdapter<Pair<Long, EventPrice>, E
         });
 
         setAnimation(holder.itemView, position);
+    }
+
+    @Override
+    public void onViewAttachedToWindow(@NonNull ViewHolder holder)
+    {
+        super.onViewAttachedToWindow(holder);
+        NestedScrollView view = this.parent.findViewById(R.id.newEventView);
+        view.post(() -> view.fullScroll(ScrollView.FOCUS_DOWN));
     }
 
     @Override
