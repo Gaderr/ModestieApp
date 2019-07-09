@@ -136,9 +136,12 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
     public void onBindViewHolder(@NotNull EventListCardViewHolder holder, int position)
     {
         Event event = this.events.get(position);
-        Log.e(TAG, event.toString());
         FreeCompanyMember member = this.members.get(event.getPromoterID());
         assert member != null;
+
+        //REPLACE THIS WITH FUTURE USER AUTHENTICATION
+        //boolean userIsPromoter = member.getID() == [PREFERENCES -> APP USER ID];
+        boolean userIsPromoter = true;
 
         //Get participation status
         holder.participation = event.isPromoterParticipant();
@@ -155,9 +158,10 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         //Event image
         if(event.getImageURL() != null)
         {
-            Log.e(TAG, event.getImageURL());
             Picasso.get()
                     .load(event.getImageURL())
+                    .fit()
+                    .centerCrop()
                     .into(holder.image);
         }
 
@@ -184,10 +188,12 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         holder.description.setOnClickListener(v -> expandOrCollapseDescription(holder));
 
         //Participation text feedback
-        if(event.isPromoterParticipant())
+        if(userIsPromoter) //Is app user promoter ?
         {
             holder.action.setVisibility(View.INVISIBLE);
             holder.participationText.setText(R.string.event_self_promoter_feedback);
+            holder.participationText.setVisibility(View.VISIBLE);
+            holder.participationCheck.setVisibility(View.VISIBLE);
 
             ConstraintSet set = new ConstraintSet();
             ConstraintLayout parentLayout = holder.v.findViewById(R.id.eventCardContent);
@@ -199,13 +205,13 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         else
         {
             holder.participationText.setText(R.string.event_pariticpation_feedback);
+            updateParticipationButton(holder);
         }
 
         //Participants count
         updateParticipantsViews(holder, event);
 
         //Action button
-        updateParticipationButton(holder);
         holder.action.setOnClickListener(v ->
             {
                 if(!holder.participation) //Participation request -> check if a place is available

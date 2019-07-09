@@ -17,20 +17,11 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:elevation="4dp"
-            app:layout_scrollFlags="scroll|enterAlways"
+            app:layout_scrollFlags="noScroll"
             app:title="@string/title_event_list_activity"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
     <include layout="@layout/content_event_list"/>
-
-    <!--<com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add_event_fab"
-        style="@style/Widget.MaterialComponents.FloatingActionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        app:srcCompat="@drawable/ic_add_24dp"/>-->
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
