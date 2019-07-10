@@ -9,7 +9,8 @@
     android:scrollbars="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".activities.NewEventActivity"
-    tools:showIn="@layout/activity_new_event">
+    tools:showIn="@layout/activity_new_event"
+    tools:ignore="ContentDescription" >
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -20,214 +21,295 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"
-            android:clickable="false"
+            android:layout_marginTop="16dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-            <TextView
-                style="@style/TextAppearance.ModestieTheme.Headline6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/form_general_label" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/FormEventName"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/form_event_name"
-                app:endIconDrawable="@drawable/ic_clear_24dp"
-                app:endIconMode="clear_text"
-                app:helperText="@string/form_required">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:lines="1" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
             <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/formSectionGeneral"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingBottom="16dp">
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:orientation="vertical">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/FormEventDate"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:hint="@string/form_event_date"
-                    app:helperText="@string/form_required"
-                    app:startIconDrawable="@drawable/ic_event_24dp">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="date" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/FormEventTime"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_weight="1.25"
-                    android:hint="@string/form_event_hour"
-                    app:helperText="@string/form_required"
-                    app:startIconDrawable="@drawable/ic_alarm_24dp">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="time" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-            </androidx.appcompat.widget.LinearLayoutCompat>
-
-            <androidx.appcompat.widget.LinearLayoutCompat
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <androidx.appcompat.widget.LinearLayoutCompat
+                <TextView
+                    style="@style/TextAppearance.ModestieTheme.Headline6"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="32dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        style="@style/TextAppearance.ModestieTheme.Headline6"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:text="@string/form_participations_type_label" />
-
-                    <RadioGroup
-                        android:id="@+id/selectParticipationTypes"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checkedButton="@+id/participationType0"
-                        android:orientation="vertical"
-                        app:useMaterialThemeColors="false">
-
-                        <com.google.android.material.radiobutton.MaterialRadioButton
-                            android:id="@+id/participationType0"
-                            style="@style/Widget.MaterialComponents.CompoundButton.RadioButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/form_participations_type_0" />
-
-                        <com.google.android.material.radiobutton.MaterialRadioButton
-                            android:id="@+id/participationType1"
-                            style="@style/Widget.MaterialComponents.CompoundButton.RadioButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/form_participations_type_1" />
-                    </RadioGroup>
-
-                </androidx.appcompat.widget.LinearLayoutCompat>
+                    android:text="@string/form_general_label" />
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/FormMaxParticipants"
+                    android:id="@+id/FormEventName"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:hint="@string/form_event_max_participants"
+                    android:hint="@string/form_event_name"
+                    app:endIconDrawable="@drawable/ic_clear_24dp"
+                    app:endIconMode="clear_text"
                     app:helperText="@string/form_required">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="number" />
+                        android:lines="1" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingBottom="16dp">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/FormEventDate"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:hint="@string/form_event_date"
+                        app:helperText="@string/form_required"
+                        app:startIconDrawable="@drawable/ic_event_24dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="date" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/FormEventTime"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_weight="1.25"
+                        android:hint="@string/form_event_hour"
+                        app:helperText="@string/form_required"
+                        app:startIconDrawable="@drawable/ic_alarm_24dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="time" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
             </androidx.appcompat.widget.LinearLayoutCompat>
 
-            <CheckBox
-                android:id="@+id/FormEventPromoterParticipant"
-                style="@style/Widget.MaterialComponents.CompoundButton.CheckBox"
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/form_event_promoter_participant" />
-
-            <TextView
-                style="@style/TextAppearance.ModestieTheme.Headline6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:text="@string/form_details_label" />
+                android:layout_height="1dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:background="@android:color/darker_gray"/>
 
             <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/formSectionParticipations"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:orientation="vertical">
 
-                <ImageView
-                    android:id="@+id/fileUploadIcon"
-                    style="@style/Widget.AppCompat.ActionButton"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="4dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:src="@drawable/ic_file_upload_24dp"
-                    android:tint="@color/color_on_background" />
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="32dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/TextAppearance.ModestieTheme.Headline6"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:text="@string/form_participations_type_label" />
+
+                        <RadioGroup
+                            android:id="@+id/selectParticipationTypes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkedButton="@+id/participationType0"
+                            android:orientation="vertical"
+                            app:useMaterialThemeColors="false">
+
+                            <com.google.android.material.radiobutton.MaterialRadioButton
+                                android:id="@+id/participationType0"
+                                style="@style/Widget.MaterialComponents.CompoundButton.RadioButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/form_participations_type_0" />
+
+                            <com.google.android.material.radiobutton.MaterialRadioButton
+                                android:id="@+id/participationType1"
+                                style="@style/Widget.MaterialComponents.CompoundButton.RadioButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/form_participations_type_1" />
+                        </RadioGroup>
+
+                    </androidx.appcompat.widget.LinearLayoutCompat>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/FormMaxParticipants"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:hint="@string/form_event_max_participants"
+                        app:helperText="@string/form_required">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
+                <CheckBox
+                    android:id="@+id/FormEventPromoterParticipant"
+                    style="@style/Widget.MaterialComponents.CompoundButton.CheckBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/form_event_promoter_participant" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:background="@android:color/darker_gray"/>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/formSectionDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/TextAppearance.ModestieTheme.Headline6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/form_details_label" />
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/fileUploadIcon"
+                        style="@style/Widget.AppCompat.ActionButton"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginBottom="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:src="@drawable/ic_file_upload_24dp"
+                        android:tint="@color/color_on_background" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/FormEventImage"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/form_event_image"
+                        android:paddingBottom="8dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/removeImage"
+                    style="@style/Widget.MaterialComponents.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:backgroundTint="@color/color_error"
+                    android:textColor="@color/color_on_error"
+                    android:enabled="false"
+                    android:text="@string/button_remove_image" />
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/FormEventImage"
+                    android:id="@+id/FormEventDescription"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/form_event_image"
-                    android:paddingBottom="16dp">
+                    android:hint="@string/form_event_description"
+                    android:paddingBottom="16dp"
+                    android:textCursorDrawable="@null"
+                    app:endIconDrawable="@drawable/ic_clear_24dp"
+                    app:endIconMode="clear_text">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="text" />
+                        android:inputType="textMultiLine" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
             </androidx.appcompat.widget.LinearLayoutCompat>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/FormEventDescription"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            <TextView
+                style="@style/TextAppearance.ModestieTheme.Body1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/form_image_preview_text" />
+
+            <include
+                android:id="@+id/cardPreview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/form_event_description"
-                android:paddingBottom="16dp"
-                android:textCursorDrawable="@null"
-                app:endIconDrawable="@drawable/ic_clear_24dp"
-                app:endIconMode="clear_text">
+                layout="@layout/event_card" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textMultiLine" />
-
-            </com.google.android.material.textfield.TextInputLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:background="@android:color/darker_gray"/>
 
             <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/formSectionPrices"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:orientation="vertical">
 
                 <TextView
                     style="@style/TextAppearance.ModestieTheme.Headline6"
@@ -236,22 +318,22 @@
                     android:layout_marginTop="12dp"
                     android:text="@string/form_prices_label" />
 
+                <com.woxthebox.draglistview.DragListView
+                    android:id="@+id/PricesLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:animateLayoutChanges="true"
+                    android:orientation="vertical" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/addPriceButton"
+                    style="@style/Widget.MaterialComponents.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/button_add_price" />
+
             </androidx.appcompat.widget.LinearLayoutCompat>
-
-            <com.woxthebox.draglistview.DragListView
-                android:id="@+id/PricesLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
-                android:orientation="vertical" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/addPriceButton"
-                style="@style/Widget.MaterialComponents.Button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/button_add_price" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 

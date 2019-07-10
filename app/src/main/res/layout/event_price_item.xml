@@ -36,6 +36,7 @@
         android:singleLine="true"
         android:text="Premier prix"
         android:textAppearance="@style/TextAppearance.ModestieTheme.Subtitle1"
+        android:textStyle="bold"
         app:firstBaselineToTopHeight="32dp"
         app:layout_constraintEnd_toStartOf="@+id/dragHandle"
         app:layout_constraintStart_toEndOf="@+id/priceIcon"

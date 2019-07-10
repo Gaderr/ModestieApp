@@ -57,7 +57,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         TextView date;
         TextView description;
         TextView participantCount;
-        ImageView expand;
+        //ImageView expand;
         Button action;
         ImageView participationCheck;
         TextView participationText;
@@ -86,7 +86,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
                 this.participationText.setTextColor(context.getColor(R.color.colorValidateLight));
             }
 
-            this.expand = v.findViewById(R.id.expand);
+            //this.expand = v.findViewById(R.id.expand);
             this.action = v.findViewById(R.id.actionBtn);
             this.expanded = false;
 
@@ -166,13 +166,13 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         }
 
         //Expand More/Less icon
-        AnimatedVectorDrawable animatedExpandMore = (AnimatedVectorDrawable) context.getResources().getDrawable(R.drawable.ic_expand_more_animatable, null);
+        /*AnimatedVectorDrawable animatedExpandMore = (AnimatedVectorDrawable) context.getResources().getDrawable(R.drawable.ic_expand_more_animatable, null);
         if(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
             animatedExpandMore.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         else
             animatedExpandMore.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
         holder.expand.setImageDrawable(animatedExpandMore);
-        holder.expand.setOnClickListener(v -> expandOrCollapseDescription(holder));
+        holder.expand.setOnClickListener(v -> expandOrCollapseDescription(holder));*/
 
         //Date
         Date eventTime = new Date(event.getEventEpochTime() * 1000);
@@ -185,7 +185,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
             holder.description.setText(R.string.event_description_null);
         else
             holder.description.setText(event.getDescription());
-        holder.description.setOnClickListener(v -> expandOrCollapseDescription(holder));
+        //holder.description.setOnClickListener(v -> expandOrCollapseDescription(holder));
 
         //Participation text feedback
         if(userIsPromoter) //Is app user promoter ?
@@ -284,7 +284,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         if(holder.expanded)
         {
             AnimatedVectorDrawable animatedExpandLess = (AnimatedVectorDrawable) context.getResources().getDrawable(R.drawable.ic_expand_less_animatable, null);
-            holder.expand.setImageDrawable(animatedExpandLess);
+            //holder.expand.setImageDrawable(animatedExpandLess);
             if(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
                 animatedExpandLess.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
             else
@@ -295,7 +295,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         else
         {
             AnimatedVectorDrawable animatedExpandMore = (AnimatedVectorDrawable) context.getResources().getDrawable(R.drawable.ic_expand_more_animatable, null);
-            holder.expand.setImageDrawable(animatedExpandMore);
+            //holder.expand.setImageDrawable(animatedExpandMore);
             if(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
                 animatedExpandMore.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
             else

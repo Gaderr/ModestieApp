@@ -3,7 +3,9 @@ package com.modestie.modestieapp.activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -53,7 +55,10 @@ public class EventListActivity extends AppCompatActivity
 
     private RequestQueue mRequestQueue;
 
+    private int NEW_EVENT_REQUEST = 1;
+
     public static final String TAG = "ACTVT - EVNTLST";
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -88,8 +93,7 @@ public class EventListActivity extends AppCompatActivity
                     {
                         JSONArray eventsArray = response.getJSONArray("Events");
                         int count = response.getInt("Count");
-                        Log.e(TAG, count+"");
-                        for(int i = 0; i < count; i++)
+                        for (int i = 0; i < count; i++)
                         {
                             JSONObject tempEvent = eventsArray.getJSONObject(i);
                             this.events.add(new Event(tempEvent));
@@ -107,7 +111,7 @@ public class EventListActivity extends AppCompatActivity
                     Toast.makeText(EventListActivity.this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show();
                     onBackPressed();
                 }
-                ));
+        ));
 
         Collections.sort(this.events, Event.EventDateComparator);
     }
@@ -118,7 +122,7 @@ public class EventListActivity extends AppCompatActivity
         super.onRestart();
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        if(sharedPref.getBoolean("nightmode", false))
+        if (sharedPref.getBoolean("nightmode", false))
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         else
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
@@ -143,11 +147,76 @@ public class EventListActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.add_event)
         {
-            startActivityForResult(new Intent(getApplicationContext(), NewEventActivity.class), 1);
+            startActivityForResult(new Intent(getApplicationContext(), NewEventActivity.class), this.NEW_EVENT_REQUEST);
+            return true;
+        }
+
+        if(id == R.id.refresh)
+        {
+            reloadList();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        // Check which request we're responding to
+        if (requestCode == NEW_EVENT_REQUEST)
+        {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK)
+            {
+                reloadList();
+            }
+
+            if(resultCode == RESULT_CANCELED)
+            {
+                if(data.hasExtra("Error"))
+                    Toast.makeText(this, "Echec de l'envoi, nous rencontrons des difficultés techniques.", Toast.LENGTH_SHORT).show();
+                else
+                    Toast.makeText(this, "Envoi annulé.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void reloadList()
+    {
+        this.events.clear();
+        this.adapter.notifyDataSetChanged();
+        this.progressBar.setVisibility(View.VISIBLE);
+        addToRequestQueue(new JsonObjectRequest(
+                GET, this.MODESTIE_GETEVENTS, null,
+                response ->
+                {
+                    try
+                    {
+                        JSONArray eventsArray = response.getJSONArray("Events");
+                        int count = response.getInt("Count");
+                        for (int i = 0; i < count; i++)
+                        {
+                            JSONObject tempEvent = eventsArray.getJSONObject(i);
+                            this.events.add(new Event(tempEvent));
+                        }
+                        this.adapter.notifyDataSetChanged();
+                        this.progressBar.setVisibility(View.INVISIBLE);
+                    }
+                    catch (JSONException e)
+                    {
+                        Log.e(TAG, e.getLocalizedMessage());
+                    }
+
+                }, error ->
+                {
+                    Toast.makeText(EventListActivity.this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show();
+                    onBackPressed();
+                }
+        ));
+
+        Collections.sort(this.events, Event.EventDateComparator);
     }
 
     /**

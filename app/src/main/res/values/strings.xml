@@ -94,7 +94,9 @@
     <string name="form_participations_type_label">Participations</string>
     <string name="form_details_label">Détails</string>
     <string name="form_prices_label">Récompenses</string>
+    <string name="form_image_preview_text">Prévisualisation :</string>
 
+    <string name="button_remove_image">Supprimer l\'image</string>
     <string name="button_add_price">Ajouter</string>
     <string name="action_delete_price">Supprimer</string>
 

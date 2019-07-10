@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -36,10 +35,10 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -48,12 +47,10 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.modestie.modestieapp.R;
@@ -62,6 +59,7 @@ import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.event.EventPrice;
 import com.modestie.modestieapp.model.item.LightItem;
 import com.modestie.modestieapp.utils.Utils;
+import com.squareup.picasso.Picasso;
 import com.woxthebox.draglistview.DragListView;
 
 import org.jetbrains.annotations.NotNull;
@@ -100,9 +98,12 @@ public class NewEventActivity
     private DragListView formPricesList;
     private EventPriceAdapter adapter;
 
+    private LinearLayout eventCardPreview;
+
     private EventPriceEditDialogFragment editDialogFragment;
     private ItemSelectionDialogFragment selectionDialogFragment;
 
+    private Button formRemoveImage;
     private Button formNewPrice;
 
     private Event event;
@@ -110,6 +111,8 @@ public class NewEventActivity
     private int count = 0;
 
     private boolean today;
+    private long EPOCH; //Milliseconds
+
     private Uri pickedImage;
     private Bitmap bitmapConvertedImage;
 
@@ -131,6 +134,7 @@ public class NewEventActivity
     private RequestQueue mRequestQueue;
     private int SOCKET_TIMEOUT = 3000;
     private int MAX_RETRIES = 3;
+    private boolean pending;
 
     /*
         ----------------------------
@@ -164,7 +168,10 @@ public class NewEventActivity
         this.formEventMaxParticipantsType = findViewById(R.id.selectParticipationTypes);
         this.formEventPromoterParticipant = findViewById(R.id.FormEventPromoterParticipant);
         this.formPricesList = findViewById(R.id.PricesLayout);
+        this.formRemoveImage = findViewById(R.id.removeImage);
         this.formNewPrice = findViewById(R.id.addPriceButton);
+
+        this.eventCardPreview = findViewById(R.id.cardPreview);
 
         this.formEventMaxParticipants.setEnabled(false);
         this.formEventMaxParticipants.setHelperText("");
@@ -176,23 +183,23 @@ public class NewEventActivity
         AlertDialog.Builder builder = new AlertDialog.Builder(NewEventActivity.this, R.style.ThemeOverlay_ModestieTheme_Dialog);
         builder.setTitle(getString(R.string.image_upload_error_dialog_title))
                 .setMessage(getString(R.string.image_upload_error_dialog_message))
-                .setPositiveButton(getString(R.string.image_upload_error_dialog_pos_btn), null)
-                .setNegativeButton(R.string.image_upload_error_dialog_neg_btn, (dialog, which) -> postNewEvent(""));
+                .setPositiveButton(getString(R.string.image_upload_error_dialog_pos_btn), (dialog, which) -> postNewEvent(""))
+                .setNegativeButton(R.string.image_upload_error_dialog_neg_btn, (dialog, which) ->
+                {
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra("Error", "image");
+                    setResult(Activity.RESULT_CANCELED, returnIntent);
+                    finish();
+                });
         this.imageUploadError = builder.create();
 
-        /*----------------------
-            Event date field
-        ----------------------*/
-
         this.today = true;
-
+        this.EPOCH = 0L;
         final Calendar c = Calendar.getInstance(Locale.FRANCE);
         int year = c.get(Calendar.YEAR);
         int month = c.get(Calendar.MONTH);
         int day = c.get(Calendar.DAY_OF_MONTH);
-
         String cDay, cMonth;
-
         if (day < 10)
             cDay = "0" + day;
         else
@@ -201,8 +208,40 @@ public class NewEventActivity
             cMonth = "0" + (month + 1);
         else
             cMonth = (month + 1) + "";
+        this.formEventDate.getEditText().setText(String.format(Locale.FRANCE, "%s/%s/%d", cDay, cMonth, year));
 
-        formEventDate.getEditText().setText(String.format(Locale.FRANCE, "%s/%s/%d", cDay, cMonth, year));
+        ((TextView) this.eventCardPreview.findViewById(R.id.participantsCount)).setText("--/∞");
+
+        this.pending = false;
+
+        /*-----------------
+            Text fields
+        -----------------*/
+
+        this.formEventName.getEditText().addTextChangedListener(new TextWatcher()
+        {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            @Override public void afterTextChanged(Editable s) { ((TextView)eventCardPreview.findViewById(R.id.eventTitle)).setText(s.toString()); }
+        });
+
+        this.formEventMaxParticipants.getEditText().addTextChangedListener(new TextWatcher()
+        {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            @Override public void afterTextChanged(Editable s) { ((TextView)eventCardPreview.findViewById(R.id.participantsCount)).setText(String.format(Locale.FRANCE, "--/%s", s.toString())); }
+        });
+
+        this.formEventDescription.getEditText().addTextChangedListener(new TextWatcher()
+        {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            @Override public void afterTextChanged(Editable s) { ((TextView)eventCardPreview.findViewById(R.id.eventDescription)).setText(s.toString()); }
+        });
+
+        /*----------------------
+            Event date field
+        ----------------------*/
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 this, R.style.ThemeOverlay_ModestieTheme_Dialog,
@@ -269,11 +308,25 @@ public class NewEventActivity
                     SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
                     df.setTimeZone(TimeZone.getDefault());
                     long millis = df.parse(s.toString()).getTime() + 86399000; //This date + 23:59:59
-
                     if (millis < System.currentTimeMillis())
                     {
                         Toast.makeText(NewEventActivity.this, "Veuillez entrer une date supérieure ou égale à celle d'aujourd'hui", Toast.LENGTH_LONG).show();
                         s.clear();
+                        ((TextView) eventCardPreview.findViewById(R.id.eventDate)).setText("Le -- ---- ---- à --:--");
+                    }
+                    else
+                    {
+                        SimpleDateFormat format = new SimpleDateFormat("'Le' dd MMMM 'à' HH'h'mm ");
+                        format.setTimeZone(TimeZone.getDefault());
+                        EPOCH = millis - 86399000;
+                        String time = formEventTime.getEditText().getText().toString();
+                        if(!time.equals(""))
+                        {
+                            int hour = Integer.parseInt(time.substring(0, 2));
+                            int minute = Integer.parseInt(time.substring(3, 5));
+                            EPOCH += hour * 3600000 + minute * 60000; //Conversion in MILLISECONDS
+                        }
+                        ((TextView) eventCardPreview.findViewById(R.id.eventDate)).setText(format.format(EPOCH));
                     }
                 }
                 catch (ParseException e)
@@ -341,6 +394,7 @@ public class NewEventActivity
             {
                 formEventDate.getEditText().clearFocus();
                 hideKeyboardFrom(getApplicationContext(), formEventDate);
+                boolean correct = true;
 
                 if (s.length() == 0)
                     return;
@@ -363,13 +417,36 @@ public class NewEventActivity
                     {
                         Toast.makeText(NewEventActivity.this, "Veuillez choisir un horaire supérieur à l'heure actuelle", Toast.LENGTH_LONG).show();
                         s.clear();
+                        correct = false;
                     }
                     else if (timediff < 30)
                     {
                         Toast.makeText(NewEventActivity.this, "Veuillez organiser votre événement au moins une demie-heure en avance", Toast.LENGTH_LONG).show();
                         s.clear();
+                        correct = false;
                     }
                 }
+
+                if(correct)
+                    try
+                    {
+                        String date = formEventDate.getEditText().getText().toString();
+                        SimpleDateFormat df_date = new SimpleDateFormat("dd/MM/yyyy");
+                        df_date.setTimeZone(TimeZone.getDefault());
+                        EPOCH = df_date.parse(date).getTime() + sHour * 3600000 + sMinute * 60000;
+
+                        SimpleDateFormat format = new SimpleDateFormat("'Le' dd MMMM 'à' HH'h'mm ");
+                        format.setTimeZone(TimeZone.getDefault());
+                        ((TextView) eventCardPreview.findViewById(R.id.eventDate)).setText(format.format(EPOCH));
+                    }
+                    catch (ParseException e)
+                    {
+                        Log.e(TAG, e.getLocalizedMessage());
+                        Intent returnIntent = new Intent();
+                        returnIntent.putExtra("Error", "unk");
+                        setResult(Activity.RESULT_CANCELED, returnIntent);
+                        finish();
+                    }
             }
         });
 
@@ -385,11 +462,13 @@ public class NewEventActivity
                         case R.id.participationType0: //Unlimited
                             this.formEventMaxParticipants.setEnabled(false);
                             this.formEventMaxParticipants.setHelperText("");
+                            ((TextView) this.eventCardPreview.findViewById(R.id.participantsCount)).setText("--/∞");
                             break;
 
                         case R.id.participationType1: //Limited
                             this.formEventMaxParticipants.setEnabled(true);
                             this.formEventMaxParticipants.setHelperText(getString(R.string.form_required));
+                            ((TextView) this.eventCardPreview.findViewById(R.id.participantsCount)).setText(String.format(Locale.FRANCE, "--/%s", this.formEventMaxParticipants.getEditText().getText()));
                             break;
                     }
                 });
@@ -412,6 +491,20 @@ public class NewEventActivity
                     intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
                     // Launching the Intent
                     startActivityForResult(intent, IMAGE_PICK_INTENT);
+                });
+
+        /*-------------------------
+            Remove image button
+        -------------------------*/
+
+        this.formRemoveImage.setOnClickListener(
+                v ->
+                {
+                    this.bitmapConvertedImage = null;
+                    this.formEventImage.getEditText().setText("");
+                    this.formRemoveImage.setEnabled(false);
+                    ImageView imagePreview = this.eventCardPreview.findViewById(R.id.eventImage);
+                    Picasso.get().load(R.drawable.logout_icon1).into(imagePreview);
                 });
 
         /*-----------------
@@ -520,6 +613,9 @@ public class NewEventActivity
                         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
                         this.bitmapConvertedImage = BitmapFactory.decodeFile(imagePath, options);
                         this.formEventImage.getEditText().setText(new File(imagePath).getName());
+                        this.formRemoveImage.setEnabled(true);
+                        ImageView imagePreview = this.eventCardPreview.findViewById(R.id.eventImage);
+                        Picasso.get().load(this.pickedImage).fit().centerCrop().into(imagePreview);
                     }
                     cursor.close();
                     break;
@@ -568,17 +664,21 @@ public class NewEventActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.save_event)
         {
-            //snackbar("En cours de développement");
-            if (validateForm() && bitmapConvertedImage != null) //TODO REWORK : IMAGE FIELD CAN BE VOID
+            if (!this.pending)
             {
-                this.loadingLayout.setVisibility(View.VISIBLE);
-                //this.loadingLayout.setClickable(false);
-                this.formLayout.setAlpha(0f);
-                //this.formLayout.setClickable(false);
-                ((ConstraintLayout) this.formLayout.getParent()).setClickable(false);
-                beginEventPost();
+                //snackbar("En cours de développement");
+                if (validateForm() && bitmapConvertedImage != null) //TODO REWORK : IMAGE FIELD CAN BE VOID
+                {
+                    this.loadingLayout.setVisibility(View.VISIBLE);
+                    //this.loadingLayout.setClickable(false);
+                    this.formLayout.setVisibility(View.INVISIBLE);
+                    //this.formLayout.setClickable(false);
+                    //((ConstraintLayout) this.formLayout.getParent()).setClickable(false);
+                    hideKeyboardFrom(NewEventActivity.this, this.formLayout);
+                    beginEventPost();
+                }
+                return true;
             }
-            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -589,6 +689,11 @@ public class NewEventActivity
         CUSTOM METHODS
         --------------
      */
+
+    public void updateDateTimeEPOCHPreview()
+    {
+
+    }
 
     public boolean validateForm()
     {
@@ -628,6 +733,11 @@ public class NewEventActivity
             result = result && true;
         }
 
+        if (this.EPOCH == 0L)
+        {
+            result = result && false;
+        }
+
         if (this.formEventMaxParticipantsType.getCheckedRadioButtonId() == R.id.participationType1)
         {
             if ((this.formEventMaxParticipants.getEditText().getText() + "").equals(""))
@@ -664,21 +774,20 @@ public class NewEventActivity
                     {
                         JSONObject jsonResponse = new JSONObject(response);
                         Log.e(TAG, jsonResponse.toString());
+
                         if (jsonResponse.getBoolean("success"))
-                        {
-                            Log.e(TAG, "go");
-                            //postNewEvent(jsonResponse.getJSONObject("data").getString("link"));
-                            imageUploadError.show();
-                        }
+                            postNewEvent(jsonResponse.getJSONObject("data").getString("link"));
                         else
-                        {
-                            Log.e(TAG, "nogo");
                             imageUploadError.show();
-                        }
                     }
                     catch (JSONException e)
                     {
                         Log.e(TAG, e.getLocalizedMessage());
+                        pending = false;
+                        Intent returnIntent = new Intent();
+                        returnIntent.putExtra("Error", "image");
+                        setResult(Activity.RESULT_CANCELED, returnIntent);
+                        finish();
                     }
                 },
                 error ->
@@ -712,6 +821,7 @@ public class NewEventActivity
         imageUploadRequest.setRetryPolicy(new DefaultRetryPolicy(SOCKET_TIMEOUT, MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         addToRequestQueue(imageUploadRequest);
+        this.pending = true;
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -719,26 +829,14 @@ public class NewEventActivity
     {
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
         df.setTimeZone(TimeZone.getDefault());
-
-        AtomicBoolean imageUploadErrorContinue = new AtomicBoolean(false);
-
-        if (imageUploadErrorContinue.get())
-        {
-            this.loadingLayout.setVisibility(View.GONE);
-            this.formLayout.setAlpha(1f);
-            return false;
-        }
-
-        Log.e(TAG, "image ok");
-
         AtomicBoolean postResult = new AtomicBoolean(false);
-
         try
         {
             JSONObject postparams = new JSONObject();
             postparams.put("name", this.formEventName.getEditText().getText());
             postparams.put("promoter", "11148489");
-            postparams.put("epoch", df.parse(this.formEventDate.getEditText().getText() + "").getTime() + 86399000);
+            String epoch = this.formEventDate.getEditText().getText() + "";
+            postparams.put("epoch", EPOCH / 1000);
             postparams.put("description", this.formEventDescription.getEditText().getText() + "");
             if (this.formEventMaxParticipantsType.getCheckedRadioButtonId() == R.id.participationType1)
                 postparams.put("maxparticipants", this.formEventMaxParticipants.getEditText().getText() + "");
@@ -760,11 +858,20 @@ public class NewEventActivity
                         loadingLayout.setVisibility(View.GONE);
                         this.formLayout.setAlpha(1f);
                         Toast.makeText(this, "Événement créé", Toast.LENGTH_SHORT).show();
-                        onBackPressed();
                         postResult.set(!response.equals("-1"));
+                        Intent returnIntent = new Intent();
+                        setResult(Activity.RESULT_OK, returnIntent);
+                        finish();
                     },
                     error ->
-                    {/*error = VolleyError*/})
+                    {
+                        Log.e(TAG, error.getMessage());
+
+                        Intent returnIntent = new Intent();
+                        returnIntent.putExtra("Error", "event");
+                        setResult(Activity.RESULT_CANCELED, returnIntent);
+                        finish();
+                    })
             {
                 @Override
                 public String getBodyContentType()
@@ -804,10 +911,6 @@ public class NewEventActivity
         catch (JSONException e)
         {
             Log.e(TAG, e.getLocalizedMessage());
-        }
-        catch (ParseException e)
-        {
-            Log.e(TAG, e.getMessage());
         }
 
         return postResult.get();

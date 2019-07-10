@@ -49,7 +49,7 @@
                     android:layout_marginEnd="16dp"
                     android:ellipsize="end"
                     android:singleLine="true"
-                    android:text=""
+                    android:text="Titre"
                     android:textAppearance="@style/TextAppearance.ModestieTheme.Headline6"
                     app:firstBaselineToTopHeight="34dp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -64,6 +64,7 @@
                     android:layout_marginEnd="8dp"
                     android:ellipsize="end"
                     android:singleLine="true"
+                    android:text="Organisé par ---- ----"
                     android:textAppearance="@style/TextAppearance.ModestieTheme.Subtitle2"
                     app:firstBaselineToTopHeight="56dp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -93,6 +94,7 @@
                     android:layout_marginEnd="16dp"
                     android:ellipsize="end"
                     android:maxLines="2"
+                    android:text="Description"
                     android:textAppearance="@style/TextAppearance.ModestieTheme.Body2"
                     app:firstBaselineToTopHeight="68dp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -107,22 +109,12 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
+                    android:text="Le -- ---- ---- à --:--"
                     android:textAppearance="@style/TextAppearance.ModestieTheme.Headline6"
                     app:firstBaselineToTopHeight="34dp"
-                    app:layout_constraintEnd_toStartOf="@+id/expand"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
-
-                <ImageView
-                    android:id="@+id/expand"
-                    style="@style/Widget.AppCompat.ActionButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_expand_more_24dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/actionBtn"
@@ -178,6 +170,7 @@
                     android:layout_marginEnd="16dp"
                     android:fontFamily="@font/davidsans"
                     android:letterSpacing="0.075"
+                    android:text="--/--"
                     android:textAppearance="@style/TextAppearance.ModestieTheme.Caption"
                     app:layout_constraintBottom_toBottomOf="@+id/personIcon"
                     app:layout_constraintEnd_toEndOf="parent"
