@@ -64,9 +64,10 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
 
         boolean expanded;
         int userID;
-        boolean participation;
+        boolean promoterParticipation;
+        boolean userIsPromoter;
 
-        public EventListCardViewHolder(View v, Context context)
+        EventListCardViewHolder(View v, Context context)
         {
             super(v);
             this.v = v;
@@ -91,7 +92,8 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
             this.expanded = false;
 
             this.userID = 11148489;
-            this.participation = false;
+            this.promoterParticipation = false;
+            this.userIsPromoter = false;
         }
     }
 
@@ -139,12 +141,13 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         FreeCompanyMember member = this.members.get(event.getPromoterID());
         assert member != null;
 
-        //REPLACE THIS WITH FUTURE USER AUTHENTICATION
+        //TODO REPLACE THIS WITH FUTURE USER AUTHENTICATION
         //boolean userIsPromoter = member.getID() == [PREFERENCES -> APP USER ID];
-        boolean userIsPromoter = true;
+        //boolean userIsPromoter = true;
+        holder.userIsPromoter = event.getPromoterID() == 11148489;
 
-        //Get participation status
-        holder.participation = event.isPromoterParticipant();
+        //Get promoterParticipation status
+        holder.promoterParticipation = event.isPromoterParticipant();
 
         //Initialize views
 
@@ -156,7 +159,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
                 .into(holder.promoterAvatar);
 
         //Event image
-        if(event.getImageURL() != null)
+        if(event.getImageURL() != null && !event.getImageURL().equals(""))
         {
             Picasso.get()
                     .load(event.getImageURL())
@@ -188,7 +191,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         //holder.description.setOnClickListener(v -> expandOrCollapseDescription(holder));
 
         //Participation text feedback
-        if(userIsPromoter) //Is app user promoter ?
+        if(holder.userIsPromoter) //Is app user promoter ?
         {
             holder.action.setVisibility(View.INVISIBLE);
             holder.participationText.setText(R.string.event_self_promoter_feedback);
@@ -214,16 +217,16 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         //Action button
         holder.action.setOnClickListener(v ->
             {
-                if(!holder.participation) //Participation request -> check if a place is available
+                if(!holder.promoterParticipation) //Participation request -> check if a place is available
                 {
                     if(event.getMaxParticipants() == -1)
                     {
-                        holder.participation = true;
+                        holder.promoterParticipation = true;
                         updateParticipation(holder, event);
                     }
                     else if(event.getParticipantsIDs().size() < event.getMaxParticipants())
                     {
-                        holder.participation = true;
+                        holder.promoterParticipation = true;
                         updateParticipation(holder, event);
                     }
                     else
@@ -231,12 +234,12 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
                         Toast.makeText(context, "Désolé, c'est complet !", Toast.LENGTH_SHORT).show();
                     }
                 }
-                else //Cancel participation
+                else //Cancel promoterParticipation
                 {
-                    //Promoters can't cancel participation to their own events
+                    //Promoters can't cancel promoterParticipation to their own events
                     if(event.getPromoterID() != holder.userID)
                     {
-                        holder.participation = false;
+                        holder.promoterParticipation = false;
                         updateParticipation(holder, event);
                     }
                 }
@@ -248,7 +251,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
 
     private void updateParticipation(EventListCardViewHolder holder, Event event)
     {
-        if(holder.participation)
+        if(holder.promoterParticipation)
             event.getParticipantsIDs().add(holder.userID);
         else
             event.removeParticipant(holder.userID);
@@ -256,16 +259,18 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
 
     private void updateParticipantsViews(EventListCardViewHolder holder, Event event)
     {
+        int participants = event.getParticipantsIDs().size();
+        if(holder.userIsPromoter) participants++;
 
         if(event.getMaxParticipants() == -1)
-            holder.participantCount.setText(String.format(Locale.FRANCE, "%d/∞", event.getParticipantsIDs().size()));
+            holder.participantCount.setText(String.format(Locale.FRANCE, "%d/∞", participants));
         else
-            holder.participantCount.setText(String.format(Locale.FRANCE, "%d/%d", event.getParticipantsIDs().size(), event.getMaxParticipants()));
+            holder.participantCount.setText(String.format(Locale.FRANCE, "%d/%d", participants, event.getMaxParticipants()));
     }
 
     private void updateParticipationButton(EventListCardViewHolder holder)
     {
-        if (holder.participation)
+        if (holder.promoterParticipation)
         {
             holder.action.setText(R.string.button_cancel_participation);
             holder.participationCheck.setVisibility(View.VISIBLE);

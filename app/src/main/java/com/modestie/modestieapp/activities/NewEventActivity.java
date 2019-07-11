@@ -41,7 +41,6 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
@@ -51,7 +50,6 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.adapters.EventPriceAdapter;
@@ -67,7 +65,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -93,9 +91,7 @@ public class NewEventActivity
     private CheckBox formEventPromoterParticipant;
     private TextInputLayout formEventDescription;
     private TextInputLayout formEventImage;
-    private ImageView formUploadImageIcon;
     private RadioGroup formEventMaxParticipantsType;
-    private DragListView formPricesList;
     private EventPriceAdapter adapter;
 
     private LinearLayout eventCardPreview;
@@ -103,10 +99,10 @@ public class NewEventActivity
     private EventPriceEditDialogFragment editDialogFragment;
     private ItemSelectionDialogFragment selectionDialogFragment;
 
-    private Button formRemoveImage;
-    private Button formNewPrice;
+    Button formRemoveImage;
+    Button formNewPrice;
 
-    private Event event;
+    Event event;
     private ArrayList<Pair<Long, EventPrice>> listPrices;
     private int count = 0;
 
@@ -121,19 +117,19 @@ public class NewEventActivity
     public static final String TAG = "ACTVT.NEWEVNT";
     public static final int IMAGE_PICK_INTENT = 1;
 
-    private String MODESTIE_ADDEVENT = "https://modestie.fr/wp-json/modestieevents/v1/addevent";
+    String MODESTIE_ADDEVENT = "https://modestie.fr/wp-json/modestieevents/v1/addevent";
 
-    private String IMGUR_IMG_UPLOAD = "https://api.imgur.com/3/upload";
-    private String IMGUR_TAG_IMAGE = "image";
-    private String IMGUR_TAG_TYPE = "type";
-    private String IMGUR_TAG_TITLE = "title";
-    private String IMGUR_TAG_NAME = "name";
-    private String IMGUR_ALBUM_HASH = "jLDde4Z";
-    private String IMGUR_CLIENT_ID = "1a437e09e459eab";
+    String IMGUR_IMG_UPLOAD = "https://api.imgur.com/3/upload";
+    String IMGUR_TAG_IMAGE = "image";
+    String IMGUR_TAG_TYPE = "type";
+    String IMGUR_TAG_TITLE = "title";
+    String IMGUR_TAG_NAME = "name";
+    String IMGUR_ALBUM_HASH = "jLDde4Z";
+    String IMGUR_CLIENT_ID = "1a437e09e459eab";
 
     private RequestQueue mRequestQueue;
-    private int SOCKET_TIMEOUT = 3000;
-    private int MAX_RETRIES = 3;
+    int SOCKET_TIMEOUT = 3000;
+    int MAX_RETRIES = 3;
     private boolean pending;
 
     /*
@@ -163,11 +159,9 @@ public class NewEventActivity
         this.formEventTime = findViewById(R.id.FormEventTime);
         this.formEventDescription = findViewById(R.id.FormEventDescription);
         this.formEventImage = findViewById(R.id.FormEventImage);
-        this.formUploadImageIcon = findViewById(R.id.fileUploadIcon);
         this.formEventMaxParticipants = findViewById(R.id.FormMaxParticipants);
         this.formEventMaxParticipantsType = findViewById(R.id.selectParticipationTypes);
         this.formEventPromoterParticipant = findViewById(R.id.FormEventPromoterParticipant);
-        this.formPricesList = findViewById(R.id.PricesLayout);
         this.formRemoveImage = findViewById(R.id.removeImage);
         this.formNewPrice = findViewById(R.id.addPriceButton);
 
@@ -287,7 +281,7 @@ public class NewEventActivity
             public void onTextChanged(CharSequence s, int start, int before, int count) { }
 
             @Override
-            @SuppressLint("SimpleDateFormat")
+            @SuppressLint({"SimpleDateFormat", "SetTextI18n"})
             public void afterTextChanged(Editable s)
             {
                 formEventDate.getEditText().clearFocus();
@@ -298,12 +292,9 @@ public class NewEventActivity
 
                 try
                 {
-                    if (Integer.parseInt(s.subSequence(0, 2).toString()) == day
+                    today = Integer.parseInt(s.subSequence(0, 2).toString()) == day
                             && Integer.parseInt(s.subSequence(3, 5).toString()) == (month + 1)
-                            && Integer.parseInt(s.subSequence(6, 10).toString()) == year)
-                        today = true;
-                    else
-                        today = false;
+                            && Integer.parseInt(s.subSequence(6, 10).toString()) == year;
 
                     SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
                     df.setTimeZone(TimeZone.getDefault());
@@ -431,11 +422,11 @@ public class NewEventActivity
                     try
                     {
                         String date = formEventDate.getEditText().getText().toString();
-                        SimpleDateFormat df_date = new SimpleDateFormat("dd/MM/yyyy");
+                        SimpleDateFormat df_date = new SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE);
                         df_date.setTimeZone(TimeZone.getDefault());
                         EPOCH = df_date.parse(date).getTime() + sHour * 3600000 + sMinute * 60000;
 
-                        SimpleDateFormat format = new SimpleDateFormat("'Le' dd MMMM 'à' HH'h'mm ");
+                        SimpleDateFormat format = new SimpleDateFormat("'Le' dd MMMM 'à' HH'h'mm ", Locale.FRANCE);
                         format.setTimeZone(TimeZone.getDefault());
                         ((TextView) eventCardPreview.findViewById(R.id.eventDate)).setText(format.format(EPOCH));
                     }
@@ -479,17 +470,17 @@ public class NewEventActivity
 
         this.formEventImage.setEnabled(false);
         this.formEventImage.setHelperText("10MB max");
-        this.formUploadImageIcon.setOnClickListener(
+        findViewById(R.id.fileUploadIcon).setOnClickListener(
                 v ->
                 {
                     //Create an Intent with action as ACTION_PICK
                     Intent intent = new Intent(Intent.ACTION_PICK);
-                    // Sets the type as image/*. This ensures only components of type image are selected
+                    //Sets the type as image/*. This ensures only components of type image are selected
                     intent.setType("image/*");
                     //We pass an extra array with the accepted mime types. This will ensure only components with these MIME types as targeted.
                     String[] mimeTypes = {"image/jpeg", "image/png"};
                     intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
-                    // Launching the Intent
+                    //Launching the Intent
                     startActivityForResult(intent, IMAGE_PICK_INTENT);
                 });
 
@@ -511,13 +502,14 @@ public class NewEventActivity
             Prices list
         -----------------*/
 
+        DragListView formPricesList = findViewById(R.id.PricesLayout);
         this.listPrices = new ArrayList<>();
         this.adapter = new EventPriceAdapter(this.listPrices, false, this.event, this);
-        this.formPricesList.getRecyclerView().setHorizontalScrollBarEnabled(false);
-        this.formPricesList.setScrollingEnabled(false);
-        this.formPricesList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-        this.formPricesList.setAdapter(this.adapter, true);
-        this.formPricesList.setCanDragHorizontally(false);
+        formPricesList.getRecyclerView().setHorizontalScrollBarEnabled(false);
+        formPricesList.setScrollingEnabled(false);
+        formPricesList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        formPricesList.setAdapter(this.adapter, true);
+        formPricesList.setCanDragHorizontally(false);
 
         /*----------------------
             New price button
@@ -599,26 +591,24 @@ public class NewEventActivity
     {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK)
-            switch (requestCode)
+            if (requestCode == IMAGE_PICK_INTENT)
             {
-                case IMAGE_PICK_INTENT:
-                    //data.getData returns the content URI for the selected Image
-                    this.pickedImage = data.getData();
-                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                    Cursor cursor = getContentResolver().query(this.pickedImage, filePathColumn, null, null, null);
-                    if (cursor.moveToFirst())
-                    {
-                        String imagePath = cursor.getString(cursor.getColumnIndex(filePathColumn[0]));
-                        BitmapFactory.Options options = new BitmapFactory.Options();
-                        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                        this.bitmapConvertedImage = BitmapFactory.decodeFile(imagePath, options);
-                        this.formEventImage.getEditText().setText(new File(imagePath).getName());
-                        this.formRemoveImage.setEnabled(true);
-                        ImageView imagePreview = this.eventCardPreview.findViewById(R.id.eventImage);
-                        Picasso.get().load(this.pickedImage).fit().centerCrop().into(imagePreview);
-                    }
-                    cursor.close();
-                    break;
+                //data.getData returns the content URI for the selected Image
+                this.pickedImage = data.getData();
+                String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                Cursor cursor = getContentResolver().query(this.pickedImage, filePathColumn, null, null, null);
+                if (cursor.moveToFirst())
+                {
+                    String imagePath = cursor.getString(cursor.getColumnIndex(filePathColumn[0]));
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                    this.bitmapConvertedImage = BitmapFactory.decodeFile(imagePath, options);
+                    this.formEventImage.getEditText().setText(new File(imagePath).getName());
+                    this.formRemoveImage.setEnabled(true);
+                    ImageView imagePreview = this.eventCardPreview.findViewById(R.id.eventImage);
+                    Picasso.get().load(this.pickedImage).fit().centerCrop().into(imagePreview);
+                }
+                cursor.close();
             }
     }
 
@@ -666,14 +656,10 @@ public class NewEventActivity
         {
             if (!this.pending)
             {
-                //snackbar("En cours de développement");
-                if (validateForm() && bitmapConvertedImage != null) //TODO REWORK : IMAGE FIELD CAN BE VOID
+                if (validateForm())
                 {
                     this.loadingLayout.setVisibility(View.VISIBLE);
-                    //this.loadingLayout.setClickable(false);
                     this.formLayout.setVisibility(View.INVISIBLE);
-                    //this.formLayout.setClickable(false);
-                    //((ConstraintLayout) this.formLayout.getParent()).setClickable(false);
                     hideKeyboardFrom(NewEventActivity.this, this.formLayout);
                     beginEventPost();
                 }
@@ -690,11 +676,6 @@ public class NewEventActivity
         --------------
      */
 
-    public void updateDateTimeEPOCHPreview()
-    {
-
-    }
-
     public boolean validateForm()
     {
         boolean result = true;
@@ -703,47 +684,36 @@ public class NewEventActivity
         if ((this.formEventName.getEditText().getText() + "").equals(""))
         {
             this.formEventName.setError(error);
-            result = result && false;
+            result = false;
         }
         else
-        {
             this.formEventName.setError("");
-            result = result && true;
-        }
 
         if ((this.formEventDate.getEditText().getText() + "").equals(""))
         {
             this.formEventDate.setError(error);
-            result = result && false;
+            result = false;
         }
         else
-        {
             this.formEventDate.setError("");
-            result = result && true;
-        }
 
         if ((this.formEventTime.getEditText().getText() + "").equals(""))
         {
             this.formEventTime.setError(error);
-            result = result && false;
+            result = false;
         }
         else
-        {
             this.formEventTime.setError("");
-            result = result && true;
-        }
 
         if (this.EPOCH == 0L)
-        {
-            result = result && false;
-        }
+            result = false;
 
         if (this.formEventMaxParticipantsType.getCheckedRadioButtonId() == R.id.participationType1)
         {
             if ((this.formEventMaxParticipants.getEditText().getText() + "").equals(""))
             {
                 this.formEventMaxParticipants.setError(error);
-                result = result && false;
+                result =  false;
             }
             else
             {
@@ -751,13 +721,10 @@ public class NewEventActivity
                         && this.formEventPromoterParticipant.isChecked())
                 {
                     this.formEventMaxParticipants.setError(getString(R.string.form_too_few_participants));
-                    result = result && false;
+                    result =  false;
                 }
                 else
-                {
                     this.formEventMaxParticipants.setError("");
-                    result = result && true;
-                }
             }
         }
 
@@ -783,11 +750,11 @@ public class NewEventActivity
                     catch (JSONException e)
                     {
                         Log.e(TAG, e.getLocalizedMessage());
-                        pending = false;
                         Intent returnIntent = new Intent();
                         returnIntent.putExtra("Error", "image");
                         setResult(Activity.RESULT_CANCELED, returnIntent);
                         finish();
+                        pending = false;
                     }
                 },
                 error ->
@@ -798,7 +765,7 @@ public class NewEventActivity
                 })
         {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError
+            public Map<String, String> getHeaders()
             {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("Authorization", "Client-ID " + IMGUR_CLIENT_ID);
@@ -806,7 +773,7 @@ public class NewEventActivity
             }
 
             @Override
-            protected Map<String, String> getParams() throws AuthFailureError
+            protected Map<String, String> getParams()
             {
                 Map<String, String> params = new HashMap<>();
                 params.put(IMGUR_TAG_IMAGE, Utils.getBase64Image(bitmapConvertedImage));
@@ -820,12 +787,17 @@ public class NewEventActivity
         //Retry MAX_RETRIES times, one every SOCKET_TIMEOUT milliseconds
         imageUploadRequest.setRetryPolicy(new DefaultRetryPolicy(SOCKET_TIMEOUT, MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
-        addToRequestQueue(imageUploadRequest);
+        //Check if an image was picked by user
+        if(this.bitmapConvertedImage != null)
+            addToRequestQueue(imageUploadRequest);
+        else
+            postNewEvent("");
+
         this.pending = true;
     }
 
     @SuppressLint("SimpleDateFormat")
-    public boolean postNewEvent(String imageLink)
+    public void postNewEvent(String imageLink)
     {
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
         df.setTimeZone(TimeZone.getDefault());
@@ -835,7 +807,6 @@ public class NewEventActivity
             JSONObject postparams = new JSONObject();
             postparams.put("name", this.formEventName.getEditText().getText());
             postparams.put("promoter", "11148489");
-            String epoch = this.formEventDate.getEditText().getText() + "";
             postparams.put("epoch", EPOCH / 1000);
             postparams.put("description", this.formEventDescription.getEditText().getText() + "");
             if (this.formEventMaxParticipantsType.getCheckedRadioButtonId() == R.id.participationType1)
@@ -862,6 +833,7 @@ public class NewEventActivity
                         Intent returnIntent = new Intent();
                         setResult(Activity.RESULT_OK, returnIntent);
                         finish();
+                        pending = false;
                     },
                     error ->
                     {
@@ -871,6 +843,7 @@ public class NewEventActivity
                         returnIntent.putExtra("Error", "event");
                         setResult(Activity.RESULT_CANCELED, returnIntent);
                         finish();
+                        pending = false;
                     })
             {
                 @Override
@@ -880,17 +853,9 @@ public class NewEventActivity
                 }
 
                 @Override
-                public byte[] getBody() throws AuthFailureError
+                public byte[] getBody()
                 {
-                    try
-                    {
-                        return requestBody == null ? null : requestBody.getBytes("utf-8");
-                    }
-                    catch (UnsupportedEncodingException uee)
-                    {
-                        VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s", requestBody, "utf-8");
-                        return null;
-                    }
+                    return requestBody == null ? null : requestBody.getBytes(StandardCharsets.UTF_8);
                 }
 
                 @Override
@@ -913,12 +878,7 @@ public class NewEventActivity
             Log.e(TAG, e.getLocalizedMessage());
         }
 
-        return postResult.get();
-    }
-
-    public void snackbar(String text)
-    {
-        Snackbar.make(findViewById(R.id.context_view), text, Snackbar.LENGTH_LONG).show();
+        postResult.get();
     }
 
     public static void hideKeyboardFrom(Context context, View view)
