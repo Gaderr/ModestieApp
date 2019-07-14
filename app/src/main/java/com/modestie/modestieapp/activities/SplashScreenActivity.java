@@ -4,6 +4,7 @@ import android.Manifest;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -24,15 +25,20 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.model.freeCompany.FreeCompany;
 import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
 import com.modestie.modestieapp.sqlite.FreeCompanyReaderContract;
+
+import org.json.JSONObject;
 
 import static com.android.volley.Request.Method.GET;
 
@@ -166,7 +172,27 @@ public class SplashScreenActivity extends AppCompatActivity
                 bar.setVisibility(View.INVISIBLE);
 
                 checkPermissions();
-            }, error -> Toast.makeText(SplashScreenActivity.this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show()));
+            }, error ->
+            {
+                switch (error.networkResponse.statusCode)
+                {
+                    case 503 :
+                        new MaterialAlertDialogBuilder(SplashScreenActivity.this)
+                            .setTitle("Erreur code 503")
+                            .setMessage("De tièrces parties nécéssaires à l'obtention d'informations sont temporairement indisponibles en raison d'une maintenance ou de difficultés techniques. Veuillez réessayer plus tard.")
+                            .setPositiveButton("Ok", (dialog, which) -> finish())
+                            .show();
+                        break;
+
+                    default:
+                        new MaterialAlertDialogBuilder(SplashScreenActivity.this)
+                                .setTitle("Erreur inconnue")
+                                .setMessage("Obtention des données impossible. Veuillez contacter un grand modeste si l'erreur persiste.")
+                                .setPositiveButton("Ok", (dialog, which) -> finish())
+                                .show();
+                        break;
+                }
+            }));
         }
         else
         {

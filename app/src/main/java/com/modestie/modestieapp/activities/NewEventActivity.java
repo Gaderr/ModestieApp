@@ -48,6 +48,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.HttpHeaderParser;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.textfield.TextInputLayout;
@@ -75,7 +76,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TimeZone;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NewEventActivity
         extends AppCompatActivity
@@ -117,20 +117,22 @@ public class NewEventActivity
     public static final String TAG = "ACTVT.NEWEVNT";
     public static final int IMAGE_PICK_INTENT = 1;
 
-    String MODESTIE_ADDEVENT = "https://modestie.fr/wp-json/modestieevents/v1/addevent";
+    private static final String MODESTIE_ADDEVENT = "https://modestie.fr/wp-json/modestieevents/v1/addevent";
+    private static final String MODESTIE_ADDPRICE = "https://modestie.fr/wp-json/modestieevents/v1/addprice";
 
-    String IMGUR_IMG_UPLOAD = "https://api.imgur.com/3/upload";
-    String IMGUR_TAG_IMAGE = "image";
-    String IMGUR_TAG_TYPE = "type";
-    String IMGUR_TAG_TITLE = "title";
-    String IMGUR_TAG_NAME = "name";
-    String IMGUR_ALBUM_HASH = "jLDde4Z";
-    String IMGUR_CLIENT_ID = "1a437e09e459eab";
+    private static final String IMGUR_IMG_UPLOAD = "https://api.imgur.com/3/upload";
+    private static final String IMGUR_TAG_IMAGE = "image";
+    private static final String IMGUR_TAG_TYPE = "type";
+    private static final String IMGUR_TAG_TITLE = "title";
+    private static final String IMGUR_TAG_NAME = "name";
+    private static final String IMGUR_ALBUM_HASH = "jLDde4Z";
+    private static final String IMGUR_CLIENT_ID = "1a437e09e459eab";
 
     private RequestQueue mRequestQueue;
     int SOCKET_TIMEOUT = 3000;
     int MAX_RETRIES = 3;
     private boolean pending;
+    private int pricePendingRequests;
 
     /*
         ----------------------------
@@ -214,23 +216,38 @@ public class NewEventActivity
 
         this.formEventName.getEditText().addTextChangedListener(new TextWatcher()
         {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
-            @Override public void afterTextChanged(Editable s) { ((TextView)eventCardPreview.findViewById(R.id.eventTitle)).setText(s.toString()); }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+
+            @Override
+            public void afterTextChanged(Editable s) { ((TextView) eventCardPreview.findViewById(R.id.eventTitle)).setText(s.toString()); }
         });
 
         this.formEventMaxParticipants.getEditText().addTextChangedListener(new TextWatcher()
         {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
-            @Override public void afterTextChanged(Editable s) { ((TextView)eventCardPreview.findViewById(R.id.participantsCount)).setText(String.format(Locale.FRANCE, "--/%s", s.toString())); }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+
+            @Override
+            public void afterTextChanged(Editable s) { ((TextView) eventCardPreview.findViewById(R.id.participantsCount)).setText(String.format(Locale.FRANCE, "--/%s", s.toString())); }
         });
 
         this.formEventDescription.getEditText().addTextChangedListener(new TextWatcher()
         {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
-            @Override public void afterTextChanged(Editable s) { ((TextView)eventCardPreview.findViewById(R.id.eventDescription)).setText(s.toString()); }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+
+            @Override
+            public void afterTextChanged(Editable s) { ((TextView) eventCardPreview.findViewById(R.id.eventDescription)).setText(s.toString()); }
         });
 
         /*----------------------
@@ -311,7 +328,7 @@ public class NewEventActivity
                         format.setTimeZone(TimeZone.getDefault());
                         EPOCH = millis - 86399000;
                         String time = formEventTime.getEditText().getText().toString();
-                        if(!time.equals(""))
+                        if (!time.equals(""))
                         {
                             int hour = Integer.parseInt(time.substring(0, 2));
                             int minute = Integer.parseInt(time.substring(3, 5));
@@ -418,7 +435,7 @@ public class NewEventActivity
                     }
                 }
 
-                if(correct)
+                if (correct)
                     try
                     {
                         String date = formEventDate.getEditText().getText().toString();
@@ -713,7 +730,7 @@ public class NewEventActivity
             if ((this.formEventMaxParticipants.getEditText().getText() + "").equals(""))
             {
                 this.formEventMaxParticipants.setError(error);
-                result =  false;
+                result = false;
             }
             else
             {
@@ -721,7 +738,7 @@ public class NewEventActivity
                         && this.formEventPromoterParticipant.isChecked())
                 {
                     this.formEventMaxParticipants.setError(getString(R.string.form_too_few_participants));
-                    result =  false;
+                    result = false;
                 }
                 else
                     this.formEventMaxParticipants.setError("");
@@ -750,11 +767,8 @@ public class NewEventActivity
                     catch (JSONException e)
                     {
                         Log.e(TAG, e.getLocalizedMessage());
-                        Intent returnIntent = new Intent();
-                        returnIntent.putExtra("Error", "image");
-                        setResult(Activity.RESULT_CANCELED, returnIntent);
-                        finish();
                         pending = false;
+                        finalizeEventPostThenActivity(false, "image");
                     }
                 },
                 error ->
@@ -788,7 +802,7 @@ public class NewEventActivity
         imageUploadRequest.setRetryPolicy(new DefaultRetryPolicy(SOCKET_TIMEOUT, MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         //Check if an image was picked by user
-        if(this.bitmapConvertedImage != null)
+        if (this.bitmapConvertedImage != null)
             addToRequestQueue(imageUploadRequest);
         else
             postNewEvent("");
@@ -801,7 +815,6 @@ public class NewEventActivity
     {
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
         df.setTimeZone(TimeZone.getDefault());
-        AtomicBoolean postResult = new AtomicBoolean(false);
         try
         {
             JSONObject postparams = new JSONObject();
@@ -819,66 +832,99 @@ public class NewEventActivity
                 postparams.put("promoterParticipant", "0");
             postparams.put("image", imageLink);
 
-            String requestBody = postparams.toString();
+            Log.e(TAG, "ADDEVENT");
 
-            StringRequest request = new StringRequest(
-                    Request.Method.POST, MODESTIE_ADDEVENT,
+            addToRequestQueue(new JsonObjectRequest(
+                    Request.Method.POST, MODESTIE_ADDEVENT, postparams,
                     response ->
                     {
-                        Log.e(TAG, response);
-                        loadingLayout.setVisibility(View.GONE);
-                        this.formLayout.setAlpha(1f);
-                        Toast.makeText(this, "Événement créé", Toast.LENGTH_SHORT).show();
-                        postResult.set(!response.equals("-1"));
-                        Intent returnIntent = new Intent();
-                        setResult(Activity.RESULT_OK, returnIntent);
-                        finish();
-                        pending = false;
+                        try
+                        {
+                            if (this.listPrices.size() > 0)
+                            {
+                                postPrices(response.getInt("id"));
+                            }
+                            else
+                            {
+                                pending = false;
+                                finalizeEventPostThenActivity(true, null);
+                            }
+                        }
+                        catch (JSONException e)
+                        {
+                            Log.e(TAG, e.getLocalizedMessage());
+                            pending = false;
+                            finalizeEventPostThenActivity(false, "event");
+                        }
                     },
                     error ->
                     {
                         Log.e(TAG, error.getMessage());
-
-                        Intent returnIntent = new Intent();
-                        returnIntent.putExtra("Error", "event");
-                        setResult(Activity.RESULT_CANCELED, returnIntent);
-                        finish();
-                        pending = false;
-                    })
-            {
-                @Override
-                public String getBodyContentType()
-                {
-                    return "application/json; charset=utf-8";
-                }
-
-                @Override
-                public byte[] getBody()
-                {
-                    return requestBody == null ? null : requestBody.getBytes(StandardCharsets.UTF_8);
-                }
-
-                @Override
-                protected Response<String> parseNetworkResponse(NetworkResponse response)
-                {
-                    String responseString = "";
-                    if (response != null)
-                    {
-                        responseString = String.valueOf(response.statusCode);
-                        // can get more details such as response.headers
-                    }
-                    return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
-                }
-            };
-
-            addToRequestQueue(request, "newEventPostRequest");
+                        finalizeEventPostThenActivity(false, "event");
+                    }), "newEventPostRequest");
         }
         catch (JSONException e)
         {
             Log.e(TAG, e.getLocalizedMessage());
         }
+    }
 
-        postResult.get();
+    public void postPrices(int eventID)
+    {
+        pricePendingRequests = 0;
+        for (int i = 0; i < this.listPrices.size(); i++)
+        {
+            try
+            {
+                EventPrice price = this.listPrices.get(i).second;
+                JSONObject postparams = new JSONObject();
+                postparams.put("eventID", eventID);
+                postparams.put("degree", this.listPrices.get(i).first);
+                postparams.put("itemID", price.getItemID());
+                postparams.put("itemName", price.getItemName());
+                postparams.put("itemIcon", price.getItemIconURL());
+                postparams.put("amount", price.getAmount());
+
+                ++pricePendingRequests;
+
+                addToRequestQueue(new JsonObjectRequest(
+                        Request.Method.POST, MODESTIE_ADDPRICE, postparams,
+                        response ->
+                        {
+                            if(--pricePendingRequests == 0)
+                                finalizeEventPostThenActivity(true, null);
+                        },
+                        error ->
+                        {
+                            Log.e(TAG, error.getMessage());
+                            pricePendingRequests--;
+                        }), "newPricePostRequest" + pricePendingRequests);
+            }
+            catch (JSONException e)
+            {
+                Log.e(TAG, e.getLocalizedMessage());
+                pricePendingRequests--;
+            }
+        }
+    }
+
+    public void finalizeEventPostThenActivity(boolean success, @Nullable String errorValue)
+    {
+        if(success)
+        {
+            Toast.makeText(this, "Événement créé", Toast.LENGTH_SHORT).show();
+            Intent returnIntent = new Intent();
+            setResult(Activity.RESULT_OK, returnIntent);
+            finish();
+        }
+        else
+        {
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra("Error", errorValue);
+            setResult(Activity.RESULT_CANCELED, returnIntent);
+            finish();
+            pending = false;
+        }
     }
 
     public static void hideKeyboardFrom(Context context, View view)
