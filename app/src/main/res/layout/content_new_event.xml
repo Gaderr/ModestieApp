@@ -292,7 +292,7 @@
                 android:id="@+id/cardPreview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                layout="@layout/event_card" />
+                layout="@layout/eventlist_card" />
 
             <View
                 android:layout_width="match_parent"

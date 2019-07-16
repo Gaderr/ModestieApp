@@ -26,6 +26,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.adapters.EventListAdapter;
@@ -45,9 +46,11 @@ import static com.android.volley.Request.Method.GET;
 public class EventListActivity extends AppCompatActivity
 {
     private RecyclerView recyclerView;
-    private RecyclerView.Adapter<EventListAdapter.EventListCardViewHolder> adapter;
+    private RecyclerView.Adapter<EventListAdapter.EventViewHolder> adapter;
     private RecyclerView.LayoutManager layoutManager;
     private ProgressBar progressBar;
+
+    private ExtendedFloatingActionButton FAB;
 
     private ArrayList<Event> events;
 
@@ -73,6 +76,8 @@ public class EventListActivity extends AppCompatActivity
 
         this.recyclerView = findViewById(R.id.eventsCardsView);
         this.progressBar = findViewById(R.id.progressBar);
+        this.FAB = findViewById(R.id.newEventFAB);
+        this.FAB.shrink();
 
         FreeCompanyDbHelper dbHelper = new FreeCompanyDbHelper(getApplicationContext());
         SQLiteDatabase database = dbHelper.getReadableDatabase();
@@ -98,6 +103,7 @@ public class EventListActivity extends AppCompatActivity
                             JSONObject tempEvent = eventsArray.getJSONObject(i);
                             this.events.add(new Event(tempEvent));
                         }
+                        this.events.add(null);
                         this.adapter.notifyDataSetChanged();
                         this.progressBar.setVisibility(View.INVISIBLE);
                     }
@@ -114,6 +120,22 @@ public class EventListActivity extends AppCompatActivity
         ));
 
         Collections.sort(this.events, Event.EventDateComparator);
+
+        //FAB intent
+        this.FAB.setOnClickListener(v -> startActivityForResult(new Intent(getApplicationContext(), NewEventActivity.class), this.NEW_EVENT_REQUEST));
+        //FAB animations
+        this.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
+        {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState)
+            {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (!recyclerView.canScrollVertically(1))
+                    FAB.extend();
+                else
+                    FAB.shrink();
+            }
+        });
     }
 
     @Override
@@ -144,14 +166,7 @@ public class EventListActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.add_event)
-        {
-            startActivityForResult(new Intent(getApplicationContext(), NewEventActivity.class), this.NEW_EVENT_REQUEST);
-            return true;
-        }
-
-        if(id == R.id.refresh)
+        if (id == R.id.refresh)
         {
             reloadList();
             return true;
@@ -173,9 +188,9 @@ public class EventListActivity extends AppCompatActivity
                 reloadList();
             }
 
-            if(resultCode == RESULT_CANCELED)
+            if (resultCode == RESULT_CANCELED)
             {
-                if(data.hasExtra("Error"))
+                if (data.hasExtra("Error"))
                     Toast.makeText(this, "Echec de l'envoi, nous rencontrons des difficultés techniques.", Toast.LENGTH_SHORT).show();
                 else
                     Toast.makeText(this, "Envoi annulé.", Toast.LENGTH_SHORT).show();

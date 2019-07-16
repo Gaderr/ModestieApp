@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -37,17 +38,26 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.EventListCardViewHolder>
+public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.EventViewHolder>
 {
     public Context context;
 
     private ArrayList<Event> events;
     private Map<Integer, FreeCompanyMember> members;
 
+    private static final int VIEW_CARD = 0;
+    private static final int VIEW_SPACE = 1;
+
     public static final String TAG = "ADPTR.EVENTLIST";
 
+    //Declared to be used with the blank space
+    public static class EventViewHolder extends RecyclerView.ViewHolder
+    {
+        EventViewHolder(View v) {super(v);}
+    }
+
     // This class provide a reference to the views for each data item
-    public static class EventListCardViewHolder extends RecyclerView.ViewHolder
+    public static class EventListCardViewHolder extends EventViewHolder
     {
         View v;
         TextView title;
@@ -81,7 +91,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
             this.participationCheck = v.findViewById(R.id.participationCheck);
             this.participationText = v.findViewById(R.id.participationText);
 
-            if(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
+            if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
             {
                 this.participationCheck.setColorFilter(context.getColor(R.color.colorValidateLight));
                 this.participationText.setTextColor(context.getColor(R.color.colorValidateLight));
@@ -105,14 +115,14 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
 
         Cursor cursor = database.rawQuery("SELECT * FROM " + FreeCompanyReaderContract.MemberEntry.TABLE_NAME, null);
         this.members = new HashMap<>();
-        if(cursor.moveToFirst())
+        if (cursor.moveToFirst())
         {
             do
             {
                 FreeCompanyMember member = new FreeCompanyMember(cursor);
                 this.members.put(member.getID(), member);
             }
-            while(cursor.moveToNext());
+            while (cursor.moveToNext());
         }
         else
         {
@@ -122,21 +132,40 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         cursor.close();
     }
 
+    @Override
+    public int getItemViewType(int position)
+    {
+        if (this.events.get(position) == null)
+        {
+            return VIEW_SPACE;
+        }
+        else
+        {
+            return VIEW_CARD;
+        }
+    }
+
     // Create new views (invoked by the layout manager)
     @NotNull
     @Override
-    public EventListAdapter.EventListCardViewHolder onCreateViewHolder(@NotNull ViewGroup parent, int viewType)
+    public EventListAdapter.EventViewHolder onCreateViewHolder(@NotNull ViewGroup parent, int viewType)
     {
         // create a new view
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.event_card, parent, false);
-
-        return new EventListCardViewHolder(v, this.context);
+        if (viewType == VIEW_CARD)
+            return new EventListCardViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.eventlist_card, parent, false), this.context);
+        else
+            return new EventViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.eventlist_blankspace, parent, false));
     }
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(@NotNull EventListCardViewHolder holder, int position)
+    public void onBindViewHolder(@NotNull EventViewHolder vHolder, int position)
     {
+        //Skip if this is a blank space
+        if (getItemViewType(position) == VIEW_SPACE) return;
+
+        EventListCardViewHolder holder = (EventListCardViewHolder) vHolder;
+
         Event event = this.events.get(position);
         FreeCompanyMember member = this.members.get(event.getPromoterID());
         assert member != null;
@@ -159,7 +188,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
                 .into(holder.promoterAvatar);
 
         //Event image
-        if(event.getImageURL() != null && !event.getImageURL().equals(""))
+        if (event.getImageURL() != null && !event.getImageURL().equals(""))
         {
             Picasso.get()
                     .load(event.getImageURL())
@@ -174,8 +203,8 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
             animatedExpandMore.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         else
             animatedExpandMore.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
-        holder.expand.setImageDrawable(animatedExpandMore);
-        holder.expand.setOnClickListener(v -> expandOrCollapseDescription(holder));*/
+        vholder.expand.setImageDrawable(animatedExpandMore);
+        vholder.expand.setOnClickListener(v -> expandOrCollapseDescription(vholder));*/
 
         //Date
         Date eventTime = new Date(event.getEventEpochTime() * 1000);
@@ -184,14 +213,14 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         holder.date.setText(String.format(Locale.FRANCE, "Le %s à %s", eventDateFormat.format(eventTime), eventTimeFormat.format(eventTime)));
 
         //Description
-        if(event.getDescription() == null || event.getDescription().isEmpty())
+        if (event.getDescription() == null || event.getDescription().isEmpty())
             holder.description.setText(R.string.event_description_null);
         else
             holder.description.setText(event.getDescription());
-        //holder.description.setOnClickListener(v -> expandOrCollapseDescription(holder));
+        //vholder.description.setOnClickListener(v -> expandOrCollapseDescription(vholder));
 
         //Participation text feedback
-        if(holder.userIsPromoter) //Is app user promoter ?
+        if (holder.userIsPromoter) //Is app user promoter ?
         {
             holder.action.setVisibility(View.INVISIBLE);
             holder.participationText.setText(R.string.event_self_promoter_feedback);
@@ -216,42 +245,42 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
 
         //Action button
         holder.action.setOnClickListener(v ->
-            {
-                if(!holder.promoterParticipation) //Participation request -> check if a place is available
-                {
-                    if(event.getMaxParticipants() == -1)
-                    {
-                        holder.promoterParticipation = true;
-                        updateParticipation(holder, event);
-                    }
-                    else if(event.getParticipantsIDs().size() < event.getMaxParticipants())
-                    {
-                        holder.promoterParticipation = true;
-                        updateParticipation(holder, event);
-                    }
-                    else
-                    {
-                        Toast.makeText(context, "Désolé, c'est complet !", Toast.LENGTH_SHORT).show();
-                    }
-                }
-                else //Cancel promoterParticipation
-                {
-                    //Promoters can't cancel promoterParticipation to their own events
-                    if(event.getPromoterID() != holder.userID)
-                    {
-                        holder.promoterParticipation = false;
-                        updateParticipation(holder, event);
-                    }
-                }
+                                         {
+                                             if (!holder.promoterParticipation) //Participation request -> check if a place is available
+                                             {
+                                                 if (event.getMaxParticipants() == -1)
+                                                 {
+                                                     holder.promoterParticipation = true;
+                                                     updateParticipation(holder, event);
+                                                 }
+                                                 else if (event.getParticipantsIDs().size() < event.getMaxParticipants())
+                                                 {
+                                                     holder.promoterParticipation = true;
+                                                     updateParticipation(holder, event);
+                                                 }
+                                                 else
+                                                 {
+                                                     Toast.makeText(context, "Désolé, c'est complet !", Toast.LENGTH_SHORT).show();
+                                                 }
+                                             }
+                                             else //Cancel promoterParticipation
+                                             {
+                                                 //Promoters can't cancel promoterParticipation to their own events
+                                                 if (event.getPromoterID() != holder.userID)
+                                                 {
+                                                     holder.promoterParticipation = false;
+                                                     updateParticipation(holder, event);
+                                                 }
+                                             }
 
-                updateParticipationButton(holder);
-                updateParticipantsViews(holder, event);
-            });
+                                             updateParticipationButton(holder);
+                                             updateParticipantsViews(holder, event);
+                                         });
     }
 
     private void updateParticipation(EventListCardViewHolder holder, Event event)
     {
-        if(holder.promoterParticipation)
+        if (holder.promoterParticipation)
             event.getParticipantsIDs().add(holder.userID);
         else
             event.removeParticipant(holder.userID);
@@ -260,9 +289,9 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
     private void updateParticipantsViews(EventListCardViewHolder holder, Event event)
     {
         int participants = event.getParticipantsIDs().size();
-        if(holder.userIsPromoter) participants++;
+        if (holder.userIsPromoter) participants++;
 
-        if(event.getMaxParticipants() == -1)
+        if (event.getMaxParticipants() == -1)
             holder.participantCount.setText(String.format(Locale.FRANCE, "%d/∞", participants));
         else
             holder.participantCount.setText(String.format(Locale.FRANCE, "%d/%d", participants, event.getMaxParticipants()));
@@ -286,11 +315,11 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
 
     private void expandOrCollapseDescription(EventListCardViewHolder holder)
     {
-        if(holder.expanded)
+        if (holder.expanded)
         {
             AnimatedVectorDrawable animatedExpandLess = (AnimatedVectorDrawable) context.getResources().getDrawable(R.drawable.ic_expand_less_animatable, null);
             //holder.expand.setImageDrawable(animatedExpandLess);
-            if(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
+            if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
                 animatedExpandLess.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
             else
                 animatedExpandLess.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
@@ -301,7 +330,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         {
             AnimatedVectorDrawable animatedExpandMore = (AnimatedVectorDrawable) context.getResources().getDrawable(R.drawable.ic_expand_more_animatable, null);
             //holder.expand.setImageDrawable(animatedExpandMore);
-            if(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
+            if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
                 animatedExpandMore.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
             else
                 animatedExpandMore.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
