@@ -41,6 +41,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Objects;
 
 import static com.android.volley.Request.Method.GET;
@@ -56,11 +57,18 @@ public class ItemSelectionDialogFragment extends DialogFragment
     private ProgressBar noContentProgressBar;
     private TextView noContentLabel;
     private ImageView searchIcon;
+    private ImageView previousIcon;
+    private ImageView nextIcon;
+    private TextView paginationView;
 
     private boolean searchLayoutElevated;
 
     private ArrayList<LightItem> dataset;
-    private int pages;
+    private int currentPage;
+    private int maxPages;
+    private int results;
+    private int resultsPerPage;
+    private int resultsTotal;
 
     private LinearLayout searchLayout;
     private ConstraintLayout pagerLayout;
@@ -77,7 +85,7 @@ public class ItemSelectionDialogFragment extends DialogFragment
         // Required empty public constructor
     }
 
-    public static ItemSelectionDialogFragment display(FragmentManager fragmentManager)
+    static ItemSelectionDialogFragment display(FragmentManager fragmentManager)
     {
         ItemSelectionDialogFragment dialog = new ItemSelectionDialogFragment();
         dialog.show(fragmentManager, TAG);
@@ -102,6 +110,9 @@ public class ItemSelectionDialogFragment extends DialogFragment
         this.noContentProgressBar = rootView.findViewById(R.id.noContentProgress);
         this.noContentLabel = rootView.findViewById(R.id.noContentLabel);
         this.searchIcon = rootView.findViewById(R.id.searchIcon);
+        this.previousIcon = rootView.findViewById(R.id.pagePrevious);
+        this.nextIcon = rootView.findViewById(R.id.pageNext);
+        this.paginationView = rootView.findViewById(R.id.paginationView);
 
         return rootView;
     }
@@ -121,6 +132,8 @@ public class ItemSelectionDialogFragment extends DialogFragment
         this.searchLayoutElevated = false;
         this.pagerLayout = this.rootview.findViewById(R.id.searchPagerLayout);
 
+        this.previousIcon.setVisibility(View.INVISIBLE);
+        this.nextIcon.setVisibility(View.INVISIBLE);
 
         this.recyclerView = this.rootview.findViewById(R.id.searchResultsLayout);
         this.layoutManager = new LinearLayoutManager(getContext());
@@ -148,22 +161,27 @@ public class ItemSelectionDialogFragment extends DialogFragment
         }
 
         TextInputLayout searchField = this.rootview.findViewById(R.id.fieldItemSearch);
+        this.currentPage = 1;
 
-        searchField.getEditText().setOnEditorActionListener((v, actionId, event) ->
-        {
-            if(actionId == EditorInfo.IME_ACTION_DONE)
-            {
-                executeSearch(searchField);
-            }
-            return false;
-        });
+        searchField.getEditText().setOnEditorActionListener(
+                (v, actionId, event) ->
+                {
+                    if (actionId == EditorInfo.IME_ACTION_DONE)
+                    {
+                        executeSearch(searchField, this.currentPage);
+                    }
+                    return false;
+                });
 
-        this.searchIcon.setOnClickListener(v -> executeSearch(searchField));
+        this.searchIcon.setOnClickListener(v -> executeSearch(searchField, this.currentPage));
+
+        this.previousIcon.setOnClickListener(v -> executeSearch(searchField, --this.currentPage));
+        this.nextIcon.setOnClickListener(v -> executeSearch(searchField, ++this.currentPage));
     }
 
-    public void executeSearch(TextInputLayout field)
+    private void executeSearch(TextInputLayout field, int page)
     {
-        String request = "https://xivapi.com/search?indexes=Item&language=fr&string=";
+        String request = "https://xivapi.com/search?indexes=Item&language=fr&page=" + page + "&string=";
         request += Objects.requireNonNull(field.getEditText()).getText();
 
         field.getEditText().clearFocus();
@@ -175,30 +193,56 @@ public class ItemSelectionDialogFragment extends DialogFragment
         noContentLabel.setVisibility(View.GONE);
         noContentProgressBar.setVisibility(View.VISIBLE);
 
-        addToRequestQueue(new JsonObjectRequest(GET, request, null, response ->
-        {
-            buildDatasetFromResponse(response);
-            adapter.notifyDataSetChanged();
+        addToRequestQueue(new JsonObjectRequest(
+                GET, request, null,
+                response ->
+                {
+                    buildDatasetFromResponse(response);
+                    adapter.notifyDataSetChanged();
 
-            recyclerView.setVisibility(View.VISIBLE);
-            noContentPlaceholder.animate().alpha(0f);
-            elevateSearchLayout();
+                    recyclerView.setVisibility(View.VISIBLE);
+                    noContentPlaceholder.animate().alpha(0f);
+                    elevateSearchLayout();
 
-            field.setEnabled(true);
+                    try
+                    {
+                        JSONObject pagination = response.getJSONObject("Pagination");
+                        if (pagination.optInt("PagePrev", 0) != 0)
+                            this.previousIcon.setVisibility(View.VISIBLE);
+                        else
+                            this.previousIcon.setVisibility(View.INVISIBLE);
+                        if (pagination.optInt("PageNext", 0) != 0)
+                            this.nextIcon.setVisibility(View.VISIBLE);
+                        else
+                            this.nextIcon.setVisibility(View.INVISIBLE);
 
-        }, error ->
-        {
-            noContentLabel.setVisibility(View.VISIBLE);
-            noContentProgressBar.setVisibility(View.GONE);
-            noContentLabel.setText(R.string.item_search_placeholder_error);
-            dropSearchLayout();
-            field.setEnabled(true);
-        }));
+                        this.maxPages = pagination.getInt("PageTotal");
+                        this.results = pagination.getInt("Results");
+                        this.resultsPerPage = pagination.getInt("ResultsPerPage");
+                        this.resultsTotal = pagination.getInt("ResultsTotal");
+
+                        setPaginationTextView();
+                    }
+                    catch (JSONException e)
+                    {
+                        Log.e(TAG, e.getLocalizedMessage());
+                    }
+
+                    field.setEnabled(true);
+
+                }, error ->
+                {
+                    noContentLabel.setVisibility(View.VISIBLE);
+                    noContentProgressBar.setVisibility(View.GONE);
+                    noContentLabel.setText(R.string.item_search_placeholder_error);
+                    dropSearchLayout();
+                    field.setEnabled(true);
+                }));
     }
 
-    public void elevateSearchLayout()
+    private void elevateSearchLayout()
     {
-        if(!searchLayoutElevated)
+        if (!searchLayoutElevated)
         {
             TransitionDrawable transition = (TransitionDrawable) searchLayout.getBackground();
             searchLayout.animate().translationZ(7f);
@@ -207,15 +251,39 @@ public class ItemSelectionDialogFragment extends DialogFragment
         }
     }
 
-    public void dropSearchLayout()
+    private void dropSearchLayout()
     {
-        if(searchLayoutElevated)
+        if (searchLayoutElevated)
         {
             TransitionDrawable transition = (TransitionDrawable) searchLayout.getBackground();
             searchLayout.animate().translationZ(-7f);
             transition.reverseTransition((int) searchLayout.animate().getDuration());
             searchLayoutElevated = false;
         }
+    }
+
+    private void setPaginationTextView()
+    {
+        int first, last;
+
+        first = (this.currentPage - 1) * this.resultsPerPage + 1;
+        last = this.results + (first - 1);
+
+        this.paginationView.setText(String.format(Locale.FRANCE, "%d-%d de %s", first, last, this.resultsTotal));
+
+        /*StringBuilder prevPages = new StringBuilder(), nextPages = new StringBuilder();
+        int p = this.currentPage, pCount = 0, n = this.currentPage, nCount = 0;
+        while (p != 1 && pCount < 2)
+        {
+            prevPages.append(--p).append(" ");
+            pCount++;
+        }
+        while (n != this.maxPages && nCount < 2)
+        {
+            nextPages.append(" ").append(++n);
+            nCount++;
+        }
+        this.paginationView.setText(String.format(Locale.getDefault(), "%s %d %s", prevPages.toString(), this.currentPage, nextPages.toString()));*/
     }
 
     public void buildDatasetFromResponse(JSONObject obj)
@@ -226,7 +294,7 @@ public class ItemSelectionDialogFragment extends DialogFragment
 
             this.dataset.clear();
 
-            for(int i = 0; i < results.length(); i++)
+            for (int i = 0; i < results.length(); i++)
             {
                 this.dataset.add(new LightItem(results.getJSONObject(i)));
             }
@@ -260,11 +328,13 @@ public class ItemSelectionDialogFragment extends DialogFragment
     /**
      * Lazy initialize the request queue, the queue instance will be created when it is accessed
      * for the first time
+     *
      * @return Request Queue
      */
     public RequestQueue getRequestQueue()
     {
-        if (this.mRequestQueue == null) this.mRequestQueue = Volley.newRequestQueue(Objects.requireNonNull(getContext()));
+        if (this.mRequestQueue == null)
+            this.mRequestQueue = Volley.newRequestQueue(Objects.requireNonNull(getContext()));
 
         return mRequestQueue;
     }
