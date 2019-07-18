@@ -2,11 +2,14 @@
 
 ModestieApp is a Final-Fantasy-XIV-community-Android-native-application designed for the Free Company "Modestie" on Odin Server from Light datacenter.
 
-This app is used to see FC & members informations, manage events (Create, update, participate) and include Unity-made mini-games.
+This app is used to see FC & members informations, manage events (Create, update, participate) and includes Unity-made mini-games.
 
-https://modestie.fr/
+Currently under development
+Kanban : https://trello.com/b/vQjlzoXg/
 
-Collaborators :
+Free company website : https://modestie.fr/
+
+Collaborator characters :
 
 - **Argus Mortefol** (me) (Java & C# programming) https://fr.finalfantasyxiv.com/lodestone/character/11148489/
 - **Myo Hikari** (Java programming) https://fr.finalfantasyxiv.com/lodestone/character/24226912/
