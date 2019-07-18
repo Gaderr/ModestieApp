@@ -4,16 +4,18 @@ ModestieApp is a Final-Fantasy-XIV-community-Android-native-application designed
 
 This app is used to see FC & members informations, manage events (Create, update, participate) and includes Unity-made mini-games.
 
-Currently under development
+**Currently under development**
+
 Kanban : https://trello.com/b/vQjlzoXg/
 
-Screenshots
+## Screenshots
 
 ![Imgur](https://i.imgur.com/XIE1Z0r.png)
 
-Free company website : https://modestie.fr/
+## Free company website
+https://modestie.fr/
 
-Collaborator characters :
+## Collaborator characters
 
 - **Argus Mortefol** (me) (Java & C# programming) https://fr.finalfantasyxiv.com/lodestone/character/11148489/
 - **Myo Hikari** (Java programming) https://fr.finalfantasyxiv.com/lodestone/character/24226912/
