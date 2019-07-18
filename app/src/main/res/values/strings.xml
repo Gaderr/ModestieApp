@@ -111,7 +111,8 @@
     <string name="item_search_field_label">Recherche</string>
     <string name="item_search_placeholder_instruction">Effectuez une recherche d\'item dans le champ ci-dessus</string>
     <string name="item_search_placeholder_no_result">Aucun résultat</string>
-    <string name="item_search_placeholder_error">Échec de la récupération des données</string>
+    <string name="item_search_placeholder_error_code">Une erreur réseau est survenue, impossible de récupérer les données</string>
+    <string name="item_search_placeholder_error">Une erreur inconnue est survenue, impossible de récupérer les données</string>
 
     <string name="image_upload_error_dialog_title">Échec upload image</string>
     <string name="image_upload_error_dialog_message">Le téléversement de votre image n\'a pas fonctionné, continuer la mise en ligne de votre événement sans illustration ? Une image par défaut sera utilisée.</string>

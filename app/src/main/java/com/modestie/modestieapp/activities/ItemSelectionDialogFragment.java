@@ -161,19 +161,31 @@ public class ItemSelectionDialogFragment extends DialogFragment
         }
 
         TextInputLayout searchField = this.rootview.findViewById(R.id.fieldItemSearch);
-        this.currentPage = 1;
 
         searchField.getEditText().setOnEditorActionListener(
                 (v, actionId, event) ->
                 {
                     if (actionId == EditorInfo.IME_ACTION_DONE)
                     {
+                        this.paginationView.setText("");
+                        this.currentPage = 1;
+                        this.previousIcon.setVisibility(View.INVISIBLE);
+                        this.nextIcon.setVisibility(View.INVISIBLE);
                         executeSearch(searchField, this.currentPage);
                     }
                     return false;
                 });
 
-        this.searchIcon.setOnClickListener(v -> executeSearch(searchField, this.currentPage));
+        this.searchIcon.setOnClickListener(
+                v ->
+                {
+                    this.paginationView.setText("");
+                    this.currentPage = 1;
+                    this.previousIcon.setVisibility(View.INVISIBLE);
+                    this.nextIcon.setVisibility(View.INVISIBLE);
+                    executeSearch(searchField, this.currentPage);
+                }
+        );
 
         this.previousIcon.setOnClickListener(v -> executeSearch(searchField, --this.currentPage));
         this.nextIcon.setOnClickListener(v -> executeSearch(searchField, ++this.currentPage));
@@ -234,7 +246,18 @@ public class ItemSelectionDialogFragment extends DialogFragment
                 {
                     noContentLabel.setVisibility(View.VISIBLE);
                     noContentProgressBar.setVisibility(View.GONE);
-                    noContentLabel.setText(R.string.item_search_placeholder_error);
+
+                    switch (error.networkResponse.statusCode)
+                    {
+                        case 500:
+                            noContentLabel.setText(R.string.item_search_placeholder_error_code);
+                            break;
+
+                        default:
+                            noContentLabel.setText(R.string.item_search_placeholder_error);
+                            break;
+                    }
+
                     dropSearchLayout();
                     field.setEnabled(true);
                 }));
