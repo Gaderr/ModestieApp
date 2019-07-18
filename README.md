@@ -7,6 +7,10 @@ This app is used to see FC & members informations, manage events (Create, update
 Currently under development
 Kanban : https://trello.com/b/vQjlzoXg/
 
+Screenshots
+
+![Imgur](https://i.imgur.com/XIE1Z0r.png)
+
 Free company website : https://modestie.fr/
 
 Collaborator characters :
