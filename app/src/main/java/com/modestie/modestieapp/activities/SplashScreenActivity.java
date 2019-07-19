@@ -34,6 +34,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.modestie.modestieapp.R;
+import com.modestie.modestieapp.activities.login.LoginActivity;
 import com.modestie.modestieapp.model.freeCompany.FreeCompany;
 import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
 import com.modestie.modestieapp.sqlite.FreeCompanyReaderContract;
@@ -91,7 +92,7 @@ public class SplashScreenActivity extends AppCompatActivity
                 {
                     if (ready)
                     {
-                        startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+                        startActivity(new Intent(getApplicationContext(), LoginActivity.class));
                         ready = false;
                     }
                 });

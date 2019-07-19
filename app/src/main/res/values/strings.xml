@@ -1,5 +1,17 @@
 <resources>
     <string name="app_name">Modestie App</string>
+    <!-- LOGIN ACTIVITY -->
+    <string name="title_activity_login">Connexion</string>
+    <string name="login_title_textview">Bienvenue</string>
+    <string name="login_instructions">Veuillez vous identifier avec votre compte modestie.fr</string>
+    <string name="prompt_username">Nom d\'utilisateur</string>
+    <string name="prompt_password">Mot de passe</string>
+    <string name="action_sign_in">Se connecter</string>
+    <string name="action_sign_in_short">Connexion</string>
+    <string name="welcome">"Salutations "</string>
+    <string name="invalid_username">Nom d\'utilisateur invalide</string>
+    <string name="invalid_password">Le mot de passe doit faire plus de 5 caractères</string>
+    <string name="login_failed">"Échec de la connexion"</string>
 
     <!-- HOME ACTIVITY -->
     <string name="title_activity_home">Accueil</string>
@@ -14,7 +26,7 @@
     <string name="free_company_name">Compagnie</string>
     <string name="free_company_sigle">«Sigle»</string>
     <string name="slogan">Slogan</string>
-    <string name="formationDate">Date de formation</string>  <!-- 1461608214 -->
+    <string name="formationDate">Date de formation</string>
 
     <string name="member_count_title">Membres</string>
     <string name="member_count">xx</string>
