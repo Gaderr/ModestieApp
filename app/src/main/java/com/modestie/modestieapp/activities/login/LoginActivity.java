@@ -2,32 +2,30 @@ package com.modestie.modestieapp.activities.login;
 
 import android.app.Activity;
 
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.HomeActivity;
+import com.modestie.modestieapp.model.login.LoggedInUser;
+import com.modestie.modestieapp.model.login.UserCredentials;
+import com.orhanobut.hawk.Hawk;
 
 public class LoginActivity extends AppCompatActivity
 {
@@ -51,6 +49,16 @@ public class LoginActivity extends AppCompatActivity
         this.loginButton = findViewById(R.id.login);
         this.loadingProgressBar = findViewById(R.id.loading);
 
+        Hawk.init(this).build();
+
+        if (Hawk.contains("UserCredentials"))
+        {
+            UserCredentials data = Hawk.get("UserCredentials");
+            this.usernameEditText.getEditText().setText(data.getUsername());
+            this.passwordEditText.getEditText().setText(data.getPassword());
+            beginLogin();
+        }
+
         this.loginViewModel.getLoginFormState().observe(
                 this, loginFormState ->
                 {
@@ -73,21 +81,29 @@ public class LoginActivity extends AppCompatActivity
                 this, loginResult ->
                 {
                     this.loadingProgressBar.setVisibility(View.GONE);
-                    this.usernameEditText.setEnabled(true);
-                    this.passwordEditText.setEnabled(true);
-                    this.loginButton.setEnabled(true);
-
                     if (loginResult == null)
                     {
+                        this.usernameEditText.setEnabled(true);
+                        this.passwordEditText.setEnabled(true);
+                        this.loginButton.setEnabled(true);
                         return;
                     }
                     if (loginResult.getError() != null)
                     {
                         showLoginFailed(loginResult.getError());
+                        this.usernameEditText.setEnabled(true);
+                        this.passwordEditText.setEnabled(true);
+                        this.loginButton.setEnabled(true);
                         return;
                     }
                     if (loginResult.getSuccess() != null)
                     {
+                        //Store user details and token
+                        Hawk.put("LoggedInUser", loginResult.getSuccess());
+                        //Store user credentials
+                        Hawk.put("UserCredentials", new UserCredentials(
+                                this.usernameEditText.getEditText().getText().toString(),
+                                this.passwordEditText.getEditText().getText().toString()));
                         updateUiWithUser(loginResult.getSuccess());
                         startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                     }
@@ -97,16 +113,10 @@ public class LoginActivity extends AppCompatActivity
         TextWatcher afterTextChangedListener = new TextWatcher()
         {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after)
-            {
-                // ignore
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count)
-            {
-                // ignore
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
 
             @Override
             public void afterTextChanged(Editable s)
@@ -139,7 +149,7 @@ public class LoginActivity extends AppCompatActivity
                                   this);
     }
 
-    private void updateUiWithUser(LoggedInUserView model)
+    private void updateUiWithUser(LoggedInUser model)
     {
         String welcome = getString(R.string.welcome) + model.getDisplayName();
         // Initiate successful logged in experience
