@@ -9,6 +9,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.modestie.modestieapp.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,16 +39,12 @@ public class LoginDataSource
             addToRequestQueue(new JsonObjectRequest(
                     Request.Method.POST, JWTRequest, postParams,
                     response -> callback.onServerResponse(new Result.Success<>(new LoggedInUser(response))),
-                    error ->
-                    {
-                        callback.onServerResponse(new Result.Error(new IOException("Error logging in", error.getCause())));
-                        Log.e(TAG, error.getLocalizedMessage());
-                    }
+                    error -> callback.onServerResponse(new Result.Error(R.string.login_wrong_credentials))
             ));
         }
         catch (Exception e)
         {
-            callback.onServerResponse(new Result.Error(new IOException("Error logging in", e)));
+            callback.onServerResponse(new Result.Error(R.string.login_fatal));
         }
     }
 

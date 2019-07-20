@@ -31,6 +31,10 @@ import com.modestie.modestieapp.activities.HomeActivity;
 
 public class LoginActivity extends AppCompatActivity
 {
+    private TextInputLayout usernameEditText;
+    private TextInputLayout passwordEditText;
+    private Button loginButton;
+    private ProgressBar loadingProgressBar;
 
     private LoginViewModel loginViewModel;
 
@@ -39,56 +43,55 @@ public class LoginActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        loginViewModel = ViewModelProviders.of(this, new LoginViewModelFactory())
+        this.loginViewModel = ViewModelProviders.of(this, new LoginViewModelFactory())
                 .get(LoginViewModel.class);
 
-        final TextInputLayout usernameEditText = findViewById(R.id.username);
-        final TextInputLayout passwordEditText = findViewById(R.id.password);
-        final Button loginButton = findViewById(R.id.login);
-        final ProgressBar loadingProgressBar = findViewById(R.id.loading);
+        this.usernameEditText = findViewById(R.id.username);
+        this.passwordEditText = findViewById(R.id.password);
+        this.loginButton = findViewById(R.id.login);
+        this.loadingProgressBar = findViewById(R.id.loading);
 
-        loginViewModel.getLoginFormState().observe(
+        this.loginViewModel.getLoginFormState().observe(
                 this, loginFormState ->
                 {
                     if (loginFormState == null)
                     {
                         return;
                     }
-                    loginButton.setEnabled(loginFormState.isDataValid());
+                    this.loginButton.setEnabled(loginFormState.isDataValid());
                     if (loginFormState.getUsernameError() != null)
                     {
-                        usernameEditText.getEditText().setError(getString(loginFormState.getUsernameError()));
+                        this.usernameEditText.getEditText().setError(getString(loginFormState.getUsernameError()));
                     }
                     if (loginFormState.getPasswordError() != null)
                     {
-                        passwordEditText.getEditText().setError(getString(loginFormState.getPasswordError()));
+                        this.passwordEditText.getEditText().setError(getString(loginFormState.getPasswordError()));
                     }
                 });
 
-        loginViewModel.getLoginResult().observe(
+        this.loginViewModel.getLoginResult().observe(
                 this, loginResult ->
                 {
+                    this.loadingProgressBar.setVisibility(View.GONE);
+                    this.usernameEditText.setEnabled(true);
+                    this.passwordEditText.setEnabled(true);
+                    this.loginButton.setEnabled(true);
+
                     if (loginResult == null)
                     {
-                        usernameEditText.setEnabled(true);
-                        passwordEditText.setEnabled(true);
-                        loginButton.setEnabled(true);
                         return;
                     }
-                    loadingProgressBar.setVisibility(View.GONE);
                     if (loginResult.getError() != null)
                     {
                         showLoginFailed(loginResult.getError());
+                        return;
                     }
                     if (loginResult.getSuccess() != null)
                     {
                         updateUiWithUser(loginResult.getSuccess());
+                        startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                     }
                     setResult(Activity.RESULT_OK);
-
-                    //Complete and destroy login activity once successful
-                    //finish();
-                    startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                 });
 
         TextWatcher afterTextChangedListener = new TextWatcher()
@@ -112,32 +115,28 @@ public class LoginActivity extends AppCompatActivity
                                                 passwordEditText.getEditText().getText().toString());
             }
         };
-        usernameEditText.getEditText().addTextChangedListener(afterTextChangedListener);
-        passwordEditText.getEditText().addTextChangedListener(afterTextChangedListener);
-        passwordEditText.getEditText().setOnEditorActionListener(
+        this.usernameEditText.getEditText().addTextChangedListener(afterTextChangedListener);
+        this.passwordEditText.getEditText().addTextChangedListener(afterTextChangedListener);
+        this.passwordEditText.getEditText().setOnEditorActionListener(
                 (v, actionId, event) ->
                 {
-                    if (actionId == EditorInfo.IME_ACTION_DONE)
-                    {
-                        loginViewModel.login(usernameEditText.getEditText().getText().toString(),
-                                             passwordEditText.getEditText().getText().toString(),
-                                             this);
-                    }
+                    if (actionId == EditorInfo.IME_ACTION_DONE) beginLogin();
                     return false;
                 });
 
-        loginButton.setOnClickListener(
-                v ->
-                {
-                    loadingProgressBar.setVisibility(View.VISIBLE);
-                    hideKeyboardFrom(this, loginButton);
-                    usernameEditText.setEnabled(false);
-                    passwordEditText.setEnabled(false);
-                    loginButton.setEnabled(false);
-                    loginViewModel.login(usernameEditText.getEditText().getText().toString(),
-                                         passwordEditText.getEditText().getText().toString(),
-                                         this);
-                });
+        this.loginButton.setOnClickListener(v -> beginLogin());
+    }
+
+    private void beginLogin()
+    {
+        this.loadingProgressBar.setVisibility(View.VISIBLE);
+        hideKeyboardFrom(this, this.loginButton);
+        this.usernameEditText.setEnabled(false);
+        this.passwordEditText.setEnabled(false);
+        this.loginButton.setEnabled(false);
+        this.loginViewModel.login(this.usernameEditText.getEditText().getText().toString(),
+                                  this.passwordEditText.getEditText().getText().toString(),
+                                  this);
     }
 
     private void updateUiWithUser(LoggedInUserView model)
@@ -149,7 +148,7 @@ public class LoginActivity extends AppCompatActivity
 
     private void showLoginFailed(@StringRes Integer errorString)
     {
-        Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_LONG).show();
     }
 
     public static void hideKeyboardFrom(Context context, View view)

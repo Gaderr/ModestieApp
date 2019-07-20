@@ -19,7 +19,7 @@ public class Result<T>
         else if (this instanceof Result.Error)
         {
             Result.Error error = (Result.Error) this;
-            return "Error[exception=" + error.getError().toString() + "]";
+            return "Error[exception=" + error.getError() + "]";
         }
         return "";
     }
@@ -43,14 +43,14 @@ public class Result<T>
     // Error sub-class
     public final static class Error extends Result
     {
-        private Exception error;
+        private int error;
 
-        public Error(Exception error)
+        public Error(int error)
         {
             this.error = error;
         }
 
-        public Exception getError()
+        public int getError()
         {
             return this.error;
         }
