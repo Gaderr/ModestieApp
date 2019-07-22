@@ -17,7 +17,10 @@
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
         <activity
             android:name=".activities.login.LoginActivity"
-            android:label="@string/title_activity_login"></activity>
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:theme="@style/ModestieTheme.DayNight">
+        </activity>
         <activity
             android:name=".activities.NewEventActivity"
             android:configChanges="orientation"
