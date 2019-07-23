@@ -79,13 +79,10 @@ public class CharacterActivity extends AppCompatActivity
     //3 firsts base character attributes (HP, MP, etc.)
     private TextView param1Label;
     private TextView param2Label;
-    private TextView param3Label;
     private ImageView param1Bar;
     private ImageView param2Bar;
-    private ImageView param3Bar;
     private TextView param1Value;
     private TextView param2Value;
-    private TextView param3Value;
 
     //Character attributes layouts
     private ConstraintLayout globalAttributesLayout;
@@ -156,17 +153,13 @@ public class CharacterActivity extends AppCompatActivity
 
         ConstraintLayout param1 = findViewById(R.id.param1);
         ConstraintLayout param2 = findViewById(R.id.param2);
-        ConstraintLayout param3 = findViewById(R.id.param3);
 
         this.param1Label = param1.findViewById(R.id.paramLabel);
         this.param2Label = param2.findViewById(R.id.paramLabel);
-        this.param3Label = param3.findViewById(R.id.paramLabel);
         this.param1Bar = param1.findViewById(R.id.paramBar);
         this.param2Bar = param2.findViewById(R.id.paramBar);
-        this.param3Bar = param3.findViewById(R.id.paramBar);
         this.param1Value = param1.findViewById(R.id.paramValue);
         this.param2Value = param2.findViewById(R.id.paramValue);
-        this.param3Value = param3.findViewById(R.id.paramValue);
 
         this.globalAttributesLayout = findViewById(R.id.globalAttributesLayout);
         this.fighterAttributesLayout = findViewById(R.id.fighterAttributesLayout);
@@ -337,15 +330,12 @@ public class CharacterActivity extends AppCompatActivity
 
         //Set base character attributes (HP, MP, etc.)
         int attributesCount = this.character.getAttributes().size();
-        this.param1Label.setText(this.character.getAttributes().get(attributesCount - 3).getName());
+        this.param1Label.setText(this.character.getAttributes().get(attributesCount - 2).getName());
         setParamBarColor(this.param1Label.getText().toString(), this.param1Bar);
-        this.param2Label.setText(this.character.getAttributes().get(attributesCount - 2).getName());
+        this.param2Label.setText(this.character.getAttributes().get(attributesCount - 1).getName());
         setParamBarColor(this.param2Label.getText().toString(), this.param2Bar);
-        this.param3Label.setText(this.character.getAttributes().get(attributesCount - 1).getName());
-        setParamBarColor(this.param3Label.getText().toString(), this.param3Bar);
-        this.param1Value.setText(String.format(Locale.FRANCE, "%d",this.character.getAttributes().get(attributesCount - 3).getValue()));
-        this.param2Value.setText(String.format(Locale.FRANCE, "%d",this.character.getAttributes().get(attributesCount - 2).getValue()));
-        this.param3Value.setText(String.format(Locale.FRANCE, "%d",this.character.getAttributes().get(attributesCount - 1).getValue()));
+        this.param1Value.setText(String.format(Locale.FRANCE, "%d",this.character.getAttributes().get(attributesCount - 2).getValue()));
+        this.param2Value.setText(String.format(Locale.FRANCE, "%d",this.character.getAttributes().get(attributesCount - 1).getValue()));
 
         boolean crafter;
 
@@ -360,7 +350,7 @@ public class CharacterActivity extends AppCompatActivity
             crafter = false;
         }
 
-        for(int i = 0; i < attributesCount - 3; i++)
+        for(int i = 0; i < attributesCount - 2; i++)
         {
             TextView attributeLabel = getAttributeTextView(100 + i);
             TextView attributeValue = getAttributeTextView(200 + i);

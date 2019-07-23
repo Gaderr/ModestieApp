@@ -356,17 +356,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
-                    android:layout_marginEnd="6dp"
-                    android:layout_weight="1" />
-
-                <include
-                    android:id="@+id/param3"
-                    layout="@layout/param_layout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
                     android:layout_marginEnd="12dp"
                     android:layout_weight="1" />
+
             </LinearLayout>
 
             <include
@@ -408,6 +400,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/globalAttributesLayout" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
     </ScrollView>
 
     <ImageView
