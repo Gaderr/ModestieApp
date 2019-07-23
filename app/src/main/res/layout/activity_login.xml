@@ -6,11 +6,9 @@
     android:layout_height="match_parent"
     tools:context=".activities.login.LoginActivity">
 
-    <androidx.viewpager.widget.ViewPager
+    <com.modestie.modestieapp.activities.login.NonSwipeableViewPager
         android:id="@+id/pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    </androidx.viewpager.widget.ViewPager>
+        android:layout_height="match_parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

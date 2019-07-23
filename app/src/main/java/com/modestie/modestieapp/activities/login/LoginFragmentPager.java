@@ -7,7 +7,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 public class LoginFragmentPager extends FragmentPagerAdapter
 {
-    private static final int PAGE_COUNT = 2;
+    private static final int PAGE_COUNT = 3;
 
     LoginFragmentPager(FragmentManager fragmentManager)
     {
@@ -20,14 +20,12 @@ public class LoginFragmentPager extends FragmentPagerAdapter
     {
         switch (position)
         {
-            case 0 :
-                return new LoginFragment();
+            case 0: return new LoginFragment();
+            case 1: return CharacterRegistrationFragment.newInstance(1);
+            case 2: return CharacterRegistrationFragment.newInstance(2);
+            case 3: return CharacterRegistrationFragment.newInstance(3);
 
-            case 1 :
-                return new LoginFragment();
-
-            default:
-                return null;
+            default: return null;
         }
     }
 

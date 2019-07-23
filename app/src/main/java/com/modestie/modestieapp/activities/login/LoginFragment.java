@@ -2,7 +2,6 @@ package com.modestie.modestieapp.activities.login;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.StringRes;
@@ -23,7 +22,6 @@ import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.modestie.modestieapp.R;
-import com.modestie.modestieapp.activities.HomeActivity;
 import com.modestie.modestieapp.model.login.LoggedInUser;
 import com.modestie.modestieapp.model.login.UserCredentials;
 import com.orhanobut.hawk.Hawk;
@@ -108,6 +106,16 @@ public class LoginFragment extends Fragment
     {
         super.onStart();
 
+        //Auto-login attempt
+        if(!this.username.equals("") && !this.password.equals(""))
+        {
+            this.usernameEditText.getEditText().setText(this.username);
+            this.passwordEditText.getEditText().setText(this.password);
+            this.username = null;
+            this.password = null;
+            beginLogin();
+        }
+
         this.loginViewModel.getLoginFormState().observe(
                 this, loginFormState ->
                 {
@@ -154,7 +162,8 @@ public class LoginFragment extends Fragment
                                 this.usernameEditText.getEditText().getText().toString(),
                                 this.passwordEditText.getEditText().getText().toString()));
                         updateUiWithUser(loginResult.getSuccess());
-                        startActivity(new Intent(getContext(), HomeActivity.class));
+                        //startActivity(new Intent(getContext(), HomeActivity.class));
+                        onLoginSuccess();
                     }
                     ((LoginActivity) getContext()).setResult(Activity.RESULT_OK);
                 });
@@ -184,20 +193,10 @@ public class LoginFragment extends Fragment
                 });
 
         this.loginButton.setOnClickListener(v -> beginLogin());
-
-        //Auto-login attempt
-        if(!this.username.equals("") && !this.password.equals(""))
-        {
-            this.usernameEditText.getEditText().setText(this.username);
-            this.passwordEditText.getEditText().setText(this.password);
-            this.username = null;
-            this.password = null;
-            //beginLogin();
-        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed()
+    public void onLoginSuccess()
     {
         if (mListener != null)
         {
@@ -257,14 +256,9 @@ public class LoginFragment extends Fragment
     }
 
     /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
+     * This interface allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
      * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener
     {
