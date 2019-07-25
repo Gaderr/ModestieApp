@@ -41,6 +41,11 @@ public class LoggedInUser
         return token;
     }
 
+    public String getUserEmail()
+    {
+        return userEmail;
+    }
+
     public String getDisplayName()
     {
         return displayName;

@@ -69,7 +69,7 @@ public class NonSwipeableViewPager extends ViewPager
     {
         public MyScroller(Context context)
         {
-            super(context, Easings.QUINT_OUT);
+            super(context, Easings.CUBIC_IN_OUT);
         }
 
         @Override

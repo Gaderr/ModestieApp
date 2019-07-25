@@ -15,13 +15,24 @@
     <string name="login_fatal">Erreur système</string>
 
     <string name="characregist_frag1_title">Nous vous attendions !</string>
-    <string name="characregist_frag1_instructions">Pour utiliser l\'application, il est nécéssaire d\'enregistrer un personnage.\n\nEnregistrons le vôtre.</string>
+    <string name="characregist_frag1_instructions">Bienvenue ! Pour utiliser l\'application, il est nécéssaire d\'enregistrer un personnage.\n\nEnregistrons le vôtre.</string>
     <string name="characregist_frag1_fc_member_question">Question préalable : \nFaites vous partie de la compagnie libre ?</string>
     <string name="characregist_frag1_btn_q_yes">Oui</string>
     <string name="characregist_frag1_btn_q_no">Non</string>
 
-    <string name="characregist_frag2_title">D\'accord !</string>
-    <string name="characregist_frag2_instructions">Sélectionnez maintenant votre personnage dans la liste ci dessous :</string>
+    <string name="characregist_frag2_title">Vous êtes de la compagnie</string>
+    <string name="characregist_frag2_instructions">Sélectionnez votre personnage dans la liste :</string>
+
+    <string name="characregist_frag3_title">Vérificiation</string>
+    <string name="characregist_frag3_instructions">Nos mogs secrétaires vont vérifier que ce personnage vous appartient, puis l\'enregistrer.</string>
+    <string name="characregist_frag3_step1">1. Copiez cette clé dans la description de votre profil Lodestone</string>
+    <string name="characregist_frag3_step2">2. Cliquez ensuite sur \"Enregistrement\" pour faire vérifier votre personnage</string>
+    <string name="characregist_frag3_open_lodestone">Profil Lodestone</string>
+    <string name="characregist_frag3_verify_action">Enregistrement</string>
+
+    <string name="characregist_frag4_title">Et voilà !</string>
+    <string name="characregist_frag4_instructions">Votre personnage est enregistré !\n\nVous pouvez maintenant utiliser l\'application.</string>
+    <string name="characregist_frag4_endBtn">Terminer</string>
 
     <!-- HOME ACTIVITY -->
     <string name="title_activity_home">Accueil</string>

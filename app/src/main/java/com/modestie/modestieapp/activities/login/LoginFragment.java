@@ -137,9 +137,9 @@ public class LoginFragment extends Fragment
         this.loginViewModel.getLoginResult().observe(
                 this, loginResult ->
                 {
-                    this.loadingProgressBar.setVisibility(View.GONE);
                     if (loginResult == null)
                     {
+                        hideProgressBar();
                         this.usernameEditText.setEnabled(true);
                         this.passwordEditText.setEnabled(true);
                         this.loginButton.setEnabled(true);
@@ -148,6 +148,7 @@ public class LoginFragment extends Fragment
                     if (loginResult.getError() != null)
                     {
                         showLoginFailed(loginResult.getError());
+                        hideProgressBar();
                         this.usernameEditText.setEnabled(true);
                         this.passwordEditText.setEnabled(true);
                         this.loginButton.setEnabled(true);
@@ -161,9 +162,8 @@ public class LoginFragment extends Fragment
                         Hawk.put("UserCredentials", new UserCredentials(
                                 this.usernameEditText.getEditText().getText().toString(),
                                 this.passwordEditText.getEditText().getText().toString()));
-                        updateUiWithUser(loginResult.getSuccess());
-                        //startActivity(new Intent(getContext(), HomeActivity.class));
-                        onLoginSuccess();
+                        //Call listener
+                        onLoginSuccess(loginResult.getSuccess().getUserEmail());
                     }
                     ((LoginActivity) getContext()).setResult(Activity.RESULT_OK);
                 });
@@ -195,12 +195,11 @@ public class LoginFragment extends Fragment
         this.loginButton.setOnClickListener(v -> beginLogin());
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onLoginSuccess()
+    public void onLoginSuccess(String userEmail)
     {
         if (mListener != null)
         {
-            mListener.onLoginSuccess();
+            mListener.onLoginSuccess(userEmail);
         }
     }
 
@@ -223,6 +222,11 @@ public class LoginFragment extends Fragment
     {
         super.onDetach();
         this.mListener = null;
+    }
+
+    void hideProgressBar()
+    {
+        this.loadingProgressBar.setVisibility(View.GONE);
     }
 
     private void beginLogin()
@@ -262,6 +266,6 @@ public class LoginFragment extends Fragment
      */
     public interface OnFragmentInteractionListener
     {
-        void onLoginSuccess();
+        void onLoginSuccess(String userEmail);
     }
 }
