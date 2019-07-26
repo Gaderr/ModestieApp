@@ -2,14 +2,17 @@ package com.modestie.modestieapp.activities.login;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,21 +37,24 @@ import com.orhanobut.hawk.Hawk;
  */
 public class LoginFragment extends Fragment
 {
+    private static final String TAG = "LOGINFRAGMNT";
+
     private TextInputLayout usernameEditText;
     private TextInputLayout passwordEditText;
     private CheckBox rememberMeCheckBox;
-    private CheckBox autologinCheckBox;
+    private CheckBox autoLoginCheckBox;
     private Button loginButton;
     private ProgressBar loadingProgressBar;
 
     private LoginViewModel loginViewModel;
 
+    private SharedPreferences preferences;
+
+    private boolean autoLoginAttempt;
+
     // Initialization parameters
     private static final String ARG_USERNAME = "username";
     private static final String ARG_PASSWORD = "password";
-
-    private String username;
-    private String password;
 
     private OnFragmentInteractionListener mListener;
 
@@ -70,21 +76,6 @@ public class LoginFragment extends Fragment
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
-        Hawk.init(getContext()).build();
-        if (Hawk.contains("UserCredentials"))
-        {
-            UserCredentials data = Hawk.get("UserCredentials");
-            this.username = data.getUsername();
-            this.password = data.getPassword();
-        }
-        else
-        {
-            this.username = "";
-            this.password = "";
-        }
-
-        this.loginViewModel = ViewModelProviders.of(this, new LoginViewModelFactory()).get(LoginViewModel.class);
     }
 
     @Override
@@ -97,6 +88,43 @@ public class LoginFragment extends Fragment
         this.passwordEditText = rootView.findViewById(R.id.password);
         this.loginButton = rootView.findViewById(R.id.login);
         this.loadingProgressBar = rootView.findViewById(R.id.loading);
+        this.rememberMeCheckBox = rootView.findViewById(R.id.rememberMeCheckbox);
+        this.rememberMeCheckBox.setChecked(false);
+        this.autoLoginCheckBox = rootView.findViewById(R.id.autologinCheckbox);
+        this.autoLoginCheckBox.setChecked(false);
+
+        this.loginViewModel = ViewModelProviders.of(this, new LoginViewModelFactory()).get(LoginViewModel.class);
+
+        //Get key-value storage
+        Hawk.init(getContext()).build();
+
+        //Load login preferences
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        this.rememberMeCheckBox.setChecked(preferences.getBoolean("RememberMe", false));
+        this.autoLoginCheckBox.setChecked(preferences.getBoolean("AutoLogin", false));
+
+        //Read checkbox changes and edit preferences
+        this.rememberMeCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> this.preferences.edit().putBoolean("RememberMe", isChecked).apply());
+        this.autoLoginCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> this.preferences.edit().putBoolean("AutoLogin", isChecked).apply());
+
+        //Load user credentials if stored
+        if (this.rememberMeCheckBox.isChecked() && Hawk.contains("UserCredentials"))
+        {
+            UserCredentials data = Hawk.get("UserCredentials");
+            this.usernameEditText.getEditText().setText(data.getUsername());
+            this.passwordEditText.getEditText().setText(data.getPassword());
+            //Notify data changed -> That makes the login button active
+            this.loginViewModel.loginDataChanged(this.usernameEditText.getEditText().getText().toString(), this.passwordEditText.getEditText().getText().toString());
+            //Enable auto-login attempt if desired
+            if(this.autoLoginCheckBox.isChecked())
+                this.autoLoginAttempt = true;
+        }
+        else
+        {
+            this.usernameEditText.getEditText().setText("");
+            this.passwordEditText.getEditText().setText("");
+            this.autoLoginAttempt = false;
+        }
 
         return rootView;
     }
@@ -105,16 +133,6 @@ public class LoginFragment extends Fragment
     public void onStart()
     {
         super.onStart();
-
-        //Auto-login attempt
-        if(!this.username.equals("") && !this.password.equals(""))
-        {
-            this.usernameEditText.getEditText().setText(this.username);
-            this.passwordEditText.getEditText().setText(this.password);
-            this.username = null;
-            this.password = null;
-            beginLogin();
-        }
 
         this.loginViewModel.getLoginFormState().observe(
                 this, loginFormState ->
@@ -132,6 +150,12 @@ public class LoginFragment extends Fragment
                     {
                         this.passwordEditText.getEditText().setError(getString(loginFormState.getPasswordError()));
                     }
+                    //Auto-login attempt (after loading of user credentials in text fields (onCreateView))
+                    if(this.autoLoginAttempt)
+                    {
+                        this.autoLoginAttempt = false;
+                        beginLogin();
+                    }
                 });
 
         this.loginViewModel.getLoginResult().observe(
@@ -142,6 +166,8 @@ public class LoginFragment extends Fragment
                         hideProgressBar();
                         this.usernameEditText.setEnabled(true);
                         this.passwordEditText.setEnabled(true);
+                        this.rememberMeCheckBox.setEnabled(true);
+                        this.autoLoginCheckBox.setEnabled(true);
                         this.loginButton.setEnabled(true);
                         return;
                     }
@@ -151,6 +177,8 @@ public class LoginFragment extends Fragment
                         hideProgressBar();
                         this.usernameEditText.setEnabled(true);
                         this.passwordEditText.setEnabled(true);
+                        this.rememberMeCheckBox.setEnabled(true);
+                        this.autoLoginCheckBox.setEnabled(true);
                         this.loginButton.setEnabled(true);
                         return;
                     }
@@ -158,10 +186,13 @@ public class LoginFragment extends Fragment
                     {
                         //Store user details and token
                         Hawk.put("LoggedInUser", loginResult.getSuccess());
+
                         //Store user credentials
-                        Hawk.put("UserCredentials", new UserCredentials(
-                                this.usernameEditText.getEditText().getText().toString(),
-                                this.passwordEditText.getEditText().getText().toString()));
+                        if(this.rememberMeCheckBox.isChecked())
+                            Hawk.put("UserCredentials", new UserCredentials(
+                                    this.usernameEditText.getEditText().getText().toString(),
+                                    this.passwordEditText.getEditText().getText().toString()));
+
                         //Call listener
                         onLoginSuccess(loginResult.getSuccess().getUserEmail());
                     }
@@ -235,6 +266,8 @@ public class LoginFragment extends Fragment
         hideKeyboardFrom(getContext(), this.loginButton);
         this.usernameEditText.setEnabled(false);
         this.passwordEditText.setEnabled(false);
+        this.rememberMeCheckBox.setEnabled(false);
+        this.autoLoginCheckBox.setEnabled(false);
         this.loginButton.setEnabled(false);
         this.loginViewModel.login(this.usernameEditText.getEditText().getText().toString(),
                                   this.passwordEditText.getEditText().getText().toString(),

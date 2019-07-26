@@ -3,7 +3,7 @@
     <!-- LOGIN ACTIVITY -->
     <string name="title_activity_login">Connexion</string>
     <string name="login_title_textview">Lali-ho !</string>
-    <string name="login_instructions">Pour utiliser l\'application, veuillez vous connecter avec votre compte modestie.fr</string>
+    <string name="login_instructions">Veuillez vous connecter avec votre compte modestie.fr</string>
     <string name="prompt_username">Nom d\'utilisateur</string>
     <string name="prompt_password">Mot de passe</string>
     <string name="action_sign_in">Se connecter</string>
