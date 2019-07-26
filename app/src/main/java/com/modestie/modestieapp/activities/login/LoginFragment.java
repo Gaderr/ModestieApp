@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.StringRes;
@@ -46,7 +47,6 @@ public class LoginFragment extends Fragment
     private CheckBox rememberMeCheckBox;
     private CheckBox autoLoginCheckBox;
     private Button loginButton;
-    private Button guestButton;
     private ProgressBar loadingProgressBar;
 
     private LoginViewModel loginViewModel;
@@ -90,7 +90,8 @@ public class LoginFragment extends Fragment
         this.usernameEditText = rootView.findViewById(R.id.username);
         this.passwordEditText = rootView.findViewById(R.id.password);
         this.loginButton = rootView.findViewById(R.id.login);
-        this.guestButton = rootView.findViewById(R.id.loginGuest);
+        Button guestButton = rootView.findViewById(R.id.loginGuest);
+        Button toWebsite = rootView.findViewById(R.id.toWebsite);
         this.loadingProgressBar = rootView.findViewById(R.id.loading);
         this.rememberMeCheckBox = rootView.findViewById(R.id.rememberMeCheckbox);
         this.rememberMeCheckBox.setChecked(false);
@@ -103,7 +104,7 @@ public class LoginFragment extends Fragment
         Hawk.init(getContext()).build();
 
         //Guest login
-        this.guestButton.setOnClickListener(
+        guestButton.setOnClickListener(
                 v ->
                 {
                     Hawk.delete("UserCredentials");
@@ -144,6 +145,17 @@ public class LoginFragment extends Fragment
             this.passwordEditText.getEditText().setText("");
             this.autoLoginAttempt = false;
         }
+
+        //To website button
+        toWebsite.setOnClickListener(
+                v ->
+                {
+                    String url = "https://modestie.fr";
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setData(Uri.parse(url));
+                    startActivity(i);
+                }
+        );
 
         return rootView;
     }
