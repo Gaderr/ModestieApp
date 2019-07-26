@@ -8,6 +8,8 @@
     <string name="prompt_password">Mot de passe</string>
     <string name="action_sign_in">Se connecter</string>
     <string name="action_sign_in_short">Connexion</string>
+    <string name="action_sign_as_guest">Connexion visiteur</string>
+    <string name="action_to_website">modestie.fr</string>
     <string name="welcome">"Salutations "</string>
     <string name="invalid_username">Nom d\'utilisateur invalide</string>
     <string name="invalid_password">Le mot de passe doit faire plus de 5 caractères</string>

@@ -2,6 +2,7 @@ package com.modestie.modestieapp.activities.login;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -25,6 +26,7 @@ import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.modestie.modestieapp.R;
+import com.modestie.modestieapp.activities.HomeActivity;
 import com.modestie.modestieapp.model.login.LoggedInUser;
 import com.modestie.modestieapp.model.login.UserCredentials;
 import com.orhanobut.hawk.Hawk;
@@ -44,6 +46,7 @@ public class LoginFragment extends Fragment
     private CheckBox rememberMeCheckBox;
     private CheckBox autoLoginCheckBox;
     private Button loginButton;
+    private Button guestButton;
     private ProgressBar loadingProgressBar;
 
     private LoginViewModel loginViewModel;
@@ -87,6 +90,7 @@ public class LoginFragment extends Fragment
         this.usernameEditText = rootView.findViewById(R.id.username);
         this.passwordEditText = rootView.findViewById(R.id.password);
         this.loginButton = rootView.findViewById(R.id.login);
+        this.guestButton = rootView.findViewById(R.id.loginGuest);
         this.loadingProgressBar = rootView.findViewById(R.id.loading);
         this.rememberMeCheckBox = rootView.findViewById(R.id.rememberMeCheckbox);
         this.rememberMeCheckBox.setChecked(false);
@@ -97,6 +101,21 @@ public class LoginFragment extends Fragment
 
         //Get key-value storage
         Hawk.init(getContext()).build();
+
+        //Guest login
+        this.guestButton.setOnClickListener(
+                v ->
+                {
+                    Hawk.delete("UserCredentials");
+                    this.rememberMeCheckBox.setEnabled(false);
+                    this.autoLoginCheckBox.setEnabled(false);
+                    this.preferences
+                            .edit()
+                            .putBoolean("RememberMe", false)
+                            .putBoolean("AutoLogin", false)
+                            .apply();
+                    startActivity(new Intent(getContext(), HomeActivity.class));
+                });
 
         //Load login preferences
         this.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
