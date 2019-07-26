@@ -29,6 +29,8 @@ import com.modestie.modestieapp.utils.Utils;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
+import org.jetbrains.annotations.NotNull;
+
 import static com.modestie.modestieapp.activities.login.LoginActivity.*;
 
 /**
@@ -63,7 +65,7 @@ public class CharacterRegistrationFragment extends Fragment
     /**
      * @return A new instance of fragment CharacterRegistrationFragment.
      */
-    public static CharacterRegistrationFragment newInstance(int page)
+    static CharacterRegistrationFragment newInstance(int page)
     {
         CharacterRegistrationFragment fragment = new CharacterRegistrationFragment();
         Bundle args = new Bundle();
@@ -280,7 +282,7 @@ public class CharacterRegistrationFragment extends Fragment
     }
 
     @Override
-    public void onAttach(Context context)
+    public void onAttach(@NotNull Context context)
     {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener)

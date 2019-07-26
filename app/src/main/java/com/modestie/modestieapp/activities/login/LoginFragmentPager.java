@@ -58,10 +58,10 @@ public class LoginFragmentPager extends FragmentPagerAdapter
     @Override
     public int getCount()
     {
-        return PAGE_COUNT;
+        return this.PAGE_COUNT;
     }
 
-    Fragment getFragment(int position)
+    public Fragment getFragment(int position)
     {
         return this.fragments.get(position);
     }

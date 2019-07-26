@@ -32,6 +32,8 @@ import com.modestie.modestieapp.model.login.LoggedInUser;
 import com.modestie.modestieapp.model.login.UserCredentials;
 import com.orhanobut.hawk.Hawk;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
@@ -54,10 +56,6 @@ public class LoginFragment extends Fragment
     private SharedPreferences preferences;
 
     private boolean autoLoginAttempt;
-
-    // Initialization parameters
-    private static final String ARG_USERNAME = "username";
-    private static final String ARG_PASSWORD = "password";
 
     private OnFragmentInteractionListener mListener;
 
@@ -82,7 +80,7 @@ public class LoginFragment extends Fragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_login, container, false);
@@ -257,7 +255,7 @@ public class LoginFragment extends Fragment
         this.loginButton.setOnClickListener(v -> beginLogin());
     }
 
-    public void onLoginSuccess(String userEmail)
+    private void onLoginSuccess(String userEmail)
     {
         if (mListener != null)
         {
@@ -266,7 +264,7 @@ public class LoginFragment extends Fragment
     }
 
     @Override
-    public void onAttach(Context context)
+    public void onAttach(@NotNull Context context)
     {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener)
@@ -317,7 +315,7 @@ public class LoginFragment extends Fragment
         Toast.makeText(getContext(), errorString, Toast.LENGTH_LONG).show();
     }
 
-    public static void hideKeyboardFrom(Context context, View view)
+    private static void hideKeyboardFrom(Context context, View view)
     {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
