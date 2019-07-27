@@ -36,8 +36,8 @@ public class LoginFragmentPager extends FragmentPagerAdapter
                 fragment = CharacterRegistrationFragment.newInstance(CHARACTER_REGISTRATION_FIRST_PAGE);
                 break;
 
-            case CHARACTER_REGISTRATION_FREE_COMPANY_MEMBER_SELECTION_PAGE:
-                fragment = CharacterRegistrationFragment.newInstance(CHARACTER_REGISTRATION_FREE_COMPANY_MEMBER_SELECTION_PAGE);
+            case CHARACTER_REGISTRATION_CHARACTER_SELECTION_PAGE:
+                fragment = CharacterRegistrationFragment.newInstance(CHARACTER_REGISTRATION_CHARACTER_SELECTION_PAGE);
                 break;
 
             case CHARACTER_REGISTRATION_VERIFICATION_AND_REGISTRATION_PAGE:

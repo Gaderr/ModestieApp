@@ -9,28 +9,51 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.android.material.textfield.TextInputLayout;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.HomeActivity;
+import com.modestie.modestieapp.adapters.CharacterListAdapter;
+import com.modestie.modestieapp.model.character.LightCharacter;
 import com.modestie.modestieapp.model.freeCompany.FreeCompanyMember;
 import com.modestie.modestieapp.utils.Utils;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Objects;
+
+import static com.android.volley.Request.Method.GET;
 import static com.modestie.modestieapp.activities.login.LoginActivity.*;
 
 /**
@@ -40,15 +63,36 @@ public class CharacterRegistrationFragment extends Fragment
 {
     private static final String TAG = "CHRCTR-REGISTR-FRG";
 
-    private Button nextBtn;
+    private Button yesBtn;
+    private Button noBtn;
     private View loadingView;
     private ImageView clipboardAction;
     private TextView hashTextView;
-    private FreeCompanyMember member;
     private RoundedImageView avatarView;
     private ImageView rankIcon;
     private TextView memberNameView;
     private TextView memberRankView;
+
+    private FreeCompanyMember member;
+    private LightCharacter character;
+    private int characterID;
+
+    //Character selection
+    private View CharacterSelection_FCMember;
+    private View CharacterSelection_BasicUser;
+
+    private FrameLayout characterSelectionLayout;
+    private ImageView searchIcon;
+    private LinearLayout searchLayout;
+    private ConstraintLayout pagerLayout;
+    private FrameLayout noContentPlaceholder;
+    private ProgressBar noContentProgressBar;
+    private TextView noContentLabel;
+    private boolean FCMember;
+    private ArrayList<LightCharacter> dataset;
+    private RecyclerView recyclerView;
+    private RecyclerView.Adapter<CharacterListAdapter.CharacterViewHolder> adapter;
+    private RecyclerView.LayoutManager layoutManager;
 
     private OnFragmentInteractionListener mListener;
 
@@ -56,6 +100,8 @@ public class CharacterRegistrationFragment extends Fragment
     private int page;
 
     private boolean pending; //Used to disable some elements during a process
+
+    private RequestQueue mRequestQueue;
 
     public CharacterRegistrationFragment()
     {
@@ -97,7 +143,7 @@ public class CharacterRegistrationFragment extends Fragment
                 createFirstPage(rootView);
                 break;
 
-            case CHARACTER_REGISTRATION_FREE_COMPANY_MEMBER_SELECTION_PAGE:
+            case CHARACTER_REGISTRATION_CHARACTER_SELECTION_PAGE:
                 rootView = inflater.inflate(R.layout.fragment_character_regist_2, container, false);
                 createSecondPage(rootView);
                 break;
@@ -120,13 +166,15 @@ public class CharacterRegistrationFragment extends Fragment
     }
 
     /**
-     * Setup views in the second fragment
+     * Setup views in the first fragment
      * @param rootView Parent view
      */
     private void createFirstPage(View rootView)
     {
-        this.nextBtn = rootView.findViewById(R.id.yesBtn);
-        this.nextBtn.setOnClickListener(v -> nextFragment(2));
+        this.yesBtn = rootView.findViewById(R.id.yesBtn);
+        this.noBtn = rootView.findViewById(R.id.noBtn);
+        this.yesBtn.setOnClickListener(v -> userTypeSelection(true));
+        this.noBtn.setOnClickListener(v -> userTypeSelection(false));
     }
 
     /**
@@ -135,7 +183,97 @@ public class CharacterRegistrationFragment extends Fragment
      */
     private void createSecondPage(View rootView)
     {
-        this.loadingView = rootView.findViewById(R.id.loadingView);
+        this.characterSelectionLayout = rootView.findViewById(R.id.characterSelection);
+
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        this.CharacterSelection_FCMember = inflater.inflate(R.layout.fragment_character_regist_2_fc_member, null);
+        this.CharacterSelection_BasicUser = inflater.inflate(R.layout.fragment_character_regist_2_basic_character, null);
+
+        //Recycler view setup
+        this.dataset = new ArrayList<>();
+        this.searchIcon = this.CharacterSelection_BasicUser.findViewById(R.id.searchIcon);
+        this.noContentPlaceholder = this.CharacterSelection_BasicUser.findViewById(R.id.noContentPlaceholder);
+        this.noContentProgressBar = this.CharacterSelection_BasicUser.findViewById(R.id.noContentProgress);
+        this.noContentLabel = this.CharacterSelection_BasicUser.findViewById(R.id.noContentLabel);
+        this.searchLayout = this.CharacterSelection_BasicUser.findViewById(R.id.searchLayout);
+        this.pagerLayout = this.CharacterSelection_BasicUser.findViewById(R.id.searchPagerLayout);
+        this.recyclerView = this.CharacterSelection_BasicUser.findViewById(R.id.characterRecyclerView);
+        this.layoutManager = new LinearLayoutManager(getContext());
+        this.recyclerView.setLayoutManager(this.layoutManager);
+        //Set adapter and call callback listener to return selected item
+        this.adapter = new CharacterListAdapter(this.dataset, this::characterChoosed);
+        this.recyclerView.setAdapter(this.adapter);
+
+        TextInputLayout searchField = this.CharacterSelection_BasicUser.findViewById(R.id.fieldCharacterSearch);
+
+        searchField.getEditText().setOnEditorActionListener(
+                (v, actionId, event) ->
+                {
+                    if (actionId == EditorInfo.IME_ACTION_DONE)
+                    {
+                        executeSearch(searchField);
+                    }
+                    return false;
+                });
+
+        this.searchIcon.setOnClickListener(v -> executeSearch(searchField));
+    }
+
+    private void executeSearch(TextInputLayout field)
+    {
+        String request = "https://xivapi.com/character/search?server=_dc_chaos&name=";
+        request += Objects.requireNonNull(field.getEditText()).getText();
+
+        field.getEditText().clearFocus();
+        field.setEnabled(false);
+
+        this.recyclerView.setVisibility(View.INVISIBLE);
+
+        this.noContentPlaceholder.setAlpha(1f);
+        this.noContentLabel.setVisibility(View.GONE);
+        this.noContentProgressBar.setVisibility(View.VISIBLE);
+
+        this.recyclerView.setVisibility(View.INVISIBLE);
+
+        addToRequestQueue(new JsonObjectRequest(
+                GET, request, null,
+                response ->
+                {
+                    buildDatasetFromResponse(response);
+                    this.adapter.notifyDataSetChanged();
+                    this.recyclerView.setVisibility(View.VISIBLE);
+                    this.noContentPlaceholder.animate().alpha(0f);
+                    field.setEnabled(true);
+
+                }, error ->
+                {
+                    this.noContentLabel.setVisibility(View.VISIBLE);
+                    this.noContentProgressBar.setVisibility(View.GONE);
+                    Toast.makeText(getContext(), "Erreur réseau, veuillez réessayer", Toast.LENGTH_SHORT).show();
+                    field.setEnabled(true);
+                }));
+    }
+
+    public void buildDatasetFromResponse(JSONObject obj)
+    {
+        try
+        {
+            JSONArray results = obj.getJSONArray("Results");
+
+            Log.e(TAG, results.toString());
+
+            this.dataset.clear();
+
+            for (int i = 0; i < results.length(); i++)
+            {
+                Log.e(TAG, results.getJSONObject(i).toString());
+                this.dataset.add(new LightCharacter(results.getJSONObject(i)));
+            }
+        }
+        catch (JSONException e)
+        {
+            Log.e(TAG, e.getLocalizedMessage());
+        }
     }
 
     /**
@@ -144,7 +282,7 @@ public class CharacterRegistrationFragment extends Fragment
      */
     private void createThirdPage(View rootView)
     {
-        this.nextBtn = rootView.findViewById(R.id.yesBtn);
+        this.yesBtn = rootView.findViewById(R.id.yesBtn);
         this.member = null;
 
         this.avatarView = rootView.findViewById(R.id.promoterAvatar);
@@ -191,37 +329,77 @@ public class CharacterRegistrationFragment extends Fragment
     }
 
     /**
-     * Edit character information preview in third fragment
-     * @param member The member chosen
+     * Add one of the inflated character selection views (non-fc-member or fc-member) depending on if
+     * the user a member of the FC or not.
+     * @param FCMember Is the user a member of the FC?
      */
-    void setMember(FreeCompanyMember member)
+    void setCharacterSelectionView(boolean FCMember)
     {
-        this.member = member;
+        this.FCMember = FCMember;
+        if(this.FCMember)
+            this.characterSelectionLayout.addView(this.CharacterSelection_FCMember);
+        else
+            this.characterSelectionLayout.addView(this.CharacterSelection_BasicUser);
+    }
 
-        this.memberNameView.setText(this.member.getName());
-        this.memberRankView.setText(this.member.getRank());
+    /**
+     * Edit character information preview in third fragment
+     * @param character The character chosen
+     */
+    void setCharacter(Object character)
+    {
+        this.member = null;
+        this.character = null;
+        this.characterID = 0;
 
-        Picasso.get()
-                .load(this.member.getRankIconURL())
-                .into(this.rankIcon);
+        if(character instanceof FreeCompanyMember)
+        {
+            this.member = (FreeCompanyMember) character;
+            this.characterID = this.member.getID();
+            this.memberNameView.setText(this.member.getName());
+            this.memberRankView.setText(this.member.getRank());
 
-        Transformation transformation = new RoundedTransformationBuilder()
-                .borderColor(Color.TRANSPARENT)
-                .borderWidthDp(0)
-                .cornerRadiusDp(30)
-                .oval(false)
-                .build();
+            Picasso.get()
+                    .load(this.member.getRankIconURL())
+                    .into(this.rankIcon);
 
-        Picasso.get()
-                .load(this.member.getAvatarURL())
-                .fit()
-                .transform(transformation)
-                .into(this.avatarView);
+            Transformation transformation = new RoundedTransformationBuilder()
+                    .borderColor(Color.TRANSPARENT)
+                    .borderWidthDp(0)
+                    .cornerRadiusDp(30)
+                    .oval(false)
+                    .build();
 
-        this.hashTextView.setText(Utils.bin2hex(Utils.getSHA256Hash(this.member.getID() + this.member.getName())));
+            Picasso.get()
+                    .load(this.member.getAvatarURL())
+                    .fit()
+                    .transform(transformation)
+                    .into(this.avatarView);
+        }
 
+        if(character instanceof LightCharacter)
+        {
+            this.character = (LightCharacter) character;
+            this.characterID = this.character.getID();
+            this.memberNameView.setText(this.character.getName());
+            this.memberRankView.setText(this.character.getServer());
+
+            Transformation transformation = new RoundedTransformationBuilder()
+                    .borderColor(Color.TRANSPARENT)
+                    .borderWidthDp(0)
+                    .cornerRadiusDp(30)
+                    .oval(false)
+                    .build();
+
+            Picasso.get()
+                    .load(this.character.getAvatarURL())
+                    .fit()
+                    .transform(transformation)
+                    .into(this.avatarView);
+        }
+
+        this.hashTextView.setText(Utils.bin2hex(Utils.getSHA256Hash(this.characterID + this.memberNameView.getText().toString())));
         copyHashToClipboard(); //Immediately copy hash
-
         this.clipboardAction.setOnClickListener(v -> copyHashToClipboard());
     }
 
@@ -243,15 +421,28 @@ public class CharacterRegistrationFragment extends Fragment
     }
 
     /**
-     * Swipe to the specified fragment
+     * Function callback
      *
-     * @param page Fragment position
+     * @param FCMember Is user a FC member?
      */
-    private void nextFragment(int page)
+    private void userTypeSelection(boolean FCMember)
     {
         if (mListener != null)
         {
-            mListener.onFragmentInteraction(page);
+            mListener.onUserTypeSelection(FCMember);
+        }
+    }
+
+    /**
+     * Function called when clicking an item inside non-members characters recycler view.
+     *
+     * @param character The picked character
+     */
+    private void characterChoosed(LightCharacter character)
+    {
+        if(mListener != null)
+        {
+            mListener.onCharacterSelection(character);
         }
     }
 
@@ -262,9 +453,9 @@ public class CharacterRegistrationFragment extends Fragment
      */
     private void beginRegistration(String hash)
     {
-        if (mListener != null && this.member != null)
+        if (mListener != null && this.characterID != 0)
         {
-            mListener.onBeginRegistrationInteraction(this.member, hash);
+            mListener.onBeginRegistrationInteraction(this.characterID, hash);
         }
     }
 
@@ -309,7 +500,46 @@ public class CharacterRegistrationFragment extends Fragment
      */
     public interface OnFragmentInteractionListener
     {
-        void onFragmentInteraction(int page);
-        void onBeginRegistrationInteraction(FreeCompanyMember member, String hash);
+        void onUserTypeSelection(boolean FCMember);
+        void onCharacterSelection(Object character);
+        void onBeginRegistrationInteraction(int characterID, String hash);
+    }
+
+    /**
+     * Lazy initialize the request queue, the queue instance will be created when it is accessed
+     * for the first time
+     *
+     * @return Request Queue
+     */
+    public RequestQueue getRequestQueue()
+    {
+        if (this.mRequestQueue == null)
+            this.mRequestQueue = Volley.newRequestQueue(getContext());
+
+        return mRequestQueue;
+    }
+
+    public <T> void addToRequestQueue(Request<T> req, String tag)
+    {
+        // set the default tag if tag is empty
+        req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
+
+        VolleyLog.d("Adding request to queue: %s", req.getUrl());
+
+        getRequestQueue().add(req);
+    }
+
+    public <T> void addToRequestQueue(Request<T> req)
+    {
+        // set the default tag if tag is empty
+        req.setTag(TAG);
+
+        getRequestQueue().add(req);
+    }
+
+    public void cancelPendingRequests(Object tag)
+    {
+        if (mRequestQueue != null)
+            mRequestQueue.cancelAll(tag);
     }
 }

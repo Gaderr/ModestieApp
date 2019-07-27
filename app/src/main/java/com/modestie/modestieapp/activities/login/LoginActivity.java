@@ -42,7 +42,7 @@ public class LoginActivity extends AppCompatActivity
 
     public static final int LOGIN_PAGE = 0;
     public static final int CHARACTER_REGISTRATION_FIRST_PAGE = 1;
-    public static final int CHARACTER_REGISTRATION_FREE_COMPANY_MEMBER_SELECTION_PAGE = 2;
+    public static final int CHARACTER_REGISTRATION_CHARACTER_SELECTION_PAGE = 2;
     public static final int CHARACTER_REGISTRATION_VERIFICATION_AND_REGISTRATION_PAGE = 3;
     public static final int CHARACTER_REGISTRATION_DONE_PAGE = 4;
 
@@ -99,23 +99,24 @@ public class LoginActivity extends AppCompatActivity
     }
 
     /**
-     * Basic listener to get to a specific page after an interaction
-     * @param page Page to go
+     * Set up character selection view depending on user type
+     * @param FCMember Is user a FC member?
      */
     @Override
-    public void onFragmentInteraction(int page)
+    public void onUserTypeSelection(boolean FCMember)
     {
-        Log.e("LOGIN", "NEXT : " + page);
-        this.pager.setCurrentItem(page);
+        CharacterRegistrationFragment fragment = (CharacterRegistrationFragment) this.pagerAdapter.getFragment(CHARACTER_REGISTRATION_CHARACTER_SELECTION_PAGE);
+        fragment.setCharacterSelectionView(FCMember);
+        this.pager.setCurrentItem(CHARACTER_REGISTRATION_CHARACTER_SELECTION_PAGE);
     }
 
     /**
      * Listener called to begin a character verification
-     * @param member The character to verify
+     * @param characterID The lodestone ID character to verify
      * @param hash The generated verification hash
      */
     @Override
-    public void onBeginRegistrationInteraction(FreeCompanyMember member, String hash)
+    public void onBeginRegistrationInteraction(int characterID, String hash)
     {
         CharacterRegistrationFragment registrationFragment = (CharacterRegistrationFragment) this.pagerAdapter.getFragment(CHARACTER_REGISTRATION_VERIFICATION_AND_REGISTRATION_PAGE);
 
@@ -123,7 +124,7 @@ public class LoginActivity extends AppCompatActivity
         try
         {
             JSONObject postParams = new JSONObject();
-            postParams.put("lodestoneID", member.getID());
+            postParams.put("lodestoneID", characterID);
             postParams.put("ownerEmail", user.getUserEmail());
             postParams.put("hash", hash);
 
@@ -176,7 +177,7 @@ public class LoginActivity extends AppCompatActivity
     }
 
     /**
-     * This listener is called by the character selection. It call the registration check request of
+     * This listener is called by the FC Member selection. It call the registration check request of
      * ModestieEvents API and swipes to the registration page if the picked character is not
      * registered.
      * @param member The character picked by the user
@@ -186,7 +187,7 @@ public class LoginActivity extends AppCompatActivity
         if(this.pending)
             return;
 
-        CharacterRegistrationFragment memberSelectionFragment = (CharacterRegistrationFragment) this.pagerAdapter.getFragment(CHARACTER_REGISTRATION_FREE_COMPANY_MEMBER_SELECTION_PAGE);
+        CharacterRegistrationFragment memberSelectionFragment = (CharacterRegistrationFragment) this.pagerAdapter.getFragment(CHARACTER_REGISTRATION_CHARACTER_SELECTION_PAGE);
         CharacterRegistrationFragment registrationFragment = (CharacterRegistrationFragment) this.pagerAdapter.getFragment(CHARACTER_REGISTRATION_VERIFICATION_AND_REGISTRATION_PAGE);
 
         this.pending = true;
@@ -205,7 +206,7 @@ public class LoginActivity extends AppCompatActivity
                             {
                                 if(!response.getBoolean("result"))
                                 {
-                                    registrationFragment.setMember(member);
+                                    registrationFragment.setCharacter(member);
                                     this.pager.setCurrentItem(CHARACTER_REGISTRATION_VERIFICATION_AND_REGISTRATION_PAGE);
                                 }
                                 else
@@ -225,6 +226,20 @@ public class LoginActivity extends AppCompatActivity
                             memberSelectionFragment.toggleMembersListVisibility();
                             this.pending = false;
                         }));
+    }
+
+    /**
+     * This listener is called by the character selection. It call the registration check request of
+     * ModestieEvents API and swipes to the registration page if the picked character is not
+     * registered.
+     * @param character The character picked by the user
+     */
+    @Override
+    public void onCharacterSelection(Object character)
+    {
+        CharacterRegistrationFragment registrationFragment = (CharacterRegistrationFragment) this.pagerAdapter.getFragment(CHARACTER_REGISTRATION_VERIFICATION_AND_REGISTRATION_PAGE);
+        registrationFragment.setCharacter(character);
+        this.pager.setCurrentItem(CHARACTER_REGISTRATION_VERIFICATION_AND_REGISTRATION_PAGE);
     }
 
     /**

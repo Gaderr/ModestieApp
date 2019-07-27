@@ -23,7 +23,12 @@
     <string name="characregist_frag1_btn_q_no">Non</string>
 
     <string name="characregist_frag2_title">Vous êtes de la compagnie</string>
-    <string name="characregist_frag2_instructions">Sélectionnez votre personnage dans la liste :</string>
+    <string name="characregist_frag2_instructions">Sélectionnez votre personnage :</string>
+
+    <string name="characregist_frag2_2_title">Vous n\'êtes pas de la compagnie</string>
+    <string name="characregist_frag2_2_instructions">Quel est votre personnage ?</string>
+    <string name="characregist_frag2_2_search_field_label">Nom</string>
+    <string name="characregist_frag2_2_search_placeholder_instruction">Cherchez votre personnage dans le champ ci-dessus</string>
 
     <string name="characregist_frag3_title">Vérificiation</string>
     <string name="characregist_frag3_instructions">Nos mogs secrétaires vont vérifier que ce personnage vous appartient, puis l\'enregistrer.</string>
