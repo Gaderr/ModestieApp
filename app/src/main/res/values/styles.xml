@@ -35,6 +35,15 @@
         <item name="android:buttonBarNeutralButtonStyle">@style/Widget.MaterialComponents.Button.TextButton</item>
     </style>
 
+    <style name="ThemeOverlay.ModestieTheme.ErrorButton" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/color_error</item>
+        <item name="android:textColor">@color/color_on_error</item>
+    </style>
+
+    <style name="ThemeOverlay.ModestieTheme.ErrorButton.OutlinedButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textColor">@color/color_error</item>
+    </style>
+
     <style name="ThemeOverlay.ModestieTheme.FullScreenDialog" parent="ThemeOverlay.ModestieTheme.Dialog">
         <item name="android:windowIsFloating">false</item>
         <item name="android:statusBarColor">@color/color_surface</item>

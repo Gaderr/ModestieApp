@@ -81,7 +81,12 @@ public class LoginActivity extends AppCompatActivity
                             try
                             {
                                 if(response.getBoolean("result"))
-                                    startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+                                {
+                                    if(Hawk.put("UserCharacterID", response.getInt("character")))
+                                        startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+                                    else
+                                        Toast.makeText(this, "Une erreur s'est produite, veuillez réessayer", Toast.LENGTH_SHORT).show();
+                                }
                                 else
                                     this.pager.setCurrentItem(CHARACTER_REGISTRATION_FIRST_PAGE);
                                 loginFragment.hideProgressBar();
@@ -140,7 +145,12 @@ public class LoginActivity extends AppCompatActivity
                                 try
                                 {
                                     if(response.getBoolean("result"))
-                                        this.pager.setCurrentItem(CHARACTER_REGISTRATION_DONE_PAGE);
+                                    {
+                                        if(Hawk.put("UserCharacterID", characterID))
+                                            this.pager.setCurrentItem(CHARACTER_REGISTRATION_DONE_PAGE);
+                                        else
+                                            Toast.makeText(this, "Une erreur s'est produite, veuillez réessayer", Toast.LENGTH_SHORT).show();
+                                    }
                                     else
                                         Toast.makeText(this, "Ce personnage est déjà enregistré", Toast.LENGTH_SHORT).show();
                                     registrationFragment.toggleMembersListVisibility();

@@ -32,6 +32,7 @@ import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.adapters.EventListAdapter;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
+import com.orhanobut.hawk.Hawk;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -68,8 +69,6 @@ public class EventListActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_list);
 
-        //TODO Use setItemAnimator() for animating changes to the items in the RecyclerView
-
         Toolbar toolbar = findViewById(R.id.eventListToolbar);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -82,12 +81,15 @@ public class EventListActivity extends AppCompatActivity
         FreeCompanyDbHelper dbHelper = new FreeCompanyDbHelper(getApplicationContext());
         SQLiteDatabase database = dbHelper.getReadableDatabase();
 
+        Hawk.init(getApplicationContext()).build();
+        boolean userLoggedIn = Hawk.contains("UserCharacterID") && Hawk.contains("UserCredentials");
+
         this.events = new ArrayList<>();
 
         this.layoutManager = new LinearLayoutManager(this);
         this.recyclerView.setLayoutManager(this.layoutManager);
 
-        this.adapter = new EventListAdapter(this.events, database, getApplicationContext());
+        this.adapter = new EventListAdapter(this.events, database, userLoggedIn, getApplicationContext());
         this.recyclerView.setAdapter(this.adapter);
 
         addToRequestQueue(new JsonObjectRequest(
@@ -121,21 +123,26 @@ public class EventListActivity extends AppCompatActivity
 
         Collections.sort(this.events, Event.EventDateComparator);
 
-        //FAB intent
-        this.FAB.setOnClickListener(v -> startActivityForResult(new Intent(getApplicationContext(), NewEventActivity.class), this.NEW_EVENT_REQUEST));
-        //FAB animations
-        this.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
+        if(userLoggedIn)
         {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState)
+            //FAB intent
+            this.FAB.show();
+            this.FAB.setOnClickListener(v -> startActivityForResult(new Intent(getApplicationContext(), NewEventActivity.class), this.NEW_EVENT_REQUEST));
+            //FAB animations
+            this.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
             {
-                super.onScrollStateChanged(recyclerView, newState);
-                if (!recyclerView.canScrollVertically(1))
-                    FAB.extend();
-                else
-                    FAB.shrink();
-            }
-        });
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState)
+                {
+                    super.onScrollStateChanged(recyclerView, newState);
+                    if (!recyclerView.canScrollVertically(1))
+                        FAB.extend();
+                    else
+                        FAB.shrink();
+                }
+            });
+        }
+        else this.FAB.hide();
     }
 
     @Override

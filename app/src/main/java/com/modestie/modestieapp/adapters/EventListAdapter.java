@@ -41,7 +41,7 @@ import java.util.Map;
 public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.EventViewHolder>
 {
     public Context context;
-
+    private boolean userIsLoggedIn;
     private ArrayList<Event> events;
     private Map<Integer, FreeCompanyMember> members;
 
@@ -108,10 +108,11 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
     }
 
     @SuppressLint("UseSparseArrays")
-    public EventListAdapter(ArrayList<Event> events, SQLiteDatabase database, Context context)
+    public EventListAdapter(ArrayList<Event> events, SQLiteDatabase database, boolean userIsLoggedIn, Context context)
     {
         this.events = events;
         this.context = context;
+        this.userIsLoggedIn = userIsLoggedIn;
 
         Cursor cursor = database.rawQuery("SELECT * FROM " + FreeCompanyReaderContract.MemberEntry.TABLE_NAME, null);
         this.members = new HashMap<>();
@@ -244,38 +245,46 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         updateParticipantsViews(holder, event);
 
         //Action button
-        holder.action.setOnClickListener(v ->
-                                         {
-                                             if (!holder.promoterParticipation) //Participation request -> check if a place is available
-                                             {
-                                                 if (event.getMaxParticipants() == -1)
-                                                 {
-                                                     holder.promoterParticipation = true;
-                                                     updateParticipation(holder, event);
-                                                 }
-                                                 else if (event.getParticipantsIDs().size() < event.getMaxParticipants())
-                                                 {
-                                                     holder.promoterParticipation = true;
-                                                     updateParticipation(holder, event);
-                                                 }
-                                                 else
-                                                 {
-                                                     Toast.makeText(context, "Désolé, c'est complet !", Toast.LENGTH_SHORT).show();
-                                                 }
-                                             }
-                                             else //Cancel promoterParticipation
-                                             {
-                                                 //Promoters can't cancel promoterParticipation to their own events
-                                                 if (event.getPromoterID() != holder.userID)
-                                                 {
-                                                     holder.promoterParticipation = false;
-                                                     updateParticipation(holder, event);
-                                                 }
-                                             }
+        if(userIsLoggedIn)
+        {
+            holder.action.setOnClickListener(
+                    v ->
+                    {
+                        if (!holder.promoterParticipation) //Participation request -> check if a place is available
+                        {
+                            if (event.getMaxParticipants() == -1)
+                            {
+                                holder.promoterParticipation = true;
+                                updateParticipation(holder, event);
+                            }
+                            else if (event.getParticipantsIDs().size() < event.getMaxParticipants())
+                            {
+                                holder.promoterParticipation = true;
+                                updateParticipation(holder, event);
+                            }
+                            else
+                            {
+                                Toast.makeText(context, "Désolé, c'est complet !", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        else //Cancel promoterParticipation
+                        {
+                            //Promoters can't cancel promoterParticipation to their own events
+                            if (event.getPromoterID() != holder.userID)
+                            {
+                                holder.promoterParticipation = false;
+                                updateParticipation(holder, event);
+                            }
+                        }
 
-                                             updateParticipationButton(holder);
-                                             updateParticipantsViews(holder, event);
-                                         });
+                        updateParticipationButton(holder);
+                        updateParticipantsViews(holder, event);
+                    });
+        }
+        else
+        {
+            holder.action.setEnabled(false);
+        }
     }
 
     private void updateParticipation(EventListCardViewHolder holder, Event event)
