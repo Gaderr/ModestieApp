@@ -53,7 +53,6 @@ public class LoginFragment extends Fragment
     private CheckBox autoLoginCheckBox;
     private Button loginButton;
     private ProgressBar loadingProgressBar;
-    private SwitchMaterial dayNightSwitcher;
 
     private LoginViewModel loginViewModel;
 
@@ -99,7 +98,6 @@ public class LoginFragment extends Fragment
         this.rememberMeCheckBox.setChecked(false);
         this.autoLoginCheckBox = rootView.findViewById(R.id.autologinCheckbox);
         this.autoLoginCheckBox.setChecked(false);
-        this.dayNightSwitcher = rootView.findViewById(R.id.daynightSwitcher);
 
         this.loginViewModel = ViewModelProviders.of(this, new LoginViewModelFactory()).get(LoginViewModel.class);
 
@@ -161,19 +159,6 @@ public class LoginFragment extends Fragment
                     startActivity(i);
                 }
         );
-
-        //Daynight theme switcher
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
-        this.dayNightSwitcher.setChecked(sharedPref.getBoolean("nightmode", false));
-        this.dayNightSwitcher.setOnCheckedChangeListener(
-                (buttonView, isChecked) ->
-                {
-                    sharedPref.edit().putBoolean("nightmode", isChecked).apply();
-                    if (isChecked)
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                    else
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                });
 
         return rootView;
     }
