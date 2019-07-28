@@ -7,7 +7,7 @@
     android:scrollbarAlwaysDrawVerticalTrack="true"
     android:scrollbars="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".activities.EventPriceEditDialogFragment"
+    tools:context=".activities.events.EventPriceEditDialogFragment"
     tools:showIn="@layout/dialog_event_price_edit"
     android:theme="@style/ModestieTheme.DayNight">
 

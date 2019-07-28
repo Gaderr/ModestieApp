@@ -19,8 +19,8 @@ import androidx.fragment.app.FragmentManager;
 
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.modestie.modestieapp.R;
-import com.modestie.modestieapp.activities.EventPriceOptionsModal;
-import com.modestie.modestieapp.activities.NewEventActivity;
+import com.modestie.modestieapp.activities.events.EventPriceOptionsModal;
+import com.modestie.modestieapp.activities.events.NewEventActivity;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.event.EventPrice;
 import com.squareup.picasso.Picasso;

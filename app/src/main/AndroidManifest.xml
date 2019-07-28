@@ -22,18 +22,18 @@
             android:theme="@style/ModestieTheme.DayNight">
         </activity>
         <activity
-            android:name=".activities.NewEventActivity"
+            android:name=".activities.events.NewEventActivity"
             android:configChanges="orientation"
             android:label="@string/title_new_event_activity"
-            android:parentActivityName=".activities.EventListActivity"
+            android:parentActivityName=".activities.events.EventListActivity"
             android:screenOrientation="portrait"
             android:theme="@style/ModestieTheme.DayNight">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.modestie.modestieapp.activities.EventListActivity" />
+                android:value="com.modestie.modestieapp.activities.events.EventListActivity" />
         </activity>
         <activity
-            android:name=".activities.EventListActivity"
+            android:name=".activities.events.EventListActivity"
             android:configChanges="orientation"
             android:label="@string/title_event_list_activity"
             android:parentActivityName=".activities.HomeActivity"

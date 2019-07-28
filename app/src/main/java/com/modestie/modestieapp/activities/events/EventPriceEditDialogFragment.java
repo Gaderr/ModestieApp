@@ -1,4 +1,4 @@
-package com.modestie.modestieapp.activities;
+package com.modestie.modestieapp.activities.events;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;

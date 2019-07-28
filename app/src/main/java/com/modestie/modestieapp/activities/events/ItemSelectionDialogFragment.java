@@ -1,4 +1,4 @@
-package com.modestie.modestieapp.activities;
+package com.modestie.modestieapp.activities.events;
 
 import android.app.Dialog;
 import android.graphics.drawable.TransitionDrawable;
@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;

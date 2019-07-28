@@ -1,4 +1,4 @@
-package com.modestie.modestieapp.activities;
+package com.modestie.modestieapp.activities.events;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -27,7 +27,6 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.adapters.EventListAdapter;
 import com.modestie.modestieapp.model.event.Event;

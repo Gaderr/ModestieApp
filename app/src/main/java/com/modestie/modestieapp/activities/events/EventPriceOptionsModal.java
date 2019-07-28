@@ -1,9 +1,8 @@
-package com.modestie.modestieapp.activities;
+package com.modestie.modestieapp.activities.events;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
