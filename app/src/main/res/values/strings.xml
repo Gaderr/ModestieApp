@@ -6,6 +6,8 @@
     <string name="login_instructions">Veuillez vous connecter avec votre compte modestie.fr</string>
     <string name="prompt_username">Nom d\'utilisateur</string>
     <string name="prompt_password">Mot de passe</string>
+    <string name="remember_me_checkbox_text">Se souvenir de moi</string>
+    <string name="auto_login_checkbox_text">Me connecter automatiquement</string>
     <string name="action_sign_in">Se connecter</string>
     <string name="action_sign_in_short">Connexion</string>
     <string name="action_sign_as_guest">Connexion visiteur</string>
