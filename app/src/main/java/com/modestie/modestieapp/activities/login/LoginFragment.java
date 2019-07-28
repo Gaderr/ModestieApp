@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -23,8 +24,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.Toast;
 
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputLayout;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.HomeActivity;
@@ -50,6 +53,7 @@ public class LoginFragment extends Fragment
     private CheckBox autoLoginCheckBox;
     private Button loginButton;
     private ProgressBar loadingProgressBar;
+    private SwitchMaterial dayNightSwitcher;
 
     private LoginViewModel loginViewModel;
 
@@ -95,6 +99,7 @@ public class LoginFragment extends Fragment
         this.rememberMeCheckBox.setChecked(false);
         this.autoLoginCheckBox = rootView.findViewById(R.id.autologinCheckbox);
         this.autoLoginCheckBox.setChecked(false);
+        this.dayNightSwitcher = rootView.findViewById(R.id.daynightSwitcher);
 
         this.loginViewModel = ViewModelProviders.of(this, new LoginViewModelFactory()).get(LoginViewModel.class);
 
@@ -105,7 +110,9 @@ public class LoginFragment extends Fragment
         guestButton.setOnClickListener(
                 v ->
                 {
+                    //Delete user stored data
                     Hawk.delete("UserCredentials");
+                    Hawk.delete("UserCharacter");
                     this.rememberMeCheckBox.setEnabled(false);
                     this.autoLoginCheckBox.setEnabled(false);
                     this.preferences
@@ -154,6 +161,19 @@ public class LoginFragment extends Fragment
                     startActivity(i);
                 }
         );
+
+        //Daynight theme switcher
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
+        this.dayNightSwitcher.setChecked(sharedPref.getBoolean("nightmode", false));
+        this.dayNightSwitcher.setOnCheckedChangeListener(
+                (buttonView, isChecked) ->
+                {
+                    sharedPref.edit().putBoolean("nightmode", isChecked).apply();
+                    if (isChecked)
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                    else
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                });
 
         return rootView;
     }
@@ -217,10 +237,9 @@ public class LoginFragment extends Fragment
                         Hawk.put("LoggedInUser", loginResult.getSuccess());
 
                         //Store user credentials
-                        if(this.rememberMeCheckBox.isChecked())
-                            Hawk.put("UserCredentials", new UserCredentials(
-                                    this.usernameEditText.getEditText().getText().toString(),
-                                    this.passwordEditText.getEditText().getText().toString()));
+                        Hawk.put("UserCredentials", new UserCredentials(
+                                this.usernameEditText.getEditText().getText().toString(),
+                                this.passwordEditText.getEditText().getText().toString()));
 
                         //Call listener
                         onLoginSuccess(loginResult.getSuccess().getUserEmail());

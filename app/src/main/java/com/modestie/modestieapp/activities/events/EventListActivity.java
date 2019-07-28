@@ -29,6 +29,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.adapters.EventListAdapter;
+import com.modestie.modestieapp.model.character.Character;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
 import com.orhanobut.hawk.Hawk;
@@ -81,14 +82,17 @@ public class EventListActivity extends AppCompatActivity
         SQLiteDatabase database = dbHelper.getReadableDatabase();
 
         Hawk.init(getApplicationContext()).build();
-        boolean userLoggedIn = Hawk.contains("UserCharacterID") && Hawk.contains("UserCredentials");
-
+        boolean userLoggedIn = Hawk.contains("UserCharacter") && Hawk.contains("UserCredentials");
         this.events = new ArrayList<>();
 
         this.layoutManager = new LinearLayoutManager(this);
         this.recyclerView.setLayoutManager(this.layoutManager);
 
-        this.adapter = new EventListAdapter(this.events, database, userLoggedIn, getApplicationContext());
+        if(userLoggedIn)
+            this.adapter = new EventListAdapter(this.events, database, userLoggedIn, Hawk.get("UserCharacter"), getApplicationContext());
+        else
+            this.adapter = new EventListAdapter(this.events, database, userLoggedIn, null, getApplicationContext());
+
         this.recyclerView.setAdapter(this.adapter);
 
         addToRequestQueue(new JsonObjectRequest(

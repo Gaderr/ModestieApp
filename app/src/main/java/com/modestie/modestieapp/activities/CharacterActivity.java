@@ -20,8 +20,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -36,7 +34,7 @@ import com.android.volley.toolbox.Volley;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.modestie.modestieapp.R;
-import com.modestie.modestieapp.model.character.Character;
+import com.modestie.modestieapp.model.character.ExtendedCharacter;
 import com.modestie.modestieapp.sqlite.CharacterDbHelper;
 import com.modestie.modestieapp.sqlite.CharacterReaderContract;
 import com.squareup.picasso.Picasso;
@@ -54,7 +52,7 @@ public class CharacterActivity extends AppCompatActivity
     public static final String TAG = "ACTVT.CHRCTR";
 
     private int characterID;
-    private Character character;
+    private ExtendedCharacter character;
     private String name;
 
     private String apiURL = "https://xivapi.com";
@@ -87,7 +85,7 @@ public class CharacterActivity extends AppCompatActivity
     private TextView param2Value;
     private TextView param3Value;
 
-    //Character attributes layouts
+    //ExtendedCharacter attributes layouts
     private ConstraintLayout globalAttributesLayout;
     private ConstraintLayout fighterAttributesLayout;
     private ConstraintLayout crafterAttributesLayout;
@@ -132,20 +130,20 @@ public class CharacterActivity extends AppCompatActivity
         jobIcon = findViewById(R.id.jobIcon);
         portrait = findViewById(R.id.portrait);
         this.itemImageViews = new HashMap<>();
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[0], findViewById(R.id.itemMainHandIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[1], findViewById(R.id.itemHeadIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[2], findViewById(R.id.itemBodyIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[3], findViewById(R.id.itemHandsIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[4], findViewById(R.id.itemWaistIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[5], findViewById(R.id.itemLegsIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[6], findViewById(R.id.itemFeetIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[7], findViewById(R.id.itemOffHandIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[8], findViewById(R.id.itemEarringIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[9], findViewById(R.id.itemNecklaceIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[10], findViewById(R.id.itemBraceletIcon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[11], findViewById(R.id.itemRing1Icon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[12], findViewById(R.id.itemRing2Icon));
-        this.itemImageViews.put(Character.GEAR_ITEM_KEYS[13], findViewById(R.id.itemSoulCrystalIcon));
+        this.itemImageViews.put(ExtendedCharacter.GEAR_ITEM_KEYS[0], findViewById(R.id.itemMainHandIcon));
+        this.itemImageViews.put(ExtendedCharacter.GEAR_ITEM_KEYS[1], findViewById(R.id.itemHeadIcon));
+        this.itemImageViews.put(ExtendedCharacter.GEAR_ITEM_KEYS[2], findViewById(R.id.itemBodyIcon));
+        this.itemImageViews.put(ExtendedCharacter.GEAR_ITEM_KEYS[3], findViewById(R.id.itemHandsIcon));
+        this.itemImageViews.put(ExtendedCharacter.GEAR_ITEM_KEYS[4], findViewById(R.id.itemWaistIcon));
+        this.itemImageViews.put(ExtendedCharacter.GEAR_ITEM_KEYS[5], findViewById(R.id.itemLegsIcon));
+        this.itemImageViews.put(ExtendedCharacter.GEAR_ITEM_KEYS[6], findViewById(R.id.itemFeetIcon));
+        this.itemImageViews.put(ExtendedCharacter.GEAR_ITEM_KEYS[7], findViewById(R.id.itemOffHandIcon));
+        this.itemImageViews.put(ExtendedCharacter.GEAR_ITEM_KEYS[8], findViewById(R.id.itemEarringIcon));
+        this.itemImageViews.put(ExtendedCharacter.GEAR_ITEM_KEYS[9], findViewById(R.id.itemNecklaceIcon));
+        this.itemImageViews.put(ExtendedCharacter.GEAR_ITEM_KEYS[10], findViewById(R.id.itemBraceletIcon));
+        this.itemImageViews.put(ExtendedCharacter.GEAR_ITEM_KEYS[11], findViewById(R.id.itemRing1Icon));
+        this.itemImageViews.put(ExtendedCharacter.GEAR_ITEM_KEYS[12], findViewById(R.id.itemRing2Icon));
+        this.itemImageViews.put(ExtendedCharacter.GEAR_ITEM_KEYS[13], findViewById(R.id.itemSoulCrystalIcon));
 
         this.ilvlTextView = findViewById(R.id.ilvlValue);
 
@@ -308,7 +306,7 @@ public class CharacterActivity extends AppCompatActivity
                 .into(this.portrait);
 
         //Load item icons
-        for(String gearItemKey : Character.getGearItemKeys())
+        for(String gearItemKey : ExtendedCharacter.getGearItemKeys())
         {
             if(this.character.getGearItems().get(gearItemKey) != null)
                 Picasso.get()
@@ -508,7 +506,7 @@ public class CharacterActivity extends AppCompatActivity
             {
                 try
                 {
-                    character = new Character(response.getJSONObject("Character"), dbHelper);
+                    character = new ExtendedCharacter(response.getJSONObject("Character"), dbHelper);
 
                     new Thread(() ->
                         {

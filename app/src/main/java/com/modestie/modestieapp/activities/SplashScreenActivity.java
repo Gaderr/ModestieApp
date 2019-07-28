@@ -65,7 +65,7 @@ public class SplashScreenActivity extends AppCompatActivity
 
         //Load theme preference
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        sharedPref.edit().putBoolean("nightmode", true).apply();
+        //sharedPref.edit().putBoolean("nightmode", true).apply();
         //Log.e(TAG, "Nightmode : " + sharedPref.getBoolean("nightmode", false));
         if (sharedPref.getBoolean("nightmode", false))
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);

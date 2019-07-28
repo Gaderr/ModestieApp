@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.modestie.modestieapp.R;
+import com.modestie.modestieapp.model.character.Character;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.freeCompany.FreeCompanyMember;
 import com.modestie.modestieapp.sqlite.FreeCompanyReaderContract;
@@ -42,6 +43,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
 {
     public Context context;
     private boolean userIsLoggedIn;
+    private Character userCharacter;
     private ArrayList<Event> events;
     private Map<Integer, FreeCompanyMember> members;
 
@@ -108,11 +110,12 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
     }
 
     @SuppressLint("UseSparseArrays")
-    public EventListAdapter(ArrayList<Event> events, SQLiteDatabase database, boolean userIsLoggedIn, Context context)
+    public EventListAdapter(ArrayList<Event> events, SQLiteDatabase database, boolean userIsLoggedIn, Character character, Context context)
     {
         this.events = events;
         this.context = context;
         this.userIsLoggedIn = userIsLoggedIn;
+        this.userCharacter = character;
 
         Cursor cursor = database.rawQuery("SELECT * FROM " + FreeCompanyReaderContract.MemberEntry.TABLE_NAME, null);
         this.members = new HashMap<>();
@@ -171,10 +174,10 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         FreeCompanyMember member = this.members.get(event.getPromoterID());
         assert member != null;
 
-        //TODO REPLACE THIS WITH FUTURE USER AUTHENTICATION
-        //boolean userIsPromoter = member.getID() == [PREFERENCES -> APP USER ID];
-        //boolean userIsPromoter = true;
-        holder.userIsPromoter = event.getPromoterID() == 11148489;
+        if (this.userCharacter != null)
+            holder.userIsPromoter = event.getPromoterID() == this.userCharacter.getID();
+        else
+            holder.userIsPromoter = event.getPromoterID() == 0;
 
         //Get promoterParticipation status
         holder.promoterParticipation = event.isPromoterParticipant();
@@ -245,7 +248,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         updateParticipantsViews(holder, event);
 
         //Action button
-        if(userIsLoggedIn)
+        if (userIsLoggedIn)
         {
             holder.action.setOnClickListener(
                     v ->

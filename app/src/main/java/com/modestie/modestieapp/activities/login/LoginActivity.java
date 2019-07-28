@@ -19,6 +19,7 @@ import com.android.volley.toolbox.Volley;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.HomeActivity;
 import com.modestie.modestieapp.activities.MemberFragment;
+import com.modestie.modestieapp.model.character.Character;
 import com.modestie.modestieapp.model.freeCompany.FreeCompanyMember;
 import com.modestie.modestieapp.model.login.LoggedInUser;
 import com.orhanobut.hawk.Hawk;
@@ -65,7 +66,11 @@ public class LoginActivity extends AppCompatActivity
     }
 
     /**
-     * Called by LoginFragment to swipe to the first page of the character verification
+     * Called by LoginFragment to check if the user have a registered character.
+     * If not, it swipe to the first page of the character verification.
+     * If yes, it requests the character avatar from XIVAPI and redirects to Home Activity.
+     *
+     * @param userEmail The user's email address
      */
     @Override
     public void onLoginSuccess(String userEmail)
@@ -80,16 +85,15 @@ public class LoginActivity extends AppCompatActivity
                         {
                             try
                             {
-                                if(response.getBoolean("result"))
+                                if (response.getBoolean("result")) //The user have a registered character
                                 {
-                                    if(Hawk.put("UserCharacterID", response.getInt("character")))
-                                        startActivity(new Intent(getApplicationContext(), HomeActivity.class));
-                                    else
-                                        Toast.makeText(this, "Une erreur s'est produite, veuillez réessayer", Toast.LENGTH_SHORT).show();
+                                    getCharacterThenFinish(response.getInt("character"), false); //Get the character's avatar then finish
                                 }
-                                else
+                                else //This user have no character registered : Swipe to the first page of character registration
+                                {
+                                    loginFragment.hideProgressBar();
                                     this.pager.setCurrentItem(CHARACTER_REGISTRATION_FIRST_PAGE);
-                                loginFragment.hideProgressBar();
+                                }
                             }
                             catch (JSONException e)
                             {
@@ -98,13 +102,81 @@ public class LoginActivity extends AppCompatActivity
                         },
                         error ->
                         {
+                            loginFragment.hideProgressBar();
                             Toast.makeText(this, "Une erreur serveur s'est produite, veuillez réessayer", Toast.LENGTH_SHORT).show();
                             this.pending = false;
                         }));
     }
 
     /**
+     * Stores the character of the logged in user and creates an intent to Home Activity or the last
+     * character registration page if the character just been registered.
+     *
+     * @param characterID  The user's character ID
+     * @param newCharacter If true, the character will be considered as newly registered and the last character registration page will be showed
+     */
+    private void getCharacterThenFinish(int characterID, boolean newCharacter)
+    {
+        LoginFragment loginFragment = (LoginFragment) this.pagerAdapter.getFragment(LOGIN_PAGE);
+
+        addToRequestQueue(
+                new JsonObjectRequest(
+                        Request.Method.GET,
+                        "https://xivapi.com/character/" + characterID + "?language=fr&extended=1",
+                        null,
+                        response ->
+                        {
+                            try
+                            {
+                                if (Hawk.put("UserCharacter", new Character(response.getJSONObject("Character")))) //Store avatar URL
+                                {
+                                    loginFragment.hideProgressBar();
+
+                                    if (newCharacter)
+                                    {
+                                        ((CharacterRegistrationFragment) this.pagerAdapter.getFragment(
+                                                CHARACTER_REGISTRATION_VERIFICATION_AND_REGISTRATION_PAGE))
+                                                .toggleMembersListVisibility();
+                                        this.pager.setCurrentItem(CHARACTER_REGISTRATION_DONE_PAGE);
+                                    }
+                                    else
+                                        startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+                                }
+                                else
+                                {
+                                    if (newCharacter)
+                                        ((CharacterRegistrationFragment) this.pagerAdapter.getFragment(
+                                                CHARACTER_REGISTRATION_VERIFICATION_AND_REGISTRATION_PAGE))
+                                                .toggleMembersListVisibility();
+                                    loginFragment.hideProgressBar();
+                                    Toast.makeText(this, "Une erreur s'est produite, veuillez réessayer", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                            catch (JSONException e)
+                            {
+                                e.printStackTrace();
+                                loginFragment.hideProgressBar();
+                                if (newCharacter)
+                                    ((CharacterRegistrationFragment) this.pagerAdapter.getFragment(
+                                            CHARACTER_REGISTRATION_VERIFICATION_AND_REGISTRATION_PAGE))
+                                        .toggleMembersListVisibility();
+                            }
+                        },
+                        error ->
+                        {
+                            Toast.makeText(this, "Une erreur serveur s'est produite, veuillez réessayer", Toast.LENGTH_SHORT).show();
+                            loginFragment.hideProgressBar();
+                            if (newCharacter)
+                                ((CharacterRegistrationFragment) this.pagerAdapter.getFragment(
+                                        CHARACTER_REGISTRATION_VERIFICATION_AND_REGISTRATION_PAGE))
+                                        .toggleMembersListVisibility();
+                            this.pending = false;
+                        }));
+    }
+
+    /**
      * Set up character selection view depending on user type
+     *
      * @param FCMember Is user a FC member?
      */
     @Override
@@ -117,11 +189,12 @@ public class LoginActivity extends AppCompatActivity
 
     /**
      * Listener called to begin a character verification
+     *
      * @param characterID The lodestone ID character to verify
-     * @param hash The generated verification hash
+     * @param hash        The generated verification hash
      */
     @Override
-    public void onBeginRegistrationInteraction(int characterID, String hash)
+    public void onBeginRegistrationInteraction(int characterID, String characterAvatar, String hash)
     {
         CharacterRegistrationFragment registrationFragment = (CharacterRegistrationFragment) this.pagerAdapter.getFragment(CHARACTER_REGISTRATION_VERIFICATION_AND_REGISTRATION_PAGE);
 
@@ -144,18 +217,15 @@ public class LoginActivity extends AppCompatActivity
                             {
                                 try
                                 {
-                                    if(response.getBoolean("result"))
+                                    registrationFragment.pendingEnded();
+                                    this.pending = false;
+
+                                    if (response.getBoolean("result"))
                                     {
-                                        if(Hawk.put("UserCharacterID", characterID))
-                                            this.pager.setCurrentItem(CHARACTER_REGISTRATION_DONE_PAGE);
-                                        else
-                                            Toast.makeText(this, "Une erreur s'est produite, veuillez réessayer", Toast.LENGTH_SHORT).show();
+                                        getCharacterThenFinish(characterID, true);
                                     }
                                     else
                                         Toast.makeText(this, "Ce personnage est déjà enregistré", Toast.LENGTH_SHORT).show();
-                                    registrationFragment.toggleMembersListVisibility();
-                                    registrationFragment.pendingEnded();
-                                    this.pending = false;
                                 }
                                 catch (JSONException e)
                                 {
@@ -190,11 +260,12 @@ public class LoginActivity extends AppCompatActivity
      * This listener is called by the FC Member selection. It call the registration check request of
      * ModestieEvents API and swipes to the registration page if the picked character is not
      * registered.
+     *
      * @param member The character picked by the user
      */
     public void onListFragmentInteraction(FreeCompanyMember member)
     {
-        if(this.pending)
+        if (this.pending)
             return;
 
         CharacterRegistrationFragment memberSelectionFragment = (CharacterRegistrationFragment) this.pagerAdapter.getFragment(CHARACTER_REGISTRATION_CHARACTER_SELECTION_PAGE);
@@ -214,15 +285,16 @@ public class LoginActivity extends AppCompatActivity
                         {
                             try
                             {
-                                if(!response.getBoolean("result"))
+                                if (!response.getBoolean("result"))
                                 {
                                     registrationFragment.setCharacter(member);
                                     this.pager.setCurrentItem(CHARACTER_REGISTRATION_VERIFICATION_AND_REGISTRATION_PAGE);
                                 }
                                 else
+                                {
+                                    memberSelectionFragment.toggleMembersListVisibility();
                                     Toast.makeText(this, "Ce personnage est déjà enregistré", Toast.LENGTH_SHORT).show();
-
-                                memberSelectionFragment.toggleMembersListVisibility();
+                                }
                                 this.pending = false;
                             }
                             catch (JSONException e)
@@ -242,6 +314,7 @@ public class LoginActivity extends AppCompatActivity
      * This listener is called by the character selection. It call the registration check request of
      * ModestieEvents API and swipes to the registration page if the picked character is not
      * registered.
+     *
      * @param character The character picked by the user
      */
     @Override

@@ -51,10 +51,12 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.material.textfield.TextInputLayout;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.adapters.EventPriceAdapter;
+import com.modestie.modestieapp.model.character.Character;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.event.EventPrice;
 import com.modestie.modestieapp.model.item.LightItem;
 import com.modestie.modestieapp.utils.Utils;
+import com.orhanobut.hawk.Hawk;
 import com.squareup.picasso.Picasso;
 import com.woxthebox.draglistview.DragListView;
 
@@ -171,6 +173,8 @@ public class NewEventActivity
         this.event = new Event();
         this.pickedImage = null;
         this.bitmapConvertedImage = null;
+
+        Hawk.init(getApplicationContext()).build();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(NewEventActivity.this, R.style.ThemeOverlay_ModestieTheme_Dialog);
         builder.setTitle(getString(R.string.image_upload_error_dialog_title))
@@ -510,6 +514,18 @@ public class NewEventActivity
                     ImageView imagePreview = this.eventCardPreview.findViewById(R.id.eventImage);
                     Picasso.get().load(R.drawable.logout_icon1).into(imagePreview);
                 });
+
+        /*------------------------------------
+            Event preview card static data
+        ------------------------------------*/
+
+        Character character = Hawk.get("UserCharacter");
+
+        Picasso.get()
+                .load(character.getAvatarURL())
+                .into((ImageView) this.eventCardPreview.findViewById(R.id.promoterAvatar));
+
+        ((TextView) this.eventCardPreview.findViewById(R.id.characterPromoter)).setText(String.format("Organisé par %s", character.getName()));
 
         /*-----------------
             Prices list
@@ -887,7 +903,7 @@ public class NewEventActivity
                         Request.Method.POST, MODESTIE_ADDPRICE, postparams,
                         response ->
                         {
-                            if(--pricePendingRequests == 0)
+                            if (--pricePendingRequests == 0)
                                 finalizeEventPostThenActivity(true, null);
                         },
                         error ->
@@ -906,7 +922,7 @@ public class NewEventActivity
 
     public void finalizeEventPostThenActivity(boolean success, @Nullable String errorValue)
     {
-        if(success)
+        if (success)
         {
             Toast.makeText(this, "Événement créé", Toast.LENGTH_SHORT).show();
             Intent returnIntent = new Intent();

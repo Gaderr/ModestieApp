@@ -54,7 +54,7 @@ public class FreeCompany
         this.dbEntryID = -1;
     }
 
-    public FreeCompany(JSONObject obj, @org.jetbrains.annotations.NotNull FreeCompanyDbHelper dbHelper)
+    public  FreeCompany(JSONObject obj, @org.jetbrains.annotations.NotNull FreeCompanyDbHelper dbHelper)
     {
         setAttributesFromJson(obj);
 

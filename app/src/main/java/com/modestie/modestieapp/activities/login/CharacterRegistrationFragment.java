@@ -76,8 +76,9 @@ public class CharacterRegistrationFragment extends Fragment
     private FreeCompanyMember member;
     private LightCharacter character;
     private int characterID;
+    private String characterAvatar;
 
-    //Character selection
+    //ExtendedCharacter selection
     private View CharacterSelection_FCMember;
     private View CharacterSelection_BasicUser;
 
@@ -167,6 +168,7 @@ public class CharacterRegistrationFragment extends Fragment
 
     /**
      * Setup views in the first fragment
+     *
      * @param rootView Parent view
      */
     private void createFirstPage(View rootView)
@@ -179,6 +181,7 @@ public class CharacterRegistrationFragment extends Fragment
 
     /**
      * Setup views in the second fragment
+     *
      * @param rootView Parent view
      */
     private void createSecondPage(View rootView)
@@ -188,6 +191,8 @@ public class CharacterRegistrationFragment extends Fragment
         LayoutInflater inflater = LayoutInflater.from(getContext());
         this.CharacterSelection_FCMember = inflater.inflate(R.layout.fragment_character_regist_2_fc_member, null);
         this.CharacterSelection_BasicUser = inflater.inflate(R.layout.fragment_character_regist_2_basic_character, null);
+
+        this.loadingView = this.CharacterSelection_FCMember.findViewById(R.id.loadingView);
 
         //Recycler view setup
         this.dataset = new ArrayList<>();
@@ -278,6 +283,7 @@ public class CharacterRegistrationFragment extends Fragment
 
     /**
      * Setup views in the third fragment
+     *
      * @param rootView Parent view
      */
     private void createThirdPage(View rootView)
@@ -320,6 +326,7 @@ public class CharacterRegistrationFragment extends Fragment
 
     /**
      * Setup views in the fourth fragment
+     *
      * @param rootView Parent view
      */
     private void createFourthPage(View rootView)
@@ -331,12 +338,13 @@ public class CharacterRegistrationFragment extends Fragment
     /**
      * Add one of the inflated character selection views (non-fc-member or fc-member) depending on if
      * the user a member of the FC or not.
+     *
      * @param FCMember Is the user a member of the FC?
      */
     void setCharacterSelectionView(boolean FCMember)
     {
         this.FCMember = FCMember;
-        if(this.FCMember)
+        if (this.FCMember)
             this.characterSelectionLayout.addView(this.CharacterSelection_FCMember);
         else
             this.characterSelectionLayout.addView(this.CharacterSelection_BasicUser);
@@ -344,6 +352,7 @@ public class CharacterRegistrationFragment extends Fragment
 
     /**
      * Edit character information preview in third fragment
+     *
      * @param character The character chosen
      */
     void setCharacter(Object character)
@@ -351,11 +360,13 @@ public class CharacterRegistrationFragment extends Fragment
         this.member = null;
         this.character = null;
         this.characterID = 0;
+        this.characterAvatar = "";
 
-        if(character instanceof FreeCompanyMember)
+        if (character instanceof FreeCompanyMember)
         {
             this.member = (FreeCompanyMember) character;
             this.characterID = this.member.getID();
+            this.characterAvatar = this.member.getAvatarURL();
             this.memberNameView.setText(this.member.getName());
             this.memberRankView.setText(this.member.getRank());
 
@@ -377,10 +388,11 @@ public class CharacterRegistrationFragment extends Fragment
                     .into(this.avatarView);
         }
 
-        if(character instanceof LightCharacter)
+        if (character instanceof LightCharacter)
         {
             this.character = (LightCharacter) character;
             this.characterID = this.character.getID();
+            this.characterAvatar = this.character.getAvatarURL();
             this.memberNameView.setText(this.character.getName());
             this.memberRankView.setText(this.character.getServer());
 
@@ -440,7 +452,7 @@ public class CharacterRegistrationFragment extends Fragment
      */
     private void characterChoosed(LightCharacter character)
     {
-        if(mListener != null)
+        if (mListener != null)
         {
             mListener.onCharacterSelection(character);
         }
@@ -455,7 +467,7 @@ public class CharacterRegistrationFragment extends Fragment
     {
         if (mListener != null && this.characterID != 0)
         {
-            mListener.onBeginRegistrationInteraction(this.characterID, hash);
+            mListener.onBeginRegistrationInteraction(this.characterID, this.characterAvatar, hash);
         }
     }
 
@@ -501,8 +513,10 @@ public class CharacterRegistrationFragment extends Fragment
     public interface OnFragmentInteractionListener
     {
         void onUserTypeSelection(boolean FCMember);
+
         void onCharacterSelection(Object character);
-        void onBeginRegistrationInteraction(int characterID, String hash);
+
+        void onBeginRegistrationInteraction(int characterID, String characterAvatar, String hash);
     }
 
     /**
