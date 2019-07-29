@@ -45,8 +45,9 @@
     </style>
 
     <style name="ThemeOverlay.ModestieTheme.FullScreenDialog" parent="ThemeOverlay.ModestieTheme.Dialog">
+        <item name="android:toolbarStyle">@style/Widget.ModestieTheme.Toolbar</item>
         <item name="android:windowIsFloating">false</item>
-        <item name="android:statusBarColor">@color/color_surface</item>
+        <item name="android:navigationBarColor">@color/color_primary</item>
     </style>
 
     <style name="ThemeOverlay.ModestieTheme.TimePicker" parent="android:Widget.Material.TimePicker">
@@ -65,7 +66,9 @@
     </style>
     
     <!--Toolbar-->
-    <style name="Widget.ModestieTheme.Toolbar" parent="Widget.MaterialComponents.Toolbar"/>
+    <style name="Widget.ModestieTheme.Toolbar" parent="Widget.MaterialComponents.Toolbar.Primary">
+        <item name="colorControlNormal">@color/color_on_primary</item>
+    </style>
 
     <style name="Widget.ModestieTheme.CharacterToolbar" parent="Widget.MaterialComponents.Toolbar">
         <item name="android:windowLightStatusBar" tools:ignore="NewApi">false</item>

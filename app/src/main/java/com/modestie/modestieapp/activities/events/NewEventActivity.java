@@ -21,6 +21,8 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -612,6 +614,20 @@ public class NewEventActivity
     {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.new_event_bar_menu, menu);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        for(int i = 0; i < menu.size(); i++){
+            Drawable drawable = menu.getItem(i).getIcon();
+            if(drawable != null)
+            {
+                drawable.mutate();
+                if(preferences.getBoolean("nightmode", false))
+                    drawable.setColorFilter(getResources().getColor(R.color.color_on_surface), PorterDuff.Mode.SRC_ATOP);
+                else
+                    drawable.setColorFilter(getResources().getColor(R.color.color_on_primary), PorterDuff.Mode.SRC_ATOP);
+            }
+        }
+
         return true;
     }
 

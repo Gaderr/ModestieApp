@@ -114,7 +114,7 @@
     <string name="action_refresh">Rafraichir</string>
 
     <!-- NEW EVENT ACTIVITY -->
-    <string name="title_new_event_activity">Nouvel événement (preview)</string>
+    <string name="title_new_event_activity">Nouvel événement</string>
     <string name="action_save_event">Enregistrer</string>
 
     <string name="event_sending">Envoi en cours</string>

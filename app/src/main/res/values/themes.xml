@@ -64,9 +64,9 @@
         <item name="alphaEmphasisMedium">@dimen/alpha_emphasis_medium</item>
         <item name="alphaEmphasisDisabled">@dimen/alpha_emphasis_disabled</item>
 
-        <item name="android:statusBarColor">?colorSurface</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
-        <item name="android:navigationBarColor">@color/color_surface</item>
+        <item name="android:statusBarColor">?colorPrimaryDark</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="n">false</item>
+        <item name="android:navigationBarColor">@color/color_primary</item>
         <item name="android:windowLightNavigationBar" tools:ignore="NewApi">true</item>
         <item name="android:navigationBarDividerColor" tools:ignore="NewApi">?colorControlHighlight</item>
 

@@ -3,8 +3,10 @@
 
     <!--Top level DayNight theme to be used in AndroidManifest.xml-->
     <style name="ModestieTheme.DayNight" parent="Base.ModestieTheme">
-        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="n">false</item>
         <item name="android:windowLightNavigationBar" tools:ignore="NewApi">false</item>
+        <item name="android:navigationBarColor">@color/color_surface</item>
+        <item name="android:statusBarColor">?colorSurface</item>
     </style>
 
 </resources>

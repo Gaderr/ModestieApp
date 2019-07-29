@@ -14,6 +14,7 @@
         android:theme="@style/ModestieTheme.DayNight">
 
         <androidx.appcompat.widget.Toolbar
+            style="@style/Widget.ModestieTheme.Toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/toolbar">

@@ -4,4 +4,11 @@
     <!--Toolbar-->
     <style name="Widget.ModestieTheme.Toolbar" parent="Widget.MaterialComponents.Toolbar.Surface"/>
 
+    <style name="ThemeOverlay.ModestieTheme.FullScreenDialog" parent="ThemeOverlay.ModestieTheme.Dialog">
+        <item name="android:toolbarStyle">@style/Widget.ModestieTheme.Toolbar</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:statusBarColor">@color/color_surface</item>
+        <item name="android:navigationBarColor">@color/color_surface</item>
+    </style>
+
 </resources>

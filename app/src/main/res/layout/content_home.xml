@@ -140,7 +140,7 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/member_count_title"
                 android:textAppearance="@style/TextAppearance.ModestieTheme.Headline5"
-                android:textColor="@color/color_secondary"
+                android:textColor="@color/color_primary"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/slogan" />
 
@@ -162,7 +162,7 @@
                 android:layout_marginStart="32dp"
                 android:text="@string/rank_title"
                 android:textAppearance="@style/TextAppearance.ModestieTheme.Headline5"
-                android:textColor="@color/color_secondary"
+                android:textColor="@color/color_primary"
                 app:layout_constraintStart_toEndOf="@+id/memberCountTitle"
                 app:layout_constraintTop_toTopOf="@+id/memberCountTitle" />
 
@@ -185,7 +185,7 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/grandcompany_title"
                 android:textAppearance="@style/TextAppearance.ModestieTheme.Headline5"
-                android:textColor="@color/color_secondary"
+                android:textColor="@color/color_primary"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/memberCount" />
 
@@ -284,7 +284,7 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/ranking_title"
                 android:textAppearance="@style/TextAppearance.ModestieTheme.Headline5"
-                android:textColor="@color/color_secondary"
+                android:textColor="@color/color_primary"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/grandcompanyFlag" />
 
@@ -296,7 +296,7 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/ranking_monthly_title"
                 android:textAppearance="@style/TextAppearance.ModestieTheme.Headline6"
-                android:textColor="@color/color_secondary"
+                android:textColor="@color/color_primary"
                 app:layout_constraintStart_toStartOf="@+id/rankingTitle"
                 app:layout_constraintTop_toBottomOf="@+id/rankingTitle" />
 
@@ -318,7 +318,7 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/ranking_weekly_title"
                 android:textAppearance="@style/TextAppearance.ModestieTheme.Headline6"
-                android:textColor="@color/color_secondary"
+                android:textColor="@color/color_primary"
                 app:layout_constraintStart_toEndOf="@+id/rankingMonthlyTitle"
                 app:layout_constraintTop_toBottomOf="@+id/rankingTitle" />
 

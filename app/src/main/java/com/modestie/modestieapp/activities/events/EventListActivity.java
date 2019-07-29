@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteDatabase;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -165,6 +167,19 @@ public class EventListActivity extends AppCompatActivity
     {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.event_list_bar_menu, menu);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        for(int i = 0; i < menu.size(); i++){
+            Drawable drawable = menu.getItem(i).getIcon();
+            if(drawable != null)
+            {
+                drawable.mutate();
+                if(preferences.getBoolean("nightmode", false))
+                    drawable.setColorFilter(getResources().getColor(R.color.color_on_surface), PorterDuff.Mode.SRC_ATOP);
+                else
+                    drawable.setColorFilter(getResources().getColor(R.color.color_on_primary), PorterDuff.Mode.SRC_ATOP);
+            }
+        }
         return true;
     }
 

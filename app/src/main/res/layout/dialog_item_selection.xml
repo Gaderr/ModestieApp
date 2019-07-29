@@ -15,12 +15,13 @@
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
+            style="@style/Widget.ModestieTheme.Toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:paddingEnd="16dp"
             android:paddingStart="6dp"
             app:contentInsetStartWithNavigation="0dp"
-            app:navigationIcon="@drawable/ic_clear_24dp">
+            app:navigationIcon="@drawable/ic_clear_white_24dp">
 
         </androidx.appcompat.widget.Toolbar>
 

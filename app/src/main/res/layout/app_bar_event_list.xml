@@ -14,11 +14,12 @@
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/eventListToolbar"
+            style="@style/Widget.ModestieTheme.Toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:elevation="4dp"
             app:layout_scrollFlags="scroll|enterAlways"
-            app:title="@string/title_event_list_activity"/>
+            app:title="@string/title_event_list_activity" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

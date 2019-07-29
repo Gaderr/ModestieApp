@@ -493,7 +493,7 @@ public class CharacterActivity extends AppCompatActivity
             }, error ->
             {
                 Toast.makeText(CharacterActivity.this, "Échec de la mise à jour du personnage", Toast.LENGTH_SHORT).show();
-                Log.e(TAG, error.getMessage());
+                Log.e(TAG, error.getLocalizedMessage());
                 navigateUp();
                 finish();
             }));
