@@ -59,6 +59,8 @@ public class ExtendedCharacter extends Character
     private static final String apiID_SAM = "34_34";
     private static final String apiID_MRG = "35_35";
     private static final String apiID_MBU = "36_36";
+    private static final String apiID_PSB = "37_37";
+    private static final String apiID_DNS = "38_38";
     private static final String apiID_GUE = "3_21";
     private static final String apiID_DRG = "4_22";
     private static final String apiID_BRD = "5_23";
@@ -112,6 +114,8 @@ public class ExtendedCharacter extends Character
             this.classJobs.add(new ClassJob(apiClassJobs.getJSONObject(apiID_INV)));
             this.classJobs.add(new ClassJob(apiClassJobs.getJSONObject(apiID_MRG)));
             this.classJobs.add(new ClassJob(apiClassJobs.getJSONObject(apiID_MBU)));
+            this.classJobs.add(new ClassJob(apiClassJobs.getJSONObject(apiID_PSB)));
+            this.classJobs.add(new ClassJob(apiClassJobs.getJSONObject(apiID_DNS)));
             this.classJobs.add(new ClassJob(apiClassJobs.getJSONObject(apiID_MEN)));
             this.classJobs.add(new ClassJob(apiClassJobs.getJSONObject(apiID_FRG)));
             this.classJobs.add(new ClassJob(apiClassJobs.getJSONObject(apiID_ARM)));
