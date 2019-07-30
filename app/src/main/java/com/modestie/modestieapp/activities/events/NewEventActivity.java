@@ -11,6 +11,7 @@ import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
@@ -18,6 +19,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -131,6 +133,8 @@ public class NewEventActivity
     int MAX_RETRIES = 3;
     private boolean pending;
     private int pricePendingRequests;
+
+    private static final int READ_EXTERNAL_STORAGE_REQUEST = 1;
 
     /*
         ----------------------------
@@ -490,6 +494,8 @@ public class NewEventActivity
         findViewById(R.id.fileUploadIcon).setOnClickListener(
                 v ->
                 {
+                    if(!checkPermissions())
+                        return;
                     //Create an Intent with action as ACTION_PICK
                     Intent intent = new Intent(Intent.ACTION_PICK);
                     //Sets the type as image/*. This ensures only components of type image are selected
@@ -943,6 +949,21 @@ public class NewEventActivity
     {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    /**
+     * Check if permission READ_EXTERNAL_STORAGE is granted by the user and creates a request
+     * permission if not.
+     * @return Permission state : true = permission granted
+     */
+    public boolean checkPermissions()
+    {
+        if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+        {
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_REQUEST);
+            return false;
+        }
+        else return true;
     }
 
     /**

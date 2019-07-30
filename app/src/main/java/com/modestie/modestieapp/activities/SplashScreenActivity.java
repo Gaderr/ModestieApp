@@ -1,13 +1,11 @@
 package com.modestie.modestieapp.activities;
 
-import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -32,7 +30,6 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.login.LoginActivity;
-import com.modestie.modestieapp.model.character.Character;
 import com.modestie.modestieapp.model.freeCompany.FreeCompany;
 import com.modestie.modestieapp.model.login.LoggedInUser;
 import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
@@ -46,46 +43,34 @@ import static com.android.volley.Request.Method.GET;
 
 public class SplashScreenActivity extends AppCompatActivity
 {
+    public static final String TAG = "ACTVT.SPLSHSCRN";
+
     private AnimatorSet animatorSetIn;
     private AnimatorSet animatorSetOut;
-    private ObjectAnimator animationTextRight;
-    private ObjectAnimator animationTextLeft;
-    private ObjectAnimator animationCrestLeft;
-    private ObjectAnimator animationCrestRight;
-    private ObjectAnimator animationTextFadeIn;
-    private ObjectAnimator animationTextFadeOut;
-    private ObjectAnimator animationCrestFadeIn;
-    private ObjectAnimator animationCrestFadeOut;
-
     private static final int inSpeed = 900;
     private static final int outSpeed = 900;
+    private static final int startDelay = 500;
 
-    private ImageView touchAppIcon;
     private ProgressBar bar;
 
     private boolean pending;
-    private boolean login;
-
-    private boolean setInAnimDone;
-    private boolean permissionsCheckDone;
+    private boolean doLogin;
     private boolean checkRegistrationDone;
     private boolean databaseUpdateDone;
+    private boolean isAlive;
 
-    private static final String GETFCDATA_REQUEST = "https://xivapi.com/freecompany/9232660711086299979?data=FCM";
+    private static final String GET_FC_DATA_REQUEST = "https://xivapi.com/freecompany/9232660711086299979?data=FCM";
     private static final String CHECK_REGISTRATION_REQUEST = "https://modestie.fr/wp-json/modestieevents/v1/checkregistration";
 
     private FreeCompanyDbHelper dbHelper;
-
     private RequestQueue mRequestQueue;
-
-    public static final String TAG = "ACTVT.SPLSHSCRN";
-
-    private static final int READ_EXTERNAL_STORAGE_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        Log.e(TAG, "ON CREATE");
 
         //Load theme preference
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -102,17 +87,13 @@ public class SplashScreenActivity extends AppCompatActivity
         setContentView(R.layout.activity_splash);
 
         this.pending = false;
-        this.login = true;
-
-        this.setInAnimDone = false;
-        this.permissionsCheckDone = false;
+        this.doLogin = true;
         this.checkRegistrationDone = false;
         this.databaseUpdateDone = false;
+        this.isAlive = true;
 
         ImageView crestView = findViewById(R.id.crest);
         TextView appNameView = findViewById(R.id.textAppName);
-        this.touchAppIcon = findViewById(R.id.touchIcon);
-        this.touchAppIcon.setVisibility(View.INVISIBLE);
         this.bar = findViewById(R.id.progressBar);
         this.bar.setVisibility(View.INVISIBLE);
 
@@ -120,38 +101,71 @@ public class SplashScreenActivity extends AppCompatActivity
         this.animatorSetOut = new AnimatorSet();
 
         //Text animations
-        this.animationTextRight = ObjectAnimator.ofFloat(appNameView, "translationX", 150f, 0)
+        ObjectAnimator animationTextRight = ObjectAnimator.ofFloat(appNameView, "translationX", 150f, 0)
                 .setDuration(inSpeed);
-        this.animationTextRight.setInterpolator(Easings.QUART_OUT);
+        animationTextRight.setInterpolator(Easings.QUART_OUT);
 
-        this.animationTextLeft = ObjectAnimator.ofFloat(appNameView, "translationX", 0, -150f)
+        ObjectAnimator animationTextLeft = ObjectAnimator.ofFloat(appNameView, "translationX", 0, -150f)
                 .setDuration(outSpeed);
-        this.animationTextLeft.setInterpolator(Easings.QUART_IN);
+        animationTextLeft.setInterpolator(Easings.QUART_IN);
 
-        this.animationTextFadeIn = ObjectAnimator.ofFloat(appNameView, "alpha", 0f, 1f)
+        ObjectAnimator animationTextFadeIn = ObjectAnimator.ofFloat(appNameView, "alpha", 0f, 1f)
                 .setDuration(inSpeed);
-        this.animationTextFadeIn.setInterpolator(Easings.QUART_OUT);
+        animationTextFadeIn.setInterpolator(Easings.QUART_OUT);
 
-        this.animationTextFadeOut = ObjectAnimator.ofFloat(appNameView, "alpha", 1f, 0f)
+        ObjectAnimator animationTextFadeOut = ObjectAnimator.ofFloat(appNameView, "alpha", 1f, 0f)
                 .setDuration(outSpeed);
-        this.animationTextFadeOut.setInterpolator(Easings.QUART_IN);
+        animationTextFadeOut.setInterpolator(Easings.QUART_IN);
 
         //Crest animations
-        this.animationCrestLeft = ObjectAnimator.ofFloat(crestView, "translationX", -150f, 0)
+        ObjectAnimator animationCrestLeft = ObjectAnimator.ofFloat(crestView, "translationX", -150f, 0)
                 .setDuration(inSpeed);
-        this.animationCrestLeft.setInterpolator(Easings.QUART_OUT);
+        animationCrestLeft.setInterpolator(Easings.QUART_OUT);
 
-        this.animationCrestRight = ObjectAnimator.ofFloat(crestView, "translationX", 0, 150f)
+        ObjectAnimator animationCrestRight = ObjectAnimator.ofFloat(crestView, "translationX", 0, 150f)
                 .setDuration(outSpeed);
-        this.animationCrestRight.setInterpolator(Easings.QUART_IN);
+        animationCrestRight.setInterpolator(Easings.QUART_IN);
 
-        this.animationCrestFadeIn = ObjectAnimator.ofFloat(crestView, "alpha", 0f, 1f)
+        ObjectAnimator animationCrestFadeIn = ObjectAnimator.ofFloat(crestView, "alpha", 0f, 1f)
                 .setDuration(inSpeed);
-        this.animationCrestFadeIn.setInterpolator(Easings.QUART_OUT);
+        animationCrestFadeIn.setInterpolator(Easings.QUART_OUT);
 
-        this.animationCrestFadeOut = ObjectAnimator.ofFloat(crestView, "alpha", 1f, 0f)
+        ObjectAnimator animationCrestFadeOut = ObjectAnimator.ofFloat(crestView, "alpha", 1f, 0f)
                 .setDuration(outSpeed);
-        this.animationCrestFadeOut.setInterpolator(Easings.QUART_IN);
+        animationCrestFadeOut.setInterpolator(Easings.QUART_IN);
+
+        this.animatorSetIn
+                .play(animationTextRight)
+                .with(animationTextFadeIn)
+                .with(animationCrestLeft)
+                .with(animationCrestFadeIn);
+
+        this.animatorSetIn.setStartDelay(startDelay);
+
+        animationTextRight.addListener(new AnimatorListenerAdapter()
+        {
+            @Override
+            public void onAnimationEnd(Animator animation)
+            {
+                updateData();
+            }
+        });
+
+        this.animatorSetOut
+                .play(animationTextLeft)
+                .with(animationTextFadeOut)
+                .with(animationCrestRight)
+                .with(animationCrestFadeOut);
+
+        animationTextLeft.addListener(new AnimatorListenerAdapter()
+        {
+            @Override
+            public void onAnimationEnd(Animator animation)
+            {
+                if (doLogin) startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                else startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+            }
+        });
 
         appNameView.setAlpha(0f);
         crestView.setAlpha(0f);
@@ -173,31 +187,21 @@ public class SplashScreenActivity extends AppCompatActivity
     protected void onStart()
     {
         super.onStart();
-
-        this.animatorSetIn
-                .play(this.animationTextRight)
-                .with(this.animationTextFadeIn)
-                .with(this.animationCrestLeft)
-                .with(this.animationCrestFadeIn);
-
-        this.animationTextRight.addListener(new AnimatorListenerAdapter()
-        {
-            @Override
-            public void onAnimationEnd(Animator animation)
-            {
-                setInAnimDone = true;
-                next();
-            }
-        });
-
         this.animatorSetIn.start();
+    }
 
-        updateData();
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+        this.isAlive = false;
     }
 
     private void updateData()
     {
-        if (pending) return;
+        if (pending || !isAlive) return;
+
+        Log.e(TAG, "Update data");
 
         this.pending = true;
 
@@ -244,7 +248,7 @@ public class SplashScreenActivity extends AppCompatActivity
                                         if (user.getExpiration() > System.currentTimeMillis() && sharedPref.getBoolean("AutoLogin", false))
                                         {
                                             Log.e(TAG, "JWT VALID");
-                                            this.login = false;
+                                            this.doLogin = false;
                                         }
                                     }
                                     this.checkRegistrationDone = true;
@@ -270,13 +274,13 @@ public class SplashScreenActivity extends AppCompatActivity
             Log.e(TAG, "UPDATING DATABASE");
             addToRequestQueue(
                     new JsonObjectRequest(
-                            GET, GETFCDATA_REQUEST, null,
+                            GET, GET_FC_DATA_REQUEST, null,
                             response ->
                             {
                                 Log.e(TAG, "DATABASE UPDATED");
                                 new FreeCompany(response, dbHelper);
                                 this.databaseUpdateDone = true;
-                                checkPermissions();
+                                next();
                             },
                             error ->
                             {
@@ -304,37 +308,7 @@ public class SplashScreenActivity extends AppCompatActivity
         {
             Log.e(TAG, "DATABASE UPDATE SKIPPED");
             this.databaseUpdateDone = true;
-            checkPermissions();
-        }
-    }
-
-    public void checkPermissions()
-    {
-        if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_REQUEST);
-        else
-        {
-            this.permissionsCheckDone = true;
             next();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
-    {
-        switch (requestCode)
-        {
-            case READ_EXTERNAL_STORAGE_REQUEST:
-            {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                {
-                    this.permissionsCheckDone = true;
-                    next();
-                }
-                else
-                    finish();
-            }
         }
     }
 
@@ -344,33 +318,13 @@ public class SplashScreenActivity extends AppCompatActivity
     private void next()
     {
         Log.e(TAG, "NEXT CALLED");
-        if (!this.databaseUpdateDone || !this.checkRegistrationDone || !this.permissionsCheckDone || !this.setInAnimDone)
+        if (this.databaseUpdateDone && this.checkRegistrationDone && this.isAlive)
         {
-            Log.e(TAG, "NEXT DENIED");
-            return;
+            this.bar.setVisibility(View.INVISIBLE);
+            this.animatorSetOut.start();
         }
-
-        Log.e(TAG, "NEXT");
-
-        this.bar.setVisibility(View.INVISIBLE);
-
-        this.animatorSetOut
-                .play(this.animationTextLeft)
-                .with(this.animationTextFadeOut)
-                .with(this.animationCrestRight)
-                .with(this.animationCrestFadeOut);
-
-        this.animatorSetOut.start();
-
-        this.animationTextLeft.addListener(new AnimatorListenerAdapter()
-        {
-            @Override
-            public void onAnimationEnd(Animator animation)
-            {
-                if (login) startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-                else startActivity(new Intent(getApplicationContext(), HomeActivity.class));
-            }
-        });
+        else
+            Log.e(TAG, "NEXT DENIED");
     }
 
     /**
