@@ -109,8 +109,9 @@ public class LoginFragment extends Fragment
                 v ->
                 {
                     //Delete user stored data
-                    Hawk.delete("UserCredentials");
+                    //Hawk.delete("UserCredentials");
                     Hawk.delete("UserCharacter");
+                    Hawk.delete("LoggedInUser");
                     this.rememberMeCheckBox.setEnabled(false);
                     this.autoLoginCheckBox.setEnabled(false);
                     this.preferences
@@ -124,10 +125,18 @@ public class LoginFragment extends Fragment
         //Load login preferences
         this.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         this.rememberMeCheckBox.setChecked(preferences.getBoolean("RememberMe", false));
+        this.autoLoginCheckBox.setEnabled(preferences.getBoolean("RememberMe", false));
         this.autoLoginCheckBox.setChecked(preferences.getBoolean("AutoLogin", false));
 
         //Read checkbox changes and edit preferences
-        this.rememberMeCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> this.preferences.edit().putBoolean("RememberMe", isChecked).apply());
+        this.rememberMeCheckBox.setOnCheckedChangeListener(
+                (buttonView, isChecked) ->
+                {
+                    this.preferences.edit().putBoolean("RememberMe", isChecked).apply();
+                    //The autologin must be enabled only if the user wants to be remembered
+                    this.autoLoginCheckBox.setEnabled(isChecked);
+                    if(!isChecked) this.preferences.edit().remove("AutoLogin").apply();
+                });
         this.autoLoginCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> this.preferences.edit().putBoolean("AutoLogin", isChecked).apply());
 
         //Load user credentials if stored
@@ -222,9 +231,12 @@ public class LoginFragment extends Fragment
                         Hawk.put("LoggedInUser", loginResult.getSuccess());
 
                         //Store user credentials
-                        Hawk.put("UserCredentials", new UserCredentials(
-                                this.usernameEditText.getEditText().getText().toString(),
-                                this.passwordEditText.getEditText().getText().toString()));
+                        if(this.rememberMeCheckBox.isChecked())
+                            Hawk.put("UserCredentials", new UserCredentials(
+                                    this.usernameEditText.getEditText().getText().toString(),
+                                    this.passwordEditText.getEditText().getText().toString()));
+                        else
+                            Hawk.delete("UserCredentials");
 
                         //Call listener
                         onLoginSuccess(loginResult.getSuccess().getUserEmail());

@@ -22,6 +22,10 @@ public class LoginDataSource
     private Context context;
     private RequestQueue mRequestQueue;
 
+    private static final long dayInMillis = 86400000;
+    private static final int expirationDays = 7;
+    private static final long maxDelayMillis = 60000; //1 minute
+
     private static final String JWTRequest = "https://modestie.fr/wp-json/jwt-auth/v1/token";
 
     public void login(String username, String password, Context context, LoginServerCallback callback)
@@ -33,9 +37,12 @@ public class LoginDataSource
             postParams.put("username", username);
             postParams.put("password", password);
 
+            //Set expiration time to : current + 7 days - 1 minute (preventing )
+            long expiration = System.currentTimeMillis() + (expirationDays * dayInMillis) - maxDelayMillis;
+
             addToRequestQueue(new JsonObjectRequest(
                     Request.Method.POST, JWTRequest, postParams,
-                    response -> callback.onServerResponse(new Result.Success<>(new LoggedInUser(response))),
+                    response -> callback.onServerResponse(new Result.Success<>(new LoggedInUser(response, expiration))),
                     error -> callback.onServerResponse(new Result.Error(R.string.login_wrong_credentials))
             ));
         }
