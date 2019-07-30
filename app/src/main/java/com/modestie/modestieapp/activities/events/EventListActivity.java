@@ -46,17 +46,16 @@ import static com.android.volley.Request.Method.GET;
 
 public class EventListActivity extends AppCompatActivity
 {
+    private ArrayList<Event> events;
     private RecyclerView recyclerView;
     private RecyclerView.Adapter<EventListAdapter.EventViewHolder> adapter;
     private RecyclerView.LayoutManager layoutManager;
     private ProgressBar progressBar;
-
     private ExtendedFloatingActionButton FAB;
 
-    private ArrayList<Event> events;
+    private boolean userLoggedIn;
 
     private String MODESTIE_GETEVENTS = "https://modestie.fr/wp-json/modestieevents/v1/events";
-
     private RequestQueue mRequestQueue;
 
     private int NEW_EVENT_REQUEST = 1;
@@ -82,51 +81,22 @@ public class EventListActivity extends AppCompatActivity
         SQLiteDatabase database = dbHelper.getReadableDatabase();
 
         Hawk.init(getApplicationContext()).build();
-        boolean userLoggedIn = Hawk.contains("UserCharacter") && Hawk.contains("UserCredentials");
+        this.userLoggedIn = Hawk.contains("UserCharacter") && Hawk.contains("UserCredentials");
         this.events = new ArrayList<>();
 
         this.layoutManager = new LinearLayoutManager(this);
         this.recyclerView.setLayoutManager(this.layoutManager);
 
-        if(userLoggedIn)
+        if (this.userLoggedIn)
             this.adapter = new EventListAdapter(this.events, database, userLoggedIn, Hawk.get("UserCharacter"), getApplicationContext());
         else
             this.adapter = new EventListAdapter(this.events, database, userLoggedIn, null, getApplicationContext());
 
         this.recyclerView.setAdapter(this.adapter);
 
-        addToRequestQueue(new JsonObjectRequest(
-                GET, this.MODESTIE_GETEVENTS, null,
-                response ->
-                {
-                    try
-                    {
-                        JSONArray eventsArray = response.getJSONArray("Events");
-                        int count = response.getInt("Count");
-                        for (int i = 0; i < count; i++)
-                        {
-                            JSONObject tempEvent = eventsArray.getJSONObject(i);
-                            this.events.add(new Event(tempEvent));
-                        }
-                        this.events.add(null);
-                        this.adapter.notifyDataSetChanged();
-                        this.progressBar.setVisibility(View.INVISIBLE);
-                    }
-                    catch (JSONException e)
-                    {
-                        Log.e(TAG, e.getLocalizedMessage());
-                    }
+        updateList();
 
-                }, error ->
-                {
-                    Toast.makeText(EventListActivity.this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show();
-                    onBackPressed();
-                }
-        ));
-
-        Collections.sort(this.events, Event.EventDateComparator);
-
-        if(userLoggedIn)
+        if (userLoggedIn)
         {
             //FAB intent
             this.FAB.show();
@@ -178,7 +148,7 @@ public class EventListActivity extends AppCompatActivity
 
         if (id == R.id.refresh)
         {
-            reloadList();
+            updateList();
             return true;
         }
 
@@ -194,9 +164,7 @@ public class EventListActivity extends AppCompatActivity
         {
             // Make sure the request was successful
             if (resultCode == RESULT_OK)
-            {
-                reloadList();
-            }
+                updateList();
 
             if (resultCode == RESULT_CANCELED)
             {
@@ -208,11 +176,13 @@ public class EventListActivity extends AppCompatActivity
         }
     }
 
-    private void reloadList()
+    private void updateList()
     {
+        //Clear list
         this.events.clear();
         this.adapter.notifyDataSetChanged();
         this.progressBar.setVisibility(View.VISIBLE);
+
         addToRequestQueue(new JsonObjectRequest(
                 GET, this.MODESTIE_GETEVENTS, null,
                 response ->
@@ -226,6 +196,10 @@ public class EventListActivity extends AppCompatActivity
                             JSONObject tempEvent = eventsArray.getJSONObject(i);
                             this.events.add(new Event(tempEvent));
                         }
+                        Collections.sort(this.events, Event.EventDateComparator);
+                        //If user is logged in, the fab is visible and a blank space must be added
+                        //at the end of the list avoid obstructing visibility of the last card
+                        if (this.userLoggedIn) this.events.add(null);
                         this.adapter.notifyDataSetChanged();
                         this.progressBar.setVisibility(View.INVISIBLE);
                     }
@@ -240,8 +214,6 @@ public class EventListActivity extends AppCompatActivity
                     onBackPressed();
                 }
         ));
-
-        Collections.sort(this.events, Event.EventDateComparator);
     }
 
     /**
