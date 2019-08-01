@@ -8,12 +8,19 @@ This app is used to see FC & members informations, manage events (Create, update
 
 Kanban : https://trello.com/b/vQjlzoXg/
 
+## Free company website
+
+https://modestie.fr/
+
+## API Wordpress plugin created for this project
+
+This project use an API created by me, within a Wordpress plugin (Modestie.fr is wordpress a website). You can see the requests by clicking on this button : 
+
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/1dd27766986e275bc5fe)
+
 ## Screenshots
 
 ![Imgur](https://i.imgur.com/XIE1Z0r.png)
-
-## Free company website
-https://modestie.fr/
 
 ## Collaborator characters
 
