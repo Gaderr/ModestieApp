@@ -337,18 +337,17 @@ public class CharacterActivity extends AppCompatActivity
         this.param1Value.setText(String.format(Locale.FRANCE, "%d",this.character.getAttributes().get(attributesCount - 2).getValue()));
         this.param2Value.setText(String.format(Locale.FRANCE, "%d",this.character.getAttributes().get(attributesCount - 1).getValue()));
 
-        boolean crafter;
+        boolean fighter = true;
 
-        if(this.character.getActiveClassJob().get_class().getCategoryName().equals("artisans"))
+        String category = this.character.getActiveClassJob().get_class().getCategoryName();
+
+        if(category.equals("artisans") || category.equals("récolteurs") )
         {
             this.crafterAttributesLayout.setVisibility(View.VISIBLE);
-            crafter = true;
+            fighter = false;
         }
         else
-        {
             this.fighterAttributesLayout.setVisibility(View.VISIBLE);
-            crafter = false;
-        }
 
         for(int i = 0; i < attributesCount - 2; i++)
         {
@@ -379,7 +378,7 @@ public class CharacterActivity extends AppCompatActivity
             }
             else
             {
-                if(crafter)
+                if(!fighter)
                 {
                     this.labelsCrafterPropsLayout.addView(attributeLabel);
                     this.valuesCrafterPropsLayout.addView(attributeValue);

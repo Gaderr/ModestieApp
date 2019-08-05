@@ -344,7 +344,7 @@
                 <include
                     android:id="@+id/param1"
                     layout="@layout/param_layout"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
                     android:layout_marginEnd="6dp"
@@ -353,7 +353,7 @@
                 <include
                     android:id="@+id/param2"
                     layout="@layout/param_layout"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:layout_marginEnd="12dp"
