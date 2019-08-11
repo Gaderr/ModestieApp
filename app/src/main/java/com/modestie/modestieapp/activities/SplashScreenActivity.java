@@ -13,7 +13,6 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -23,21 +22,24 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.login.LoginActivity;
+import com.modestie.modestieapp.model.character.Character;
 import com.modestie.modestieapp.model.freeCompany.FreeCompany;
 import com.modestie.modestieapp.model.login.LoggedInUser;
 import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
 import com.modestie.modestieapp.sqlite.FreeCompanyReaderContract;
+import com.modestie.modestieapp.utils.network.RequestHelper;
+import com.modestie.modestieapp.utils.network.RequestURLs;
 import com.modestie.modestieapp.utils.ui.Easings;
 import com.orhanobut.hawk.Hawk;
 
 import org.json.JSONException;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.android.volley.Request.Method.GET;
 
@@ -52,18 +54,17 @@ public class SplashScreenActivity extends AppCompatActivity
     private static final int startDelay = 500;
 
     private ProgressBar bar;
+    private TextView dbUpdateFeedback;
+    private TextView characterUpdateFeedback;
 
     private boolean pending;
     private boolean doLogin;
-    private boolean checkRegistrationDone;
+    private boolean checkUserDone;
     private boolean databaseUpdateDone;
     private boolean isAlive;
 
-    private static final String GET_FC_DATA_REQUEST = "https://xivapi.com/freecompany/9232660711086299979?data=FCM";
-    private static final String CHECK_REGISTRATION_REQUEST = "https://modestie.fr/wp-json/modestieevents/v1/checkregistration";
-
     private FreeCompanyDbHelper dbHelper;
-    private RequestQueue mRequestQueue;
+    private RequestHelper requestHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -86,9 +87,11 @@ public class SplashScreenActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_splash);
 
+        this.requestHelper = new RequestHelper(getApplicationContext());
+
         this.pending = false;
         this.doLogin = true;
-        this.checkRegistrationDone = false;
+        this.checkUserDone = false;
         this.databaseUpdateDone = false;
         this.isAlive = true;
 
@@ -96,6 +99,8 @@ public class SplashScreenActivity extends AppCompatActivity
         TextView appNameView = findViewById(R.id.textAppName);
         this.bar = findViewById(R.id.progressBar);
         this.bar.setVisibility(View.INVISIBLE);
+        this.dbUpdateFeedback = findViewById(R.id.dbUpdateFeedback);
+        this.characterUpdateFeedback = findViewById(R.id.characterUpdateFeedback);
 
         this.animatorSetIn = new AnimatorSet();
         this.animatorSetOut = new AnimatorSet();
@@ -226,59 +231,77 @@ public class SplashScreenActivity extends AppCompatActivity
 
         cursor.close();
 
-        //JWT validation
-        if (Hawk.contains("LoggedInUser") && Hawk.contains("UserCharacter"))
+        //Auto-login : check JWT expiration and update character
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        if (sharedPref.getBoolean("AutoLogin", false)
+                && Hawk.contains("LoggedInUser")
+                && Hawk.contains("UserCharacter")) //The presence of this object means that the user have a character registered
         {
-            Log.e(TAG, "CHECKING JWT AND CHARACTER");
             LoggedInUser user = Hawk.get("LoggedInUser");
-            addToRequestQueue(
-                    new JsonObjectRequest(
-                            Request.Method.GET,
-                            CHECK_REGISTRATION_REQUEST + "?userEmail=" + user.getUserEmail(),
-                            null,
-                            response ->
-                            {
-                                try
+
+            if (user.getExpiration() > System.currentTimeMillis())
+            {
+                Log.e(TAG, "JWT VALID");
+                this.doLogin = false;
+                Log.e(TAG, "UPDATING CHARACTER");
+                this.characterUpdateFeedback.setText(getString(R.string.login_feedback_modestiefr_get_character));
+                this.requestHelper.addToRequestQueue(
+                        new JsonObjectRequest(
+                                Request.Method.GET,
+                                RequestURLs.XIVAPI_CHARACTER_REQ + "/" + user.getCharacterID() + RequestURLs.XIVAPI_CHARACTER_PARAM_EXTENDED,
+                                null,
+                                response ->
                                 {
-                                    Log.e(TAG, "CHECK CHARACTER");
-                                    if (response.getBoolean("result"))
+                                    try
                                     {
-                                        Log.e(TAG, "CHARACTER VERIFIED");
-                                        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-                                        if (user.getExpiration() > System.currentTimeMillis() && sharedPref.getBoolean("AutoLogin", false))
-                                        {
-                                            Log.e(TAG, "JWT VALID");
-                                            this.doLogin = false;
-                                        }
+                                        Hawk.put("UserCharacter", new Character(response.getJSONObject("Character")));
+                                        this.characterUpdateFeedback.setText("");
+                                        this.checkUserDone = true;
+                                        next();
                                     }
-                                    this.checkRegistrationDone = true;
-                                    next();
-                                }
-                                catch (JSONException e)
-                                {
-                                    e.printStackTrace();
-                                }
-                            },
-                            error -> Toast.makeText(this, "Une erreur serveur s'est produite, veuillez réessayer", Toast.LENGTH_SHORT).show()
-                    ));
+                                    catch (JSONException e)
+                                    {
+                                        e.printStackTrace();
+                                    }
+                                },
+                                error -> Toast.makeText(this, "Une erreur serveur s'est produite, veuillez réessayer", Toast.LENGTH_SHORT).show()
+                        )
+                        {
+                            @Override
+                            public Map<String, String> getHeaders()
+                            {
+                                Map<String, String> params = new HashMap<>();
+                                params.put("Authorization", "Bearer " + user.getToken());
+                                return params;
+                            }
+                        });
+            }
+            else
+            {
+                Log.e(TAG, "JWT INVALID");
+                this.checkUserDone = true;
+                next();
+            }
         }
         else
         {
-            Log.e(TAG, "NO CREDENTIALS");
-            this.checkRegistrationDone = true;
+            Log.e(TAG, "NO AUTOLOGIN");
+            this.checkUserDone = true;
             next();
         }
 
         if (doUpdate)
         {
             Log.e(TAG, "UPDATING DATABASE");
-            addToRequestQueue(
+            this.dbUpdateFeedback.setText(getString(R.string.login_feedback_modestiefr_update_db));
+            this.requestHelper.addToRequestQueue(
                     new JsonObjectRequest(
-                            GET, GET_FC_DATA_REQUEST, null,
+                            GET, RequestURLs.XIVAPI_FREECOMPANY_REQ + "/" + RequestURLs.MODESTIE_FC_ID + RequestURLs.XIVAPI_FREECOMPANY_PARAM_FCM, null,
                             response ->
                             {
                                 Log.e(TAG, "DATABASE UPDATED");
                                 new FreeCompany(response, dbHelper);
+                                this.dbUpdateFeedback.setText("");
                                 this.databaseUpdateDone = true;
                                 next();
                             },
@@ -318,51 +341,13 @@ public class SplashScreenActivity extends AppCompatActivity
     private void next()
     {
         Log.e(TAG, "NEXT CALLED");
-        if (this.databaseUpdateDone && this.checkRegistrationDone && this.isAlive)
+        if (this.databaseUpdateDone && this.checkUserDone && this.isAlive)
         {
             this.bar.setVisibility(View.INVISIBLE);
             this.animatorSetOut.start();
         }
         else
             Log.e(TAG, "NEXT DENIED");
-    }
-
-    /**
-     * Lazy initialize the request queue, the queue instance will be created when it is accessed
-     * for the first time
-     *
-     * @return Request Queue
-     */
-    public RequestQueue getRequestQueue()
-    {
-        if (this.mRequestQueue == null)
-            this.mRequestQueue = Volley.newRequestQueue(getApplicationContext());
-
-        return mRequestQueue;
-    }
-
-    public <T> void addToRequestQueue(Request<T> req, String tag)
-    {
-        // set the default tag if tag is empty
-        req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
-
-        VolleyLog.d("Adding request to queue: %s", req.getUrl());
-
-        getRequestQueue().add(req);
-    }
-
-    public <T> void addToRequestQueue(Request<T> req)
-    {
-        // set the default tag if tag is empty
-        req.setTag(TAG);
-
-        getRequestQueue().add(req);
-    }
-
-    public void cancelPendingRequests(Object tag)
-    {
-        if (mRequestQueue != null)
-            mRequestQueue.cancelAll(tag);
     }
 }
 

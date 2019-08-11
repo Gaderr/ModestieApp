@@ -16,7 +16,6 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -25,18 +24,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.model.character.ExtendedCharacter;
 import com.modestie.modestieapp.sqlite.CharacterDbHelper;
 import com.modestie.modestieapp.sqlite.CharacterReaderContract;
+import com.modestie.modestieapp.utils.network.RequestHelper;
+import com.modestie.modestieapp.utils.network.RequestURLs;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
@@ -55,12 +52,7 @@ public class CharacterActivity extends AppCompatActivity
     private ExtendedCharacter character;
     private String name;
 
-    private String apiURL = "https://xivapi.com";
-    private String apiCharacterURL = "/character/";
-    private String apiCharacterExtra_Get = "?language=fr&extended=1";
-    private String apiCharacterExtra_Update = "/update";
-    //private String apiURLRequest = apiURL + "/character/11148489?language=fr&extended=1";
-    private RequestQueue mRequestQueue;
+    private RequestHelper requestHelper;
 
     private ImageView upAction;
 
@@ -110,6 +102,8 @@ public class CharacterActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_character);
+
+        this.requestHelper = new RequestHelper(getApplicationContext());
 
         this.upAction = findViewById(R.id.upAction);
         this.upAction.setOnClickListener(v -> navigateUp());
@@ -273,12 +267,12 @@ public class CharacterActivity extends AppCompatActivity
         //Load job icon if a soul crystal is equipped
         if(character.getGearItems().get("SoulCrystal") != null)
             Picasso.get()
-                    .load(this.apiURL + this.character.getActiveClassJob().get_job().getIconURL())
+                    .load(RequestURLs.XIVAPI_DOMAIN + this.character.getActiveClassJob().get_job().getIconURL())
                     .fit()
                     .into(this.jobIcon);
         else
             Picasso.get()
-                    .load(this.apiURL + this.character.getActiveClassJob().get_class().getIconURL())
+                    .load(RequestURLs.XIVAPI_DOMAIN + this.character.getActiveClassJob().get_class().getIconURL())
                     .fit()
                     .into(this.jobIcon);
 
@@ -303,7 +297,7 @@ public class CharacterActivity extends AppCompatActivity
         {
             if(this.character.getGearItems().get(gearItemKey) != null)
                 Picasso.get()
-                        .load(this.apiURL + Objects.requireNonNull(this.character.getGearItems().get(gearItemKey)).getItemIcon())
+                        .load(RequestURLs.XIVAPI_DOMAIN + Objects.requireNonNull(this.character.getGearItems().get(gearItemKey)).getItemIcon())
                         .fit()
                         .into(this.itemImageViews.get(gearItemKey));
         }
@@ -464,8 +458,8 @@ public class CharacterActivity extends AppCompatActivity
 
     private void updateCharacterAPI(final CharacterDbHelper dbHelper)
     {
-        String request = this.apiURL + this.apiCharacterURL + this.characterID + this.apiCharacterExtra_Update;
-        addToRequestQueue(new StringRequest(GET, request, response ->
+        String request = RequestURLs.XIVAPI_CHARACTER_REQ + "/" + this.characterID + RequestURLs.XIVAPI_CHARACTER_EXT_UPDATE;
+        this.requestHelper.addToRequestQueue(new StringRequest(GET, request, response ->
             {
                 try
                 {
@@ -490,18 +484,16 @@ public class CharacterActivity extends AppCompatActivity
 
     private void getCharacterAPI(final CharacterDbHelper dbHelper)
     {
-        String request = this.apiURL + this.apiCharacterURL + this.characterID + this.apiCharacterExtra_Get;
-        addToRequestQueue(new JsonObjectRequest(GET, request, null, response ->
+        String request = RequestURLs.XIVAPI_CHARACTER_REQ + "/" + this.characterID + RequestURLs.XIVAPI_CHARACTER_PARAM_EXTENDED;
+        this.requestHelper.addToRequestQueue(new JsonObjectRequest(GET, request, null, response ->
             {
                 try
                 {
                     character = new ExtendedCharacter(response.getJSONObject("Character"), dbHelper);
-
                     new Thread(() ->
                         {
                             //noinspection StatementWithEmptyBody
                             while(!character.isLoaded()) {}
-
                             runOnUiThread(() ->
                                 {
                                     Log.e(TAG, "Data acquired");
@@ -522,45 +514,6 @@ public class CharacterActivity extends AppCompatActivity
                 navigateUp();
                 finish();
             }));
-    }
-
-    /**
-     * Lazy initialize the request queue, the queue instance will be created when it is accessed
-     * for the first time
-     * @return Request Queue
-     */
-    public RequestQueue getRequestQueue()
-    {
-        if (this.mRequestQueue == null)
-        {
-            this.mRequestQueue = Volley.newRequestQueue(getApplicationContext());
-        }
-
-        return mRequestQueue;
-    }
-
-    public <T> void addToRequestQueue(Request<T> req, String tag)
-    {
-        // set the default tag if tag is empty
-        req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
-
-        VolleyLog.d("Adding request to queue: %s", req.getUrl());
-
-        getRequestQueue().add(req);
-    }
-
-    public <T> void addToRequestQueue(Request<T> req)
-    {
-        // set the default tag if tag is empty
-        req.setTag(TAG);
-
-        getRequestQueue().add(req);
-    }
-
-    public void cancelPendingRequests(Object tag)
-    {
-        if (mRequestQueue != null)
-            mRequestQueue.cancelAll(tag);
     }
 
     private void navigateUp()

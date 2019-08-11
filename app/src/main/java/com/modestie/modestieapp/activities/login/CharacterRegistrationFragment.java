@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,11 +27,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.material.textfield.TextInputLayout;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
@@ -42,6 +37,8 @@ import com.modestie.modestieapp.adapters.CharacterListAdapter;
 import com.modestie.modestieapp.model.character.LightCharacter;
 import com.modestie.modestieapp.model.freeCompany.FreeCompanyMember;
 import com.modestie.modestieapp.utils.Utils;
+import com.modestie.modestieapp.utils.network.RequestHelper;
+import com.modestie.modestieapp.utils.network.RequestURLs;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
@@ -102,7 +99,7 @@ public class CharacterRegistrationFragment extends Fragment
 
     private boolean pending; //Used to disable some elements during a process
 
-    private RequestQueue mRequestQueue;
+    private RequestHelper requestHelper;
 
     public CharacterRegistrationFragment()
     {
@@ -130,6 +127,7 @@ public class CharacterRegistrationFragment extends Fragment
         {
             this.page = getArguments().getInt(ARG_PAGE);
         }
+        this.requestHelper = new RequestHelper(getContext());
     }
 
     @Override
@@ -226,8 +224,10 @@ public class CharacterRegistrationFragment extends Fragment
 
     private void executeSearch(TextInputLayout field)
     {
-        String request = "https://xivapi.com/character/search?server=_dc_chaos&name=";
-        request += Objects.requireNonNull(field.getEditText()).getText();
+        //String request = "https://xivapi.com/character/search?server=_dc_chaos&name=";
+        String request = RequestURLs.XIVAPI_CHARACTER_REQ + RequestURLs.XIVAPI_CHARACTER_EXT_SEARCH
+                + "?" + RequestURLs.XIVAPI_CHARACTER_EXT_SEARCH_SERVER_PARAM + "_dc_chaos"
+                + "&" + RequestURLs.XIVAPI_CHARACTER_EXT_SEARCH_NAME_PARAM + Objects.requireNonNull(field.getEditText()).getText();
 
         field.getEditText().clearFocus();
         field.setEnabled(false);
@@ -240,7 +240,7 @@ public class CharacterRegistrationFragment extends Fragment
 
         this.recyclerView.setVisibility(View.INVISIBLE);
 
-        addToRequestQueue(new JsonObjectRequest(
+        this.requestHelper.addToRequestQueue(new JsonObjectRequest(
                 GET, request, null,
                 response ->
                 {
@@ -517,43 +517,5 @@ public class CharacterRegistrationFragment extends Fragment
         void onCharacterSelection(Object character);
 
         void onBeginRegistrationInteraction(int characterID, String characterAvatar, String hash);
-    }
-
-    /**
-     * Lazy initialize the request queue, the queue instance will be created when it is accessed
-     * for the first time
-     *
-     * @return Request Queue
-     */
-    public RequestQueue getRequestQueue()
-    {
-        if (this.mRequestQueue == null)
-            this.mRequestQueue = Volley.newRequestQueue(getContext());
-
-        return mRequestQueue;
-    }
-
-    public <T> void addToRequestQueue(Request<T> req, String tag)
-    {
-        // set the default tag if tag is empty
-        req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
-
-        VolleyLog.d("Adding request to queue: %s", req.getUrl());
-
-        getRequestQueue().add(req);
-    }
-
-    public <T> void addToRequestQueue(Request<T> req)
-    {
-        // set the default tag if tag is empty
-        req.setTag(TAG);
-
-        getRequestQueue().add(req);
-    }
-
-    public void cancelPendingRequests(Object tag)
-    {
-        if (mRequestQueue != null)
-            mRequestQueue.cancelAll(tag);
     }
 }

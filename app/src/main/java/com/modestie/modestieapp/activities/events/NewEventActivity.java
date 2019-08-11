@@ -28,7 +28,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
@@ -45,11 +44,8 @@ import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.material.textfield.TextInputLayout;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.adapters.EventPriceAdapter;
@@ -57,7 +53,10 @@ import com.modestie.modestieapp.model.character.Character;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.event.EventPrice;
 import com.modestie.modestieapp.model.item.LightItem;
+import com.modestie.modestieapp.model.login.LoggedInUser;
 import com.modestie.modestieapp.utils.Utils;
+import com.modestie.modestieapp.utils.network.RequestHelper;
+import com.modestie.modestieapp.utils.network.RequestURLs;
 import com.orhanobut.hawk.Hawk;
 import com.squareup.picasso.Picasso;
 import com.woxthebox.draglistview.DragListView;
@@ -117,18 +116,9 @@ public class NewEventActivity
     public static final String TAG = "ACTVT.NEWEVNT";
     public static final int IMAGE_PICK_INTENT = 1;
 
-    private static final String MODESTIE_ADDEVENT = "https://modestie.fr/wp-json/modestieevents/v1/addevent";
-    private static final String MODESTIE_ADDPRICE = "https://modestie.fr/wp-json/modestieevents/v1/addprice";
+    private LoggedInUser loggedInUser;
 
-    private static final String IMGUR_IMG_UPLOAD = "https://api.imgur.com/3/upload";
-    private static final String IMGUR_TAG_IMAGE = "image";
-    private static final String IMGUR_TAG_TYPE = "type";
-    private static final String IMGUR_TAG_TITLE = "title";
-    private static final String IMGUR_TAG_NAME = "name";
-    private static final String IMGUR_ALBUM_HASH = "jLDde4Z";
-    private static final String IMGUR_CLIENT_ID = "1a437e09e459eab";
-
-    private RequestQueue mRequestQueue;
+    private RequestHelper requestHelper;
     int SOCKET_TIMEOUT = 3000;
     int MAX_RETRIES = 3;
     private boolean pending;
@@ -148,6 +138,8 @@ public class NewEventActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_event);
 
+        Log.e(TAG, "ON CREATE");
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -155,6 +147,8 @@ public class NewEventActivity
         /*----------
             Init
         ----------*/
+
+        this.requestHelper = new RequestHelper(getApplicationContext());
 
         this.loadingLayout = findViewById(R.id.loadingLayout);
         this.formLayout = findViewById(R.id.formLayout);
@@ -174,11 +168,13 @@ public class NewEventActivity
         this.formEventMaxParticipants.setEnabled(false);
         this.formEventMaxParticipants.setHelperText("");
 
+        Hawk.init(getApplicationContext()).build();
+
+        loggedInUser = Hawk.get("LoggedInUser");
+
         this.event = new Event();
         this.pickedImage = null;
         this.bitmapConvertedImage = null;
-
-        Hawk.init(getApplicationContext()).build();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(NewEventActivity.this, R.style.ThemeOverlay_ModestieTheme_Dialog);
         builder.setTitle(getString(R.string.image_upload_error_dialog_title))
@@ -494,7 +490,7 @@ public class NewEventActivity
         findViewById(R.id.fileUploadIcon).setOnClickListener(
                 v ->
                 {
-                    if(!checkPermissions())
+                    if (!checkPermissions())
                         return;
                     //Create an Intent with action as ACTION_PICK
                     Intent intent = new Intent(Intent.ACTION_PICK);
@@ -689,10 +685,12 @@ public class NewEventActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.save_event)
         {
+            Log.e(TAG, "SAVE EVENT OPTION SELECTED");
             if (!this.pending)
             {
                 if (validateForm())
                 {
+                    Log.e(TAG, "FORM VALID");
                     this.loadingLayout.setVisibility(View.VISIBLE);
                     this.formLayout.setVisibility(View.INVISIBLE);
                     hideKeyboardFrom(NewEventActivity.this, this.formLayout);
@@ -768,8 +766,9 @@ public class NewEventActivity
 
     private void beginEventPost()
     {
+        Log.e(TAG, "BEGIN EVENT POST");
         StringRequest imageUploadRequest = new StringRequest(
-                Request.Method.POST, IMGUR_IMG_UPLOAD,
+                Request.Method.POST, RequestURLs.IMGUR_IMG_UPLOAD,
                 response ->
                 {
                     try
@@ -800,7 +799,7 @@ public class NewEventActivity
             public Map<String, String> getHeaders()
             {
                 Map<String, String> headers = new HashMap<>();
-                headers.put("Authorization", "Client-ID " + IMGUR_CLIENT_ID);
+                headers.put("Authorization", "Client-ID " + RequestURLs.IMGUR_CLIENT_ID);
                 return headers;
             }
 
@@ -808,10 +807,10 @@ public class NewEventActivity
             protected Map<String, String> getParams()
             {
                 Map<String, String> params = new HashMap<>();
-                params.put(IMGUR_TAG_IMAGE, Utils.getBase64Image(bitmapConvertedImage));
-                params.put(IMGUR_TAG_TYPE, "base64");
-                params.put(IMGUR_TAG_TITLE, formEventImage.getEditText().getText() + "");
-                params.put(IMGUR_TAG_NAME, String.valueOf(System.currentTimeMillis()));
+                params.put(RequestURLs.IMGUR_TAG_IMAGE, Utils.getBase64Image(bitmapConvertedImage));
+                params.put(RequestURLs.IMGUR_TAG_TYPE, "base64");
+                params.put(RequestURLs.IMGUR_TAG_TITLE, formEventImage.getEditText().getText() + "");
+                params.put(RequestURLs.IMGUR_TAG_NAME, String.valueOf(System.currentTimeMillis()));
                 return params;
             }
         };
@@ -821,7 +820,7 @@ public class NewEventActivity
 
         //Check if an image was picked by user
         if (this.bitmapConvertedImage != null)
-            addToRequestQueue(imageUploadRequest);
+            this.requestHelper.addToRequestQueue(imageUploadRequest);
         else
             postNewEvent("");
 
@@ -831,6 +830,7 @@ public class NewEventActivity
     @SuppressLint("SimpleDateFormat")
     public void postNewEvent(String imageLink)
     {
+        Log.e(TAG, "POST NEW EVENT");
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
         df.setTimeZone(TimeZone.getDefault());
         try
@@ -849,11 +849,12 @@ public class NewEventActivity
             else
                 postparams.put("promoterParticipant", "0");
             postparams.put("image", imageLink);
+            postparams.put("apiKey", loggedInUser.getAPIKey());
 
             Log.e(TAG, "ADDEVENT");
 
-            addToRequestQueue(new JsonObjectRequest(
-                    Request.Method.POST, MODESTIE_ADDEVENT, postparams,
+            JsonObjectRequest request = new JsonObjectRequest(
+                    Request.Method.POST, RequestURLs.MODESTIE_EVENTS_ADD, postparams,
                     response ->
                     {
                         try
@@ -877,9 +878,28 @@ public class NewEventActivity
                     },
                     error ->
                     {
-                        Log.e(TAG, error.getMessage());
+                        //Log.e(TAG, error.getLocalizedMessage());
+                        Log.e(TAG, "EVENT SENDING FAILED");
                         finalizeEventPostThenActivity(false, "event");
-                    }), "newEventPostRequest");
+                    }
+            )
+            {
+                @Override
+                public Map<String, String> getHeaders()
+                {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("Authorization", "Bearer " + loggedInUser.getToken());
+                    return params;
+                }
+            };
+
+            request.setRetryPolicy(new DefaultRetryPolicy(
+                    0,
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            ));
+
+            this.requestHelper.addToRequestQueue(request, "newEventPostRequest");
         }
         catch (JSONException e)
         {
@@ -902,11 +922,12 @@ public class NewEventActivity
                 postparams.put("itemName", price.getItemName());
                 postparams.put("itemIcon", price.getItemIconURL());
                 postparams.put("amount", price.getAmount());
+                postparams.put("apiKey", loggedInUser.getAPIKey());
 
                 ++pricePendingRequests;
-
-                addToRequestQueue(new JsonObjectRequest(
-                        Request.Method.POST, MODESTIE_ADDPRICE, postparams,
+                Log.e(TAG, "PRICE SENDING NUMBER " + pricePendingRequests + " DEGREE " + this.listPrices.get(i).first);
+                JsonObjectRequest priceRequest = new JsonObjectRequest(
+                        Request.Method.POST, RequestURLs.MODESTIE_PRICES_ADD, postparams,
                         response ->
                         {
                             if (--pricePendingRequests == 0)
@@ -914,9 +935,28 @@ public class NewEventActivity
                         },
                         error ->
                         {
-                            Log.e(TAG, error.getMessage());
+                            //Log.e(TAG, error.getMessage());
+                            Log.e(TAG, "PRICE SENDING FAILED");
                             pricePendingRequests--;
-                        }), "newPricePostRequest" + pricePendingRequests);
+                        }
+                )
+                {
+                    @Override
+                    public Map<String, String> getHeaders()
+                    {
+                        Map<String, String> params = new HashMap<>();
+                        params.put("Authorization", "Bearer " + loggedInUser.getToken());
+                        return params;
+                    }
+                };
+
+                priceRequest.setRetryPolicy(new DefaultRetryPolicy(
+                        0,
+                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+                ));
+
+                this.requestHelper.addToRequestQueue(priceRequest, "newPricePostRequest" + pricePendingRequests);
             }
             catch (JSONException e)
             {
@@ -928,6 +968,7 @@ public class NewEventActivity
 
     public void finalizeEventPostThenActivity(boolean success, @Nullable String errorValue)
     {
+        Log.e(TAG, "FINAL");
         if (success)
         {
             Toast.makeText(this, "Événement créé", Toast.LENGTH_SHORT).show();
@@ -954,6 +995,7 @@ public class NewEventActivity
     /**
      * Check if permission READ_EXTERNAL_STORAGE is granted by the user and creates a request
      * permission if not.
+     *
      * @return Permission state : true = permission granted
      */
     public boolean checkPermissions()
@@ -964,43 +1006,5 @@ public class NewEventActivity
             return false;
         }
         else return true;
-    }
-
-    /**
-     * Lazy initialize the request queue, the queue instance will be created when it is accessed
-     * for the first time
-     *
-     * @return Request Queue
-     */
-    public RequestQueue getRequestQueue()
-    {
-        if (this.mRequestQueue == null)
-            this.mRequestQueue = Volley.newRequestQueue(getApplicationContext());
-
-        return mRequestQueue;
-    }
-
-    public <T> void addToRequestQueue(Request<T> req, String tag)
-    {
-        // set the default tag if tag is empty
-        req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
-
-        VolleyLog.d("Adding request to queue: %s", req.getUrl());
-
-        getRequestQueue().add(req);
-    }
-
-    public <T> void addToRequestQueue(Request<T> req)
-    {
-        // set the default tag if tag is empty
-        req.setTag(TAG);
-
-        getRequestQueue().add(req);
-    }
-
-    public void cancelPendingRequests(Object tag)
-    {
-        if (mRequestQueue != null)
-            mRequestQueue.cancelAll(tag);
     }
 }

@@ -7,26 +7,29 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.HomeActivity;
 import com.modestie.modestieapp.activities.MemberFragment;
 import com.modestie.modestieapp.model.character.Character;
 import com.modestie.modestieapp.model.freeCompany.FreeCompanyMember;
 import com.modestie.modestieapp.model.login.LoggedInUser;
+import com.modestie.modestieapp.utils.network.RequestHelper;
+import com.modestie.modestieapp.utils.network.RequestURLs;
 import com.orhanobut.hawk.Hawk;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity
         implements LoginFragment.OnFragmentInteractionListener,
@@ -38,16 +41,15 @@ public class LoginActivity extends AppCompatActivity
     private ViewPager pager;
     private LoginFragmentPager pagerAdapter;
 
-    private static final String REGISTRATION_REQUEST = "https://modestie.fr/wp-json/modestieevents/v1/registercharacter";
-    private static final String CHECK_REGISTRATION_REQUEST = "https://modestie.fr/wp-json/modestieevents/v1/checkregistration";
-
     public static final int LOGIN_PAGE = 0;
     public static final int CHARACTER_REGISTRATION_FIRST_PAGE = 1;
     public static final int CHARACTER_REGISTRATION_CHARACTER_SELECTION_PAGE = 2;
     public static final int CHARACTER_REGISTRATION_VERIFICATION_AND_REGISTRATION_PAGE = 3;
     public static final int CHARACTER_REGISTRATION_DONE_PAGE = 4;
 
-    private RequestQueue mRequestQueue;
+    private LoggedInUser loggedInUser;
+
+    private RequestHelper requestHelper;
 
     private boolean pending;
 
@@ -57,6 +59,7 @@ public class LoginActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        this.requestHelper = new RequestHelper(getApplicationContext());
         this.pager = findViewById(R.id.pager);
         FragmentManager fm = getSupportFragmentManager();
         this.pagerAdapter = new LoginFragmentPager(fm);
@@ -73,39 +76,19 @@ public class LoginActivity extends AppCompatActivity
      * @param userEmail The user's email address
      */
     @Override
-    public void onLoginSuccess(String userEmail)
+    public void onLoginSuccess(String userEmail, int characterID)
     {
         LoginFragment loginFragment = (LoginFragment) this.pagerAdapter.getFragment(LOGIN_PAGE);
-        addToRequestQueue(
-                new JsonObjectRequest(
-                        Request.Method.GET,
-                        CHECK_REGISTRATION_REQUEST + "?userEmail=" + userEmail,
-                        null,
-                        response ->
-                        {
-                            try
-                            {
-                                if (response.getBoolean("result")) //The user have a registered character
-                                {
-                                    getCharacterThenFinish(response.getInt("character"), false); //Get the character's avatar then finish
-                                }
-                                else //This user have no character registered : Swipe to the first page of character registration
-                                {
-                                    loginFragment.hideProgressBar();
-                                    this.pager.setCurrentItem(CHARACTER_REGISTRATION_FIRST_PAGE);
-                                }
-                            }
-                            catch (JSONException e)
-                            {
-                                e.printStackTrace();
-                            }
-                        },
-                        error ->
-                        {
-                            loginFragment.hideProgressBar();
-                            Toast.makeText(this, "Une erreur serveur s'est produite, veuillez réessayer", Toast.LENGTH_SHORT).show();
-                            this.pending = false;
-                        }));
+        this.loggedInUser = Hawk.get("LoggedInUser");
+        loginFragment.setFeedbackText(getString(R.string.login_feedback_modestiefr_check_registration));
+
+        if (characterID != 0)
+            getCharacterThenFinish(characterID, false); //Get the character's avatar then finish
+        else
+        {
+            loginFragment.hideProgressBar();
+            this.pager.setCurrentItem(CHARACTER_REGISTRATION_FIRST_PAGE);
+        }
     }
 
     /**
@@ -118,11 +101,11 @@ public class LoginActivity extends AppCompatActivity
     private void getCharacterThenFinish(int characterID, boolean newCharacter)
     {
         LoginFragment loginFragment = (LoginFragment) this.pagerAdapter.getFragment(LOGIN_PAGE);
-
-        addToRequestQueue(
+        loginFragment.setFeedbackText(getString(R.string.login_feedback_modestiefr_get_character));
+        this.requestHelper.addToRequestQueue(
                 new JsonObjectRequest(
                         Request.Method.GET,
-                        "https://xivapi.com/character/" + characterID + "?language=fr&extended=1",
+                        RequestURLs.XIVAPI_CHARACTER_REQ + "/" + characterID + RequestURLs.XIVAPI_CHARACTER_PARAM_EXTENDED,
                         null,
                         response ->
                         {
@@ -140,7 +123,10 @@ public class LoginActivity extends AppCompatActivity
                                         this.pager.setCurrentItem(CHARACTER_REGISTRATION_DONE_PAGE);
                                     }
                                     else
+                                    {
+                                        loginFragment.setFeedbackText(getString(R.string.login_feedback_modestiefr_finished));
                                         startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+                                    }
                                 }
                                 else
                                 {
@@ -150,6 +136,7 @@ public class LoginActivity extends AppCompatActivity
                                                 .toggleMembersListVisibility();
                                     loginFragment.hideProgressBar();
                                     Toast.makeText(this, "Une erreur s'est produite, veuillez réessayer", Toast.LENGTH_SHORT).show();
+                                    loginFragment.resetLoginElements();
                                 }
                             }
                             catch (JSONException e)
@@ -159,7 +146,8 @@ public class LoginActivity extends AppCompatActivity
                                 if (newCharacter)
                                     ((CharacterRegistrationFragment) this.pagerAdapter.getFragment(
                                             CHARACTER_REGISTRATION_VERIFICATION_AND_REGISTRATION_PAGE))
-                                        .toggleMembersListVisibility();
+                                            .toggleMembersListVisibility();
+                                loginFragment.resetLoginElements();
                             }
                         },
                         error ->
@@ -171,7 +159,9 @@ public class LoginActivity extends AppCompatActivity
                                         CHARACTER_REGISTRATION_VERIFICATION_AND_REGISTRATION_PAGE))
                                         .toggleMembersListVisibility();
                             this.pending = false;
-                        }));
+                            loginFragment.resetLoginElements();
+                        }
+                ));
     }
 
     /**
@@ -210,9 +200,9 @@ public class LoginActivity extends AppCompatActivity
 
             this.pending = true;
 
-            addToRequestQueue(
+            this.requestHelper.addToRequestQueue(
                     new JsonObjectRequest(
-                            Request.Method.POST, REGISTRATION_REQUEST, postParams,
+                            Request.Method.POST, RequestURLs.MODESTIE_REGISTRATIONS_REGISTER_REQ, postParams,
                             response ->
                             {
                                 try
@@ -238,7 +228,17 @@ public class LoginActivity extends AppCompatActivity
                                 registrationFragment.toggleMembersListVisibility();
                                 registrationFragment.pendingEnded();
                                 this.pending = false;
-                            }));
+                            }
+                    )
+                    {
+                        @Override
+                        public Map<String, String> getHeaders()
+                        {
+                            Map<String, String> params = new HashMap<>();
+                            params.put("Authorization", "Bearer " + loggedInUser.getToken());
+                            return params;
+                        }
+                    });
         }
         catch (JSONException e)
         {
@@ -276,10 +276,10 @@ public class LoginActivity extends AppCompatActivity
         memberSelectionFragment.toggleMembersListVisibility();
 
         //Check if the user have already a character registered
-        addToRequestQueue(
+        this.requestHelper.addToRequestQueue(
                 new JsonObjectRequest(
                         Request.Method.GET,
-                        CHECK_REGISTRATION_REQUEST + "?lodestoneID=" + member.getID(),
+                        RequestURLs.MODESTIE_REGISTRATIONS_CHECK_REQ + RequestURLs.MODESTIE_REGISTRATIONS_CHECK_ID_PARAM + member.getID(),
                         null,
                         response ->
                         {
@@ -307,7 +307,17 @@ public class LoginActivity extends AppCompatActivity
                             Toast.makeText(this, "Une erreur serveur s'est produite, veuillez réessayer", Toast.LENGTH_SHORT).show();
                             memberSelectionFragment.toggleMembersListVisibility();
                             this.pending = false;
-                        }));
+                        }
+                )
+                {
+                    @Override
+                    public Map<String, String> getHeaders()
+                    {
+                        Map<String, String> params = new HashMap<>();
+                        params.put("Authorization", "Bearer " + loggedInUser.getToken());
+                        return params;
+                    }
+                });
     }
 
     /**
@@ -323,43 +333,5 @@ public class LoginActivity extends AppCompatActivity
         CharacterRegistrationFragment registrationFragment = (CharacterRegistrationFragment) this.pagerAdapter.getFragment(CHARACTER_REGISTRATION_VERIFICATION_AND_REGISTRATION_PAGE);
         registrationFragment.setCharacter(character);
         this.pager.setCurrentItem(CHARACTER_REGISTRATION_VERIFICATION_AND_REGISTRATION_PAGE);
-    }
-
-    /**
-     * Lazy initialize the request queue, the queue instance will be created when it is accessed
-     * for the first time
-     *
-     * @return Request Queue
-     */
-    public RequestQueue getRequestQueue()
-    {
-        if (this.mRequestQueue == null)
-            this.mRequestQueue = Volley.newRequestQueue(getApplicationContext());
-
-        return mRequestQueue;
-    }
-
-    public <T> void addToRequestQueue(Request<T> req, String tag)
-    {
-        // set the default tag if tag is empty
-        req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
-
-        VolleyLog.d("Adding request to queue: %s", req.getUrl());
-
-        getRequestQueue().add(req);
-    }
-
-    public <T> void addToRequestQueue(Request<T> req)
-    {
-        // set the default tag if tag is empty
-        req.setTag(TAG);
-
-        getRequestQueue().add(req);
-    }
-
-    public void cancelPendingRequests(Object tag)
-    {
-        if (mRequestQueue != null)
-            mRequestQueue.cancelAll(tag);
     }
 }

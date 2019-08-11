@@ -33,6 +33,8 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.adapters.ItemSearchAdapter;
 import com.modestie.modestieapp.model.item.LightItem;
+import com.modestie.modestieapp.utils.network.RequestHelper;
+import com.modestie.modestieapp.utils.network.RequestURLs;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -75,7 +77,7 @@ public class ItemSelectionDialogFragment extends DialogFragment
     private RecyclerView.Adapter<ItemSearchAdapter.GameItemViewHolder> adapter;
     private RecyclerView.LayoutManager layoutManager;
 
-    private RequestQueue mRequestQueue;
+    private RequestHelper requestHelper;
 
     private OnItemSelectedListener callback;
 
@@ -96,6 +98,8 @@ public class ItemSelectionDialogFragment extends DialogFragment
     {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NORMAL, R.style.ThemeOverlay_ModestieTheme_FullScreenDialog);
+
+        this.requestHelper = new RequestHelper(getContext());
     }
 
     @Override
@@ -192,8 +196,12 @@ public class ItemSelectionDialogFragment extends DialogFragment
 
     private void executeSearch(TextInputLayout field, int page)
     {
-        String request = "https://xivapi.com/search?indexes=Item&language=fr&page=" + page + "&string=";
-        request += Objects.requireNonNull(field.getEditText()).getText();
+        //String request = "https://xivapi.com/search?indexes=Item&language=fr&page=" + page + "&string=";
+        String request = RequestURLs.XIVAPI_SEARCH_REQ
+                + "?" + RequestURLs.XIVAPI_SEARCH_INDEX_PARAM + "Item"
+                + "&" + RequestURLs.XIVAPI_SEARCH_PAGE_PARAM + page
+                + "&" + RequestURLs.XIVAPI_SEARCH_STRING_PARAM + Objects.requireNonNull(field.getEditText()).getText()
+                + "&" + RequestURLs.XIVAPI_LANGUAGE_FR_PARAM;
 
         field.getEditText().clearFocus();
         field.setEnabled(false);
@@ -204,7 +212,7 @@ public class ItemSelectionDialogFragment extends DialogFragment
         noContentLabel.setVisibility(View.GONE);
         noContentProgressBar.setVisibility(View.VISIBLE);
 
-        addToRequestQueue(new JsonObjectRequest(
+        this.requestHelper.addToRequestQueue(new JsonObjectRequest(
                 GET, request, null,
                 response ->
                 {
@@ -345,43 +353,5 @@ public class ItemSelectionDialogFragment extends DialogFragment
     public void setOnItemSelectedListener(OnItemSelectedListener callback)
     {
         this.callback = callback;
-    }
-
-    /**
-     * Lazy initialize the request queue, the queue instance will be created when it is accessed
-     * for the first time
-     *
-     * @return Request Queue
-     */
-    public RequestQueue getRequestQueue()
-    {
-        if (this.mRequestQueue == null)
-            this.mRequestQueue = Volley.newRequestQueue(Objects.requireNonNull(getContext()));
-
-        return mRequestQueue;
-    }
-
-    public <T> void addToRequestQueue(Request<T> req, String tag)
-    {
-        // set the default tag if tag is empty
-        req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
-
-        VolleyLog.d("Adding request to queue: %s", req.getUrl());
-
-        getRequestQueue().add(req);
-    }
-
-    public <T> void addToRequestQueue(Request<T> req)
-    {
-        // set the default tag if tag is empty
-        req.setTag(TAG);
-
-        getRequestQueue().add(req);
-    }
-
-    public void cancelPendingRequests(Object tag)
-    {
-        if (mRequestQueue != null)
-            mRequestQueue.cancelAll(tag);
     }
 }

@@ -25,6 +25,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -53,6 +54,7 @@ public class LoginFragment extends Fragment
     private CheckBox autoLoginCheckBox;
     private Button loginButton;
     private ProgressBar loadingProgressBar;
+    private TextView loadingFeedback;
 
     private LoginViewModel loginViewModel;
 
@@ -94,6 +96,7 @@ public class LoginFragment extends Fragment
         Button guestButton = rootView.findViewById(R.id.loginGuest);
         Button toWebsite = rootView.findViewById(R.id.toWebsite);
         this.loadingProgressBar = rootView.findViewById(R.id.loading);
+        this.loadingFeedback = rootView.findViewById(R.id.loadingFeedback);
         this.rememberMeCheckBox = rootView.findViewById(R.id.rememberMeCheckbox);
         this.rememberMeCheckBox.setChecked(false);
         this.autoLoginCheckBox = rootView.findViewById(R.id.autologinCheckbox);
@@ -239,7 +242,7 @@ public class LoginFragment extends Fragment
                             Hawk.delete("UserCredentials");
 
                         //Call listener
-                        onLoginSuccess(loginResult.getSuccess().getUserEmail());
+                        onLoginSuccess(loginResult.getSuccess().getUserEmail(), loginResult.getSuccess().getCharacterID());
                     }
                     ((LoginActivity) getContext()).setResult(Activity.RESULT_OK);
                 });
@@ -271,11 +274,11 @@ public class LoginFragment extends Fragment
         this.loginButton.setOnClickListener(v -> beginLogin());
     }
 
-    private void onLoginSuccess(String userEmail)
+    private void onLoginSuccess(String userEmail, int characterID)
     {
         if (mListener != null)
         {
-            mListener.onLoginSuccess(userEmail);
+            mListener.onLoginSuccess(userEmail, characterID);
         }
     }
 
@@ -308,6 +311,7 @@ public class LoginFragment extends Fragment
     private void beginLogin()
     {
         this.loadingProgressBar.setVisibility(View.VISIBLE);
+        this.loadingFeedback.setText(R.string.login_feedback_modestiefr_connection);
         hideKeyboardFrom(getContext(), this.loginButton);
         this.usernameEditText.setEnabled(false);
         this.passwordEditText.setEnabled(false);
@@ -317,6 +321,22 @@ public class LoginFragment extends Fragment
         this.loginViewModel.login(this.usernameEditText.getEditText().getText().toString(),
                                   this.passwordEditText.getEditText().getText().toString(),
                                   getContext());
+    }
+
+    public void resetLoginElements()
+    {
+        this.loadingProgressBar.setVisibility(View.INVISIBLE);
+        this.loadingFeedback.setText("");
+        this.usernameEditText.setEnabled(true);
+        this.passwordEditText.setEnabled(true);
+        this.rememberMeCheckBox.setEnabled(true);
+        this.autoLoginCheckBox.setEnabled(true);
+        this.loginButton.setEnabled(true);
+    }
+
+    public void setFeedbackText(String text)
+    {
+        this.loadingFeedback.setText(text);
     }
 
     private void updateUiWithUser(LoggedInUser model)
@@ -344,6 +364,6 @@ public class LoginFragment extends Fragment
      */
     public interface OnFragmentInteractionListener
     {
-        void onLoginSuccess(String userEmail);
+        void onLoginSuccess(String userEmail, int characterID);
     }
 }

@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,17 +20,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.adapters.EventListAdapter;
-import com.modestie.modestieapp.model.character.Character;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
+import com.modestie.modestieapp.utils.network.RequestHelper;
+import com.modestie.modestieapp.utils.network.RequestURLs;
 import com.orhanobut.hawk.Hawk;
 
 import org.json.JSONArray;
@@ -55,8 +51,7 @@ public class EventListActivity extends AppCompatActivity
 
     private boolean userLoggedIn;
 
-    private String MODESTIE_GETEVENTS = "https://modestie.fr/wp-json/modestieevents/v1/events";
-    private RequestQueue mRequestQueue;
+    private RequestHelper requestHelper;
 
     private int NEW_EVENT_REQUEST = 1;
 
@@ -67,6 +62,8 @@ public class EventListActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_list);
+
+        this.requestHelper = new RequestHelper(getApplicationContext());
 
         Toolbar toolbar = findViewById(R.id.eventListToolbar);
         setSupportActionBar(toolbar);
@@ -183,8 +180,8 @@ public class EventListActivity extends AppCompatActivity
         this.adapter.notifyDataSetChanged();
         this.progressBar.setVisibility(View.VISIBLE);
 
-        addToRequestQueue(new JsonObjectRequest(
-                GET, this.MODESTIE_GETEVENTS, null,
+        this.requestHelper.addToRequestQueue(new JsonObjectRequest(
+                GET, RequestURLs.MODESTIE_EVENTS_REQ, null,
                 response ->
                 {
                     try
@@ -214,43 +211,5 @@ public class EventListActivity extends AppCompatActivity
                     onBackPressed();
                 }
         ));
-    }
-
-    /**
-     * Lazy initialize the request queue, the queue instance will be created when it is accessed
-     * for the first time
-     *
-     * @return Request Queue
-     */
-    public RequestQueue getRequestQueue()
-    {
-        if (this.mRequestQueue == null)
-            this.mRequestQueue = Volley.newRequestQueue(getApplicationContext());
-
-        return mRequestQueue;
-    }
-
-    public <T> void addToRequestQueue(Request<T> req, String tag)
-    {
-        // set the default tag if tag is empty
-        req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
-
-        VolleyLog.d("Adding request to queue: %s", req.getUrl());
-
-        getRequestQueue().add(req);
-    }
-
-    public <T> void addToRequestQueue(Request<T> req)
-    {
-        // set the default tag if tag is empty
-        req.setTag(TAG);
-
-        getRequestQueue().add(req);
-    }
-
-    public void cancelPendingRequests(Object tag)
-    {
-        if (mRequestQueue != null)
-            mRequestQueue.cancelAll(tag);
     }
 }

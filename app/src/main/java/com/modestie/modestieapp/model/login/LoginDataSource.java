@@ -1,15 +1,12 @@
 package com.modestie.modestieapp.model.login;
 
 import android.content.Context;
-import android.text.TextUtils;
-import android.util.Log;
 
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.modestie.modestieapp.R;
+import com.modestie.modestieapp.utils.network.RequestHelper;
+import com.modestie.modestieapp.utils.network.RequestURLs;
 
 import org.json.JSONObject;
 
@@ -19,18 +16,15 @@ import org.json.JSONObject;
 public class LoginDataSource
 {
     private static final String TAG = "LOGINDATASOURCE";
-    private Context context;
-    private RequestQueue mRequestQueue;
+    private RequestHelper requestHelper;
 
     private static final long dayInMillis = 86400000;
     private static final int expirationDays = 7;
     private static final long maxDelayMillis = 60000; //1 minute
 
-    private static final String JWTRequest = "https://modestie.fr/wp-json/jwt-auth/v1/token";
-
     public void login(String username, String password, Context context, LoginServerCallback callback)
     {
-        this.context = context;
+        this.requestHelper = new RequestHelper(context);
         try
         {
             JSONObject postParams = new JSONObject();
@@ -40,8 +34,8 @@ public class LoginDataSource
             //Set expiration time to : current + 7 days - 1 minute (preventing )
             long expiration = System.currentTimeMillis() + (expirationDays * dayInMillis) - maxDelayMillis;
 
-            addToRequestQueue(new JsonObjectRequest(
-                    Request.Method.POST, JWTRequest, postParams,
+            this.requestHelper.addToRequestQueue(new JsonObjectRequest(
+                    Request.Method.POST, RequestURLs.MODESTIE_GET_JWT_APIKEY, postParams,
                     response -> callback.onServerResponse(new Result.Success<>(new LoggedInUser(response, expiration))),
                     error -> callback.onServerResponse(new Result.Error(R.string.login_wrong_credentials))
             ));
@@ -55,43 +49,5 @@ public class LoginDataSource
     public void logout()
     {
         // TODO: revoke authentication
-    }
-
-    /**
-     * Lazy initialize the request queue, the queue instance will be created when it is accessed
-     * for the first time
-     *
-     * @return Request Queue
-     */
-    public RequestQueue getRequestQueue()
-    {
-        if (this.mRequestQueue == null)
-            this.mRequestQueue = Volley.newRequestQueue(this.context);
-
-        return mRequestQueue;
-    }
-
-    public <T> void addToRequestQueue(Request<T> req, String tag)
-    {
-        // set the default tag if tag is empty
-        req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
-
-        VolleyLog.d("Adding request to queue: %s", req.getUrl());
-
-        getRequestQueue().add(req);
-    }
-
-    public <T> void addToRequestQueue(Request<T> req)
-    {
-        // set the default tag if tag is empty
-        req.setTag(TAG);
-
-        getRequestQueue().add(req);
-    }
-
-    public void cancelPendingRequests(Object tag)
-    {
-        if (mRequestQueue != null)
-            mRequestQueue.cancelAll(tag);
     }
 }

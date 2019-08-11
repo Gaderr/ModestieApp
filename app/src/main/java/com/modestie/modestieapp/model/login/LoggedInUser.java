@@ -12,14 +12,18 @@ public class LoggedInUser
     private String userEmail;
     private String userNiceName;
     private String displayName;
+    private String APIKey;
+    private int characterID;
     private long expiration;
 
-    public LoggedInUser(String token, String userEmail, String userNiceName, String displayName, long expiration)
+    public LoggedInUser(String token, String userEmail, String userNiceName, String displayName, String apiKey, int characterID, long expiration)
     {
         this.token = token;
         this.userEmail = userEmail;
         this.userNiceName = userNiceName;
         this.displayName = displayName;
+        this.APIKey = apiKey;
+        this.characterID = characterID;
         this.expiration = expiration;
     }
 
@@ -31,6 +35,12 @@ public class LoggedInUser
             this.userEmail = object.getString("user_email");
             this.userNiceName = object.getString("user_nicename");
             this.displayName = object.getString("user_display_name");
+            this.APIKey = object.getString("api_key");
+            JSONObject registration = object.getJSONObject("registration");
+            if(registration.getBoolean("status"))
+                this.characterID = registration.getInt("character");
+            else
+                this.characterID = 0;
             this.expiration = expiration;
         }
         catch (JSONException e)
@@ -49,12 +59,28 @@ public class LoggedInUser
         return userEmail;
     }
 
+    public String getUserNiceName()
+    {
+        return userNiceName;
+    }
+
     public String getDisplayName()
     {
         return displayName;
     }
 
-    public long getExpiration() {
+    public String getAPIKey()
+    {
+        return APIKey;
+    }
+
+    public int getCharacterID()
+    {
+        return characterID;
+    }
+
+    public long getExpiration()
+    {
         return expiration;
     }
 }

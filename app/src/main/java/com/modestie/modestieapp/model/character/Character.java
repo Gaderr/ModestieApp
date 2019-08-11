@@ -5,6 +5,8 @@ import org.json.JSONObject;
 
 public class Character
 {
+    private static final String TAG = "XIVAPI.CHA";
+
     String name;
     int ID;
     String race;

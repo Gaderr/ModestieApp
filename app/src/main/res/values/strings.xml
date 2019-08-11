@@ -17,6 +17,11 @@
     <string name="invalid_password">Le mot de passe doit faire plus de 5 caractères</string>
     <string name="login_wrong_credentials">Identifiant ou mot de passe incorrect</string>
     <string name="login_fatal">Erreur système</string>
+    <string name="login_feedback_modestiefr_connection">Connection à modestie.fr…</string>
+    <string name="login_feedback_modestiefr_check_registration">Vérification de votre personnage enregistré…</string>
+    <string name="login_feedback_modestiefr_get_character">Récupération des données de votre personnage…</string>
+    <string name="login_feedback_modestiefr_update_db">Mise à jour de la base de données…</string>
+    <string name="login_feedback_modestiefr_finished">Terminé…</string>
 
     <string name="characregist_frag1_title">Nous vous attendions !</string>
     <string name="characregist_frag1_instructions">Bienvenue ! Pour utiliser l\'application, il est nécéssaire d\'enregistrer un personnage.\n\nEnregistrons le vôtre.</string>
