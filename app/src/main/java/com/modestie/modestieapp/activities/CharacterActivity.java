@@ -3,8 +3,6 @@ package com.modestie.modestieapp.activities;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 
@@ -25,13 +23,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.model.character.ExtendedCharacter;
-import com.modestie.modestieapp.sqlite.CharacterDbHelper;
-import com.modestie.modestieapp.sqlite.CharacterReaderContract;
 import com.modestie.modestieapp.utils.network.RequestHelper;
 import com.modestie.modestieapp.utils.network.RequestURLs;
 import com.squareup.picasso.Picasso;
@@ -66,7 +61,7 @@ public class CharacterActivity extends AppCompatActivity
     private TextView classJobLevel;
     private TextView characterName;
 
-    //3 firsts base character attributes (HP, MP, etc.)
+    //2 firsts base character attributes (HP, MP, etc.)
     private TextView param1Label;
     private TextView param2Label;
     private ImageView param1Bar;
@@ -171,36 +166,7 @@ public class CharacterActivity extends AppCompatActivity
         this.labelsRolePropsLayout = fighterAttributesLayout.findViewById(R.id.labelsRoleLayout);
         this.valuesRolePropsLayout = fighterAttributesLayout.findViewById(R.id.valuesRoleLayout);
 
-
-        CharacterDbHelper characterDbHelper = new CharacterDbHelper(getApplicationContext());
-        SQLiteDatabase database = characterDbHelper.getWritableDatabase();
-        characterDbHelper.onCreate(database);
-
-        Cursor cursor = database.rawQuery(
-                "SELECT " + CharacterReaderContract.CharacterUpdateEntry.COLUMN_NAME_LAST_UPDATE +
-                        " FROM " + CharacterReaderContract.CharacterUpdateEntry.TABLE_NAME +
-                        " WHERE " + CharacterReaderContract.CharacterUpdateEntry.COLUMN_NAME_CHARACTER_ID +
-                        "=" + this.characterID, null);
-        if(cursor.moveToFirst())
-        {
-            long currentTime = System.currentTimeMillis() / 1000;
-            int lastUpdate = cursor.getInt(cursor.getColumnIndex(CharacterReaderContract.CharacterUpdateEntry.COLUMN_NAME_LAST_UPDATE));
-            //DO UPDATE IF TOO OLD
-            if(currentTime - lastUpdate > 43200) // > 12 hours
-            {
-                updateCharacterAPI(characterDbHelper);
-            }
-            else
-            {
-                getCharacterAPI(characterDbHelper);
-            }
-        }
-        else
-        {
-            updateCharacterAPI(characterDbHelper);
-        }
-
-        cursor.close();
+        getCharacterAPI();
     }
 
     @Override
@@ -456,40 +422,14 @@ public class CharacterActivity extends AppCompatActivity
         }
     }
 
-    private void updateCharacterAPI(final CharacterDbHelper dbHelper)
-    {
-        String request = RequestURLs.XIVAPI_CHARACTER_REQ + "/" + this.characterID + RequestURLs.XIVAPI_CHARACTER_EXT_UPDATE;
-        this.requestHelper.addToRequestQueue(new StringRequest(GET, request, response ->
-            {
-                try
-                {
-                    Log.e(TAG, "Update response received : [" + response + "]");
-                    getCharacterAPI(dbHelper);
-                }
-                catch (Exception e)
-                {
-                    Log.e(TAG, e.getMessage());
-                    Toast.makeText(CharacterActivity.this, "Échec de la mise à jour du personnage", Toast.LENGTH_SHORT).show();
-                    navigateUp();
-                    finish();
-                }
-            }, error ->
-            {
-                Toast.makeText(CharacterActivity.this, "Échec de la mise à jour du personnage", Toast.LENGTH_SHORT).show();
-                Log.e(TAG, error.getMessage());
-                navigateUp();
-                finish();
-            }));
-    }
-
-    private void getCharacterAPI(final CharacterDbHelper dbHelper)
+    private void getCharacterAPI()
     {
         String request = RequestURLs.XIVAPI_CHARACTER_REQ + "/" + this.characterID + RequestURLs.XIVAPI_CHARACTER_PARAM_EXTENDED;
         this.requestHelper.addToRequestQueue(new JsonObjectRequest(GET, request, null, response ->
             {
                 try
                 {
-                    character = new ExtendedCharacter(response.getJSONObject("Character"), dbHelper);
+                    character = new ExtendedCharacter(response.getJSONObject("Character"));
                     new Thread(() ->
                         {
                             //noinspection StatementWithEmptyBody
