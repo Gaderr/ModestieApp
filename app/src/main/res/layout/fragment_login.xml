@@ -63,6 +63,7 @@
 
         android:hint="@string/prompt_password"
         android:imeActionLabel="@string/action_sign_in_short"
+        app:endIconMode="password_toggle"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

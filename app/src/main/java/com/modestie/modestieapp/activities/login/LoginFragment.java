@@ -188,6 +188,7 @@ public class LoginFragment extends Fragment
                         return;
                     }
                     this.loginButton.setEnabled(loginFormState.isDataValid());
+
                     if (loginFormState.getUsernameError() != null)
                     {
                         this.usernameEditText.getEditText().setError(getString(loginFormState.getUsernameError()));

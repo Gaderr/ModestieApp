@@ -114,8 +114,6 @@ public class LoginActivity extends AppCompatActivity
                             {
                                 if (Hawk.put("UserCharacter", new LightCharacter(response.getJSONObject("Character")))) //Store avatar URL
                                 {
-                                    loginFragment.hideProgressBar();
-
                                     if (newCharacter)
                                     {
                                         ((CharacterRegistrationFragment) this.pagerAdapter.getFragment(
@@ -125,7 +123,6 @@ public class LoginActivity extends AppCompatActivity
                                     }
                                     else
                                     {
-                                        loginFragment.setFeedbackText(getString(R.string.login_feedback_modestiefr_finished));
                                         startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                                     }
                                 }
