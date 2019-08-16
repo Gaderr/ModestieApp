@@ -229,10 +229,10 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         }
         else
         {
+            holder.participationText.setText(R.string.event_pariticpation_feedback);
             //Check user participation
             if(holder.userParticipation)
             {
-                holder.participationText.setText(R.string.event_pariticpation_feedback);
                 updateParticipationButton(holder);
             }
         }
