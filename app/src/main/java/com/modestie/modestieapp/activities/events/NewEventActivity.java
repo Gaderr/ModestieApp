@@ -49,7 +49,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.google.android.material.textfield.TextInputLayout;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.adapters.EventPriceAdapter;
-import com.modestie.modestieapp.model.character.Character;
+import com.modestie.modestieapp.model.character.LightCharacter;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.event.EventPrice;
 import com.modestie.modestieapp.model.item.LightItem;
@@ -521,7 +521,7 @@ public class NewEventActivity
             Event preview card static data
         ------------------------------------*/
 
-        Character character = Hawk.get("UserCharacter");
+        LightCharacter character = Hawk.get("UserCharacter");
 
         Picasso.get()
                 .load(character.getAvatarURL())

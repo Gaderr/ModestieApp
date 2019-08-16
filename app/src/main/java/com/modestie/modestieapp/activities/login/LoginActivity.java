@@ -17,6 +17,7 @@ import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.HomeActivity;
 import com.modestie.modestieapp.activities.MemberFragment;
 import com.modestie.modestieapp.model.character.Character;
+import com.modestie.modestieapp.model.character.LightCharacter;
 import com.modestie.modestieapp.model.freeCompany.FreeCompanyMember;
 import com.modestie.modestieapp.model.login.LoggedInUser;
 import com.modestie.modestieapp.utils.network.RequestHelper;
@@ -105,13 +106,13 @@ public class LoginActivity extends AppCompatActivity
         this.requestHelper.addToRequestQueue(
                 new JsonObjectRequest(
                         Request.Method.GET,
-                        RequestURLs.XIVAPI_CHARACTER_REQ + "/" + characterID + RequestURLs.XIVAPI_CHARACTER_PARAM_EXTENDED,
+                        RequestURLs.XIVAPI_CHARACTER_REQ + "/" + characterID + RequestURLs.XIVAPI_CHARACTER_PARAM_LIGHT,
                         null,
                         response ->
                         {
                             try
                             {
-                                if (Hawk.put("UserCharacter", new Character(response.getJSONObject("Character")))) //Store avatar URL
+                                if (Hawk.put("UserCharacter", new LightCharacter(response.getJSONObject("Character")))) //Store avatar URL
                                 {
                                     loginFragment.hideProgressBar();
 

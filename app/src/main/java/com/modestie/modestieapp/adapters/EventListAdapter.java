@@ -24,7 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.modestie.modestieapp.R;
-import com.modestie.modestieapp.model.character.Character;
+import com.modestie.modestieapp.model.character.LightCharacter;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.freeCompany.FreeCompanyMember;
 import com.modestie.modestieapp.sqlite.FreeCompanyReaderContract;
@@ -43,7 +43,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
 {
     public Context context;
     private boolean userIsLoggedIn;
-    private Character userCharacter;
+    private LightCharacter userCharacter;
     private ArrayList<Event> events;
     private Map<Integer, FreeCompanyMember> members;
 
@@ -110,7 +110,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
     }
 
     @SuppressLint("UseSparseArrays")
-    public EventListAdapter(ArrayList<Event> events, SQLiteDatabase database, boolean userIsLoggedIn, Character character, Context context)
+    public EventListAdapter(ArrayList<Event> events, SQLiteDatabase database, boolean userIsLoggedIn, LightCharacter character, Context context)
     {
         this.events = events;
         this.context = context;

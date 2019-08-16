@@ -71,7 +71,7 @@ public class Event
             this.imageURL = event.getString("image_url");
             this.description = event.getString("description");
             this.maxParticipants = Integer.parseInt(event.getString("maxParticipants"));
-            this.promoterIsParticipant = Boolean.parseBoolean(event.getString("promoterIsParticipant"));
+            this.promoterIsParticipant = Integer.parseInt(event.getString("promoterIsParticipant")) == 1;
 
             this.participantsIDs = new ArrayList<>();
             for(int i = 0; i < participants.length(); i++)

@@ -27,6 +27,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.login.LoginActivity;
 import com.modestie.modestieapp.model.character.Character;
+import com.modestie.modestieapp.model.character.LightCharacter;
 import com.modestie.modestieapp.model.freeCompany.FreeCompany;
 import com.modestie.modestieapp.model.login.LoggedInUser;
 import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
@@ -248,13 +249,13 @@ public class SplashScreenActivity extends AppCompatActivity
                 this.requestHelper.addToRequestQueue(
                         new JsonObjectRequest(
                                 Request.Method.GET,
-                                RequestURLs.XIVAPI_CHARACTER_REQ + "/" + user.getCharacterID() + RequestURLs.XIVAPI_CHARACTER_PARAM_EXTENDED,
+                                RequestURLs.XIVAPI_CHARACTER_REQ + "/" + user.getCharacterID() + RequestURLs.XIVAPI_CHARACTER_PARAM_LIGHT,
                                 null,
                                 response ->
                                 {
                                     try
                                     {
-                                        Hawk.put("UserCharacter", new Character(response.getJSONObject("Character")));
+                                        Hawk.put("UserCharacter", new LightCharacter(response.getJSONObject("Character")));
                                         this.characterUpdateFeedback.setText("");
                                         this.checkUserDone = true;
                                         next();

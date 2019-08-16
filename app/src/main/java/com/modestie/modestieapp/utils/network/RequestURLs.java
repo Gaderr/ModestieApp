@@ -40,6 +40,7 @@ public abstract class RequestURLs
     // Characters
     public static final String XIVAPI_CHARACTER_REQ = XIVAPI_DOMAIN + "/character";
     public static final String XIVAPI_CHARACTER_PARAM_EXTENDED = "?language=fr&extended=1";
+    public static final String XIVAPI_CHARACTER_PARAM_LIGHT = "?columns=Character.Name,Character.Avatar,Character.ID,Character.Server&language=fr";
     public static final String XIVAPI_CHARACTER_EXT_UPDATE = "/update";
     public static final String XIVAPI_CHARACTER_EXT_SEARCH = "/search";
     public static final String XIVAPI_CHARACTER_EXT_SEARCH_SERVER_PARAM = "server=";
