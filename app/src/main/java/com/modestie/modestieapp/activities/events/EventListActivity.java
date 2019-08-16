@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -102,10 +103,10 @@ public class EventListActivity extends AppCompatActivity
             this.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
             {
                 @Override
-                public void onScrollStateChanged(RecyclerView recyclerView, int newState)
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy)
                 {
-                    super.onScrollStateChanged(recyclerView, newState);
-                    if (!recyclerView.canScrollVertically(1))
+                    super.onScrolled(recyclerView, dx, dy);
+                    if (dy > 0)
                         FAB.extend();
                     else
                         FAB.shrink();
