@@ -48,7 +48,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.google.android.material.textfield.TextInputLayout;
 import com.modestie.modestieapp.R;
-import com.modestie.modestieapp.adapters.EventPriceAdapter;
+import com.modestie.modestieapp.adapters.DraggableEventPriceAdapter;
 import com.modestie.modestieapp.model.character.LightCharacter;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.event.EventPrice;
@@ -91,7 +91,7 @@ public class NewEventActivity
     private TextInputLayout formEventDescription;
     private TextInputLayout formEventImage;
     private RadioGroup formEventMaxParticipantsType;
-    private EventPriceAdapter adapter;
+    private DraggableEventPriceAdapter adapter;
 
     private LinearLayout eventCardPreview;
 
@@ -535,7 +535,7 @@ public class NewEventActivity
 
         DragListView formPricesList = findViewById(R.id.PricesLayout);
         this.listPrices = new ArrayList<>();
-        this.adapter = new EventPriceAdapter(this.listPrices, false, this.event, this);
+        this.adapter = new DraggableEventPriceAdapter(this.listPrices, false, this.event, this);
         formPricesList.getRecyclerView().setHorizontalScrollBarEnabled(false);
         formPricesList.setScrollingEnabled(false);
         formPricesList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));

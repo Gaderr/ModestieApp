@@ -20,7 +20,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:foreground="?android:attr/selectableItemBackground">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/eventCardHeader"
@@ -49,7 +50,6 @@
                     android:layout_marginEnd="16dp"
                     android:ellipsize="end"
                     android:singleLine="true"
-                    android:text="Titre"
                     android:textAppearance="@style/TextAppearance.ModestieTheme.Headline6"
                     app:firstBaselineToTopHeight="34dp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -64,7 +64,6 @@
                     android:layout_marginEnd="8dp"
                     android:ellipsize="end"
                     android:singleLine="true"
-                    android:text="Organisé par ---- ----"
                     android:textAppearance="@style/TextAppearance.ModestieTheme.Subtitle2"
                     app:firstBaselineToTopHeight="56dp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -94,7 +93,6 @@
                     android:layout_marginEnd="16dp"
                     android:ellipsize="end"
                     android:maxLines="2"
-                    android:text="Description"
                     android:textAppearance="@style/TextAppearance.ModestieTheme.Body2"
                     app:firstBaselineToTopHeight="68dp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -109,7 +107,6 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
-                    android:text="Le -- ---- ---- à --:--"
                     android:textAppearance="@style/TextAppearance.ModestieTheme.Headline6"
                     app:firstBaselineToTopHeight="34dp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -170,7 +167,6 @@
                     android:layout_marginEnd="16dp"
                     android:fontFamily="@font/davidsans"
                     android:letterSpacing="0.075"
-                    android:text="--/--"
                     android:textAppearance="@style/TextAppearance.ModestieTheme.Caption"
                     app:layout_constraintBottom_toBottomOf="@+id/personIcon"
                     app:layout_constraintEnd_toEndOf="parent"

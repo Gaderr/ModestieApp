@@ -17,6 +17,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
@@ -31,6 +32,7 @@ import com.modestie.modestieapp.utils.network.RequestHelper;
 import com.modestie.modestieapp.utils.network.RequestURLs;
 import com.orhanobut.hawk.Hawk;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,7 +43,7 @@ import java.util.Objects;
 
 import static com.android.volley.Request.Method.GET;
 
-public class EventListActivity extends AppCompatActivity
+public class EventListActivity extends AppCompatActivity implements EventDetailsDialogFragment.OnParticipationChanged
 {
     private ArrayList<Event> events;
     private RecyclerView recyclerView;
@@ -50,13 +52,18 @@ public class EventListActivity extends AppCompatActivity
     private ProgressBar progressBar;
     private ExtendedFloatingActionButton FAB;
 
+    private EventDetailsDialogFragment eventDetailsFragment;
+
     private boolean userLoggedIn;
+
+    private boolean pending;
 
     private RequestHelper requestHelper;
 
     private int NEW_EVENT_REQUEST = 1;
 
     public static final String TAG = "ACTVT - EVNTLST";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -65,6 +72,7 @@ public class EventListActivity extends AppCompatActivity
         setContentView(R.layout.activity_event_list);
 
         this.requestHelper = new RequestHelper(getApplicationContext());
+        this.pending = false;
 
         Toolbar toolbar = findViewById(R.id.eventListToolbar);
         setSupportActionBar(toolbar);
@@ -75,24 +83,12 @@ public class EventListActivity extends AppCompatActivity
         this.FAB = findViewById(R.id.newEventFAB);
         this.FAB.shrink();
 
-        FreeCompanyDbHelper dbHelper = new FreeCompanyDbHelper(getApplicationContext());
-        SQLiteDatabase database = dbHelper.getReadableDatabase();
-
         Hawk.init(getApplicationContext()).build();
         this.userLoggedIn = Hawk.contains("UserCharacter") && Hawk.contains("UserCredentials");
         this.events = new ArrayList<>();
 
         this.layoutManager = new LinearLayoutManager(this);
         this.recyclerView.setLayoutManager(this.layoutManager);
-
-        if (this.userLoggedIn)
-            this.adapter = new EventListAdapter(this.events, database, userLoggedIn, Hawk.get("UserCharacter"), getApplicationContext());
-        else
-            this.adapter = new EventListAdapter(this.events, database, userLoggedIn, null, getApplicationContext());
-
-        this.recyclerView.setAdapter(this.adapter);
-
-        updateList();
 
         if (userLoggedIn)
         {
@@ -117,6 +113,13 @@ public class EventListActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onResume()
+    {
+        super.onResume();
+        updateList();
+    }
+
+    @Override
     protected void onRestart()
     {
         super.onRestart();
@@ -126,6 +129,14 @@ public class EventListActivity extends AppCompatActivity
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         else
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        if(this.eventDetailsFragment != null && this.eventDetailsFragment.isVisible())
+            this.eventDetailsFragment.dismiss();
     }
 
     @Override
@@ -176,10 +187,27 @@ public class EventListActivity extends AppCompatActivity
 
     private void updateList()
     {
+        if(this.pending) return;
+
+        this.pending = true;
+
         //Clear list
-        this.events.clear();
-        this.adapter.notifyDataSetChanged();
-        this.progressBar.setVisibility(View.VISIBLE);
+        if(!this.events.isEmpty())
+        {
+            this.events.clear();
+            this.adapter.notifyDataSetChanged();
+            this.progressBar.setVisibility(View.VISIBLE);
+        }
+
+        FreeCompanyDbHelper dbHelper = new FreeCompanyDbHelper(getApplicationContext());
+        SQLiteDatabase database = dbHelper.getReadableDatabase();
+
+        if (this.userLoggedIn)
+            this.adapter = new EventListAdapter(this.events, database, userLoggedIn, Hawk.get("UserCharacter"), this);
+        else
+            this.adapter = new EventListAdapter(this.events, database, userLoggedIn, null, this);
+
+        this.recyclerView.setAdapter(this.adapter);
 
         this.requestHelper.addToRequestQueue(new JsonObjectRequest(
                 GET, RequestURLs.MODESTIE_EVENTS_REQ, null,
@@ -200,6 +228,7 @@ public class EventListActivity extends AppCompatActivity
                         if (this.userLoggedIn) this.events.add(null);
                         this.adapter.notifyDataSetChanged();
                         this.progressBar.setVisibility(View.INVISIBLE);
+                        this.pending = false;
                     }
                     catch (JSONException e)
                     {
@@ -209,8 +238,26 @@ public class EventListActivity extends AppCompatActivity
                 }, error ->
                 {
                     Toast.makeText(EventListActivity.this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show();
+                    this.pending = false;
                     onBackPressed();
                 }
         ));
+    }
+
+    @Override
+    public void onAttachFragment(@NotNull Fragment fragment)
+    {
+        if (fragment instanceof EventDetailsDialogFragment)
+        {
+            this.eventDetailsFragment = (EventDetailsDialogFragment) fragment;
+            this.eventDetailsFragment.setOnParticipationChanged(this);
+        }
+    }
+
+    @Override
+    public void participationChanged()
+    {
+        //this.adapter.notifyItemChanged(position);
+        updateList();
     }
 }

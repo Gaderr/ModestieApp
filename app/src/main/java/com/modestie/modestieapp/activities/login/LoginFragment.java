@@ -293,7 +293,7 @@ public class LoginFragment extends Fragment
         }
         else
         {
-            throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener");
+            throw new RuntimeException(context.toString() + " must implement OnParticipationChanged");
         }
     }
 
@@ -324,7 +324,7 @@ public class LoginFragment extends Fragment
                                   getContext());
     }
 
-    public void resetLoginElements()
+    void resetLoginElements()
     {
         this.loadingProgressBar.setVisibility(View.INVISIBLE);
         this.loadingFeedback.setText("");
@@ -335,7 +335,7 @@ public class LoginFragment extends Fragment
         this.loginButton.setEnabled(true);
     }
 
-    public void setFeedbackText(String text)
+    void setFeedbackText(String text)
     {
         this.loadingFeedback.setText(text);
     }

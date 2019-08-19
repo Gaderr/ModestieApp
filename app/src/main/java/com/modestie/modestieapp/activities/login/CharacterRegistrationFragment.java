@@ -1,5 +1,6 @@
 package com.modestie.modestieapp.activities.login;
 
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -182,6 +183,7 @@ public class CharacterRegistrationFragment extends Fragment
      *
      * @param rootView Parent view
      */
+    @SuppressLint("InflateParams")
     private void createSecondPage(View rootView)
     {
         this.characterSelectionLayout = rootView.findViewById(R.id.characterSelection);
@@ -259,7 +261,7 @@ public class CharacterRegistrationFragment extends Fragment
                 }));
     }
 
-    public void buildDatasetFromResponse(JSONObject obj)
+    private void buildDatasetFromResponse(JSONObject obj)
     {
         try
         {
@@ -494,7 +496,7 @@ public class CharacterRegistrationFragment extends Fragment
         }
         else
         {
-            throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener");
+            throw new RuntimeException(context.toString() + " must implement OnParticipationChanged");
         }
     }
 

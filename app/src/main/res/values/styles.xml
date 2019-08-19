@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
     <!--Components-->
 
     <!--Bottom Sheets-->
@@ -36,12 +36,24 @@
     </style>
 
     <style name="ThemeOverlay.ModestieTheme.ErrorButton" parent="Widget.MaterialComponents.Button">
-        <item name="backgroundTint">@color/color_error</item>
-        <item name="android:textColor">@color/color_on_error</item>
+        <item name="backgroundTint">@color/btn_bg_error_color_selector</item>
+        <item name="android:textColor">@color/text_error_color_selector</item>
     </style>
 
     <style name="ThemeOverlay.ModestieTheme.ErrorButton.OutlinedButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="android:textColor">@color/color_error</item>
+        <item name="android:textColor">@color/text_error_color_selector</item>
+    </style>
+
+    <style name="ThemeOverlay.ModestieTheme.ErrorButton.UnelevatedButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="backgroundTint">@color/btn_bg_error_color_selector</item>
+        <item name="android:textColor">@color/text_error_color_selector</item>
+    </style>
+
+    <style name="ThemeOverlay.ModestieTheme.ToolbarButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="android:backgroundTint">@color/color_secondary</item>
+        <item name="android:insetTop">8dp</item>
+        <item name="android:insetBottom">8dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.ModestieTheme.Button</item>
     </style>
 
     <style name="ThemeOverlay.ModestieTheme.FullScreenDialog" parent="ThemeOverlay.ModestieTheme.Dialog">

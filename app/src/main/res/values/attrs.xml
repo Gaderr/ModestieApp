@@ -24,6 +24,8 @@
     <!--Common attributes-->
     <attr name="colorFillColor" format="color"/>
     <attr name="colorStrokeColor" format="color"/>
+    <attr name="colorError" format="color"/>
+    <attr name="colorValidate" format="color"/>
 
     <!--Label view attributes-->
     <declare-styleable name="LabelLinkView">

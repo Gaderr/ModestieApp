@@ -14,6 +14,7 @@
     <color name="color_surface">#4b4f5b</color>
     <color name="color_surface_dimmed">#404b4f5b</color>
     <color name="color_error">#cf6679</color>
+    <color name="color_validate">#99D066</color>
 
     <color name="color_on_primary">#000000</color>
     <color name="color_on_secondary">#000000</color>

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -21,10 +22,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.modestie.modestieapp.R;
+import com.modestie.modestieapp.activities.events.EventDetailsDialogFragment;
 import com.modestie.modestieapp.model.character.LightCharacter;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.freeCompany.FreeCompanyMember;
 import com.modestie.modestieapp.sqlite.FreeCompanyReaderContract;
+import com.orhanobut.hawk.Hawk;
 import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
@@ -106,12 +109,14 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
     }
 
     @SuppressLint("UseSparseArrays")
-    public EventListAdapter(ArrayList<Event> events, SQLiteDatabase database, boolean userIsLoggedIn, LightCharacter character, Context context)
+    public EventListAdapter(ArrayList<Event> events, SQLiteDatabase database, boolean userIsLoggedIn, LightCharacter character, AppCompatActivity context)
     {
         this.events = events;
         this.context = context;
         this.userIsLoggedIn = userIsLoggedIn;
         this.userCharacter = character;
+
+        Hawk.init(context).build();
 
         Cursor cursor = database.rawQuery("SELECT * FROM " + FreeCompanyReaderContract.MemberEntry.TABLE_NAME, null);
         this.members = new HashMap<>();
@@ -167,8 +172,8 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         EventListCardViewHolder holder = (EventListCardViewHolder) vHolder;
 
         Event event = this.events.get(position);
-        FreeCompanyMember member = this.members.get(event.getPromoterID());
-        assert member != null;
+        FreeCompanyMember promoter = this.members.get(event.getPromoterID());
+        assert promoter != null;
 
         if (this.userCharacter != null)
             holder.userIsPromoter = event.getPromoterID() == this.userCharacter.getID();
@@ -185,9 +190,9 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
 
         //Header (avatar + title + promoter)
         holder.title.setText(event.getName());
-        holder.promoter.setText(String.format(Locale.FRANCE, "Organisé par %s", member.getName()));
+        holder.promoter.setText(String.format(Locale.FRANCE, "Organisé par %s", promoter.getName()));
         Picasso.get()
-                .load(member.getAvatarURL())
+                .load(promoter.getAvatarURL())
                 .into(holder.promoterAvatar);
 
         //Event image
@@ -231,7 +236,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         {
             holder.participationText.setText(R.string.event_pariticpation_feedback);
             //Check user participation
-            if(holder.userParticipation)
+            if (holder.userParticipation)
             {
                 updateParticipationButton(holder);
             }
@@ -277,6 +282,13 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         {
             holder.action.setEnabled(false);
         }
+
+        holder.v.setOnClickListener(
+                v ->
+                {
+                    if(Hawk.put("SelectedEvent", event) && Hawk.put("SelectedEventPromoter", promoter))
+                        EventDetailsDialogFragment.display(((AppCompatActivity) context).getSupportFragmentManager());
+                });
     }
 
     private void updateUserParticipation(EventListCardViewHolder holder, Event event)

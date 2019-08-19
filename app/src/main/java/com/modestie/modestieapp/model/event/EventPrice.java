@@ -6,7 +6,9 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class EventPrice
+import java.util.Comparator;
+
+public class EventPrice implements Comparable<EventPrice>
 {
     private static final String TAG = "XIVAPI.EVN.EVNTPRCE";
 
@@ -129,5 +131,11 @@ public class EventPrice
     public void setAmount(int amount)
     {
         this.amount = amount;
+    }
+
+    @Override
+    public int compareTo(EventPrice e)
+    {
+        return this.getPriceRewardDegree() - e.getPriceRewardDegree();
     }
 }

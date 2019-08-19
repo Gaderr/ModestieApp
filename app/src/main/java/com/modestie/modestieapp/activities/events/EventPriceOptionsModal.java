@@ -14,17 +14,17 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.modestie.modestieapp.R;
-import com.modestie.modestieapp.adapters.EventPriceAdapter;
+import com.modestie.modestieapp.adapters.DraggableEventPriceAdapter;
 
 public class EventPriceOptionsModal extends BottomSheetDialogFragment
 {
-    private EventPriceAdapter adapter;
+    private DraggableEventPriceAdapter adapter;
     private Context context;
     private int itemPosition;
 
     private static final String TAG = "ACTVT.EVNTPRCEOPTMODAL";
 
-    public EventPriceOptionsModal(EventPriceAdapter adapter, Context context, int position)
+    public EventPriceOptionsModal(DraggableEventPriceAdapter adapter, Context context, int position)
     {
         this.adapter = adapter;
         this.context = context;

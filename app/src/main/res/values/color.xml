@@ -19,6 +19,7 @@
     <color name="color_surface">#E5E6E7</color>
     <color name="color_surface_dimmed">#40E5E6E7</color>
     <color name="color_error">#B00020</color>
+    <color name="color_validate">#689F38</color>
 
     <!--"On" colors define how text, icons and strokes are colored in relation to the surface-->
     <!--on which they appear.-->

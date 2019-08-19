@@ -32,7 +32,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class EventPriceAdapter extends DragItemAdapter<Pair<Long, EventPrice>, EventPriceAdapter.ViewHolder>
+public class DraggableEventPriceAdapter extends DragItemAdapter<Pair<Long, EventPrice>, DraggableEventPriceAdapter.ViewHolder>
 {
     public ArrayList<Pair<Long, EventPrice>> dataset;
 
@@ -76,7 +76,7 @@ public class EventPriceAdapter extends DragItemAdapter<Pair<Long, EventPrice>, E
         }
     }
 
-    public EventPriceAdapter(ArrayList<Pair<Long, EventPrice>> list, boolean readonly, Event event, NewEventActivity context)
+    public DraggableEventPriceAdapter(ArrayList<Pair<Long, EventPrice>> list, boolean readonly, Event event, NewEventActivity context)
     {
         this.dataset = list;
         this.grabHandleId = R.id.dragHandle;

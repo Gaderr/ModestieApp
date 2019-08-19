@@ -150,7 +150,7 @@ public class Event
         s.append("Prices : \n");
         for (EventPrice price: prices)
         {
-            s.append(price.priceToString() + "\n");
+            s.append(price.priceToString()).append("\n");
         }
         return s.toString();
     }
@@ -158,6 +158,11 @@ public class Event
     /*
         GETTERS & SETTERS
      */
+
+    public int getID()
+    {
+        return ID;
+    }
 
     public String getName()
     {
@@ -262,6 +267,7 @@ public class Event
         }
     }
 
+    @NotNull
     @Override
     public String toString()
     {
@@ -274,6 +280,8 @@ public class Event
                 ", description='" + description + '\'' +
                 ", maxParticipants=" + maxParticipants +
                 ", promoterIsParticipant=" + promoterIsParticipant +
-                '}';
+                ", participants=" + participantsIDs.size() +
+                ", prices=" + prices.size() +
+                "}";
     }
 }

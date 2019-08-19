@@ -118,6 +118,23 @@
     <string name="action_new_event">Créer un événement</string>
     <string name="action_refresh">Rafraichir</string>
 
+    <!-- EVENT DETAILS DIALOG FRAGMENT -->
+    <string name="title_event_details_dialog_fragment">Détails de l\'événement</string>
+    <string name="event_promoter_details_text_view">organise cet événement</string>
+    <string name="event_connected_promoter_details_text_view">Vous organisez cet événement</string>
+    <string name="event_promoter_is_participating_details">organise et participe à cet événement</string>
+    <string name="event_connected_promoter_is_participating_details">Vous organisez et participez à cet événement</string>
+    <string name="event_attribute_participations_details">participation</string>
+    <string name="event_attribute_participations_plural_details">participations</string>
+    <string name="event_attribute_participations_unlimited_details">Participations illimitées</string>
+    <string name="event_attribute_participations_no_participation_details">Aucune participation</string>
+    <string name="event_attribute_prices">1 récompense</string>
+    <string name="event_attribute_prices_plural">récompenses</string>
+    <string name="event_attribute_prices_no_price">Aucune récompense</string>
+    <string name="action_edit_event">Modifier</string>
+    <string name="button_participate_text">Participer</string>
+    <string name="button_withdraw_text">Ne plus participer</string>
+
     <!-- NEW EVENT ACTIVITY -->
     <string name="title_new_event_activity">Nouvel événement (preview)</string>
     <string name="action_save_event">Enregistrer</string>
@@ -187,8 +204,5 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>
