@@ -112,7 +112,6 @@
 
     <string name="event_description_null">Pas de description</string>
 
-    <string name="button_participate">Participer</string>
     <string name="button_cancel_participation">Annuler</string>
 
     <string name="action_new_event">Créer un événement</string>
@@ -132,11 +131,12 @@
     <string name="event_attribute_prices_plural">récompenses</string>
     <string name="event_attribute_prices_no_price">Aucune récompense</string>
     <string name="action_edit_event">Modifier</string>
-    <string name="button_participate_text">Participer</string>
-    <string name="button_withdraw_text">Ne plus participer</string>
+    <string name="button_participate">Participer</string>
+    <string name="button_withdraw">Ne plus participer</string>
 
-    <!-- NEW EVENT ACTIVITY -->
-    <string name="title_new_event_activity">Nouvel événement (preview)</string>
+    <!-- EVENT FORM ACTIVITIES -->
+    <string name="title_new_event_activity">Nouvel événement</string>
+    <string name="title_event_modification_activity">Modification événement</string>
     <string name="action_save_event">Enregistrer</string>
 
     <string name="event_sending">Envoi en cours</string>
@@ -163,6 +163,8 @@
     <string name="button_remove_image">Supprimer l\'image</string>
     <string name="button_add_price">Ajouter</string>
     <string name="action_delete_price">Supprimer</string>
+    <string name="menu_new_price_option_gils">Gils</string>
+    <string name="menu_new_price_option_item">Item</string>
 
     <string name="title_edit_price_dialogfrag">Modification du prix</string>
     <string name="price_type_radiogroup_label">Type de récompense</string>

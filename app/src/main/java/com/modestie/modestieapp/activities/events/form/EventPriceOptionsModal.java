@@ -1,4 +1,4 @@
-package com.modestie.modestieapp.activities.events;
+package com.modestie.modestieapp.activities.events.form;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -49,7 +49,7 @@ public class EventPriceOptionsModal extends BottomSheetDialogFragment
                 //Log.e(TAG, itemPosition+"");
                 Bundle bundle = adapter.dataset.get(itemPosition).second.toBundle();
                 bundle.putInt("position", itemPosition);
-                //((NewEventActivity) getContext()).editPriceFragment(bundle);
+                //((EventFormActivity) getContext()).editPriceFragment(bundle);
                 EventPriceEditDialogFragment.display(((AppCompatActivity) getContext()).getSupportFragmentManager(), bundle);
                 dismiss();
             });

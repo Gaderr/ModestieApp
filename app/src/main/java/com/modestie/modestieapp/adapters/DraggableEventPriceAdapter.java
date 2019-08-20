@@ -19,8 +19,8 @@ import androidx.fragment.app.FragmentManager;
 
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.modestie.modestieapp.R;
-import com.modestie.modestieapp.activities.events.EventPriceOptionsModal;
-import com.modestie.modestieapp.activities.events.NewEventActivity;
+import com.modestie.modestieapp.activities.events.form.EventPriceOptionsModal;
+import com.modestie.modestieapp.activities.events.form.EventFormActivity;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.event.EventPrice;
 import com.squareup.picasso.Picasso;
@@ -42,7 +42,7 @@ public class DraggableEventPriceAdapter extends DragItemAdapter<Pair<Long, Event
 
     private Event event;
 
-    private NewEventActivity parent;
+    private EventFormActivity parent;
     private FragmentManager fragmentManager;
 
     private int lastPosition = -1;
@@ -76,7 +76,7 @@ public class DraggableEventPriceAdapter extends DragItemAdapter<Pair<Long, Event
         }
     }
 
-    public DraggableEventPriceAdapter(ArrayList<Pair<Long, EventPrice>> list, boolean readonly, Event event, NewEventActivity context)
+    public DraggableEventPriceAdapter(ArrayList<Pair<Long, EventPrice>> list, boolean readonly, Event event, EventFormActivity context)
     {
         this.dataset = list;
         this.grabHandleId = R.id.dragHandle;

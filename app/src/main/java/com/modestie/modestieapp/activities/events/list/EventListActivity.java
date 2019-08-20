@@ -1,4 +1,4 @@
-package com.modestie.modestieapp.activities.events;
+package com.modestie.modestieapp.activities.events.list;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -25,6 +25,8 @@ import androidx.appcompat.widget.Toolbar;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.modestie.modestieapp.R;
+import com.modestie.modestieapp.activities.events.form.EventFormActivity;
+import com.modestie.modestieapp.activities.events.form.NewEventActivity;
 import com.modestie.modestieapp.adapters.EventListAdapter;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;

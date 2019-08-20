@@ -24,7 +24,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.modestie.modestieapp.R;
-import com.modestie.modestieapp.activities.events.EventListActivity;
+import com.modestie.modestieapp.activities.events.list.EventListActivity;
 import com.modestie.modestieapp.model.freeCompany.FreeCompany;
 import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
 import com.squareup.picasso.Picasso;

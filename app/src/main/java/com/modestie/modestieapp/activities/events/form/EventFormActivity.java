@@ -1,4 +1,4 @@
-package com.modestie.modestieapp.activities.events;
+package com.modestie.modestieapp.activities.events.form;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NavUtils;
 import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -30,8 +31,6 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -42,10 +41,6 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.google.android.material.textfield.TextInputLayout;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.adapters.DraggableEventPriceAdapter;
@@ -54,77 +49,79 @@ import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.event.EventPrice;
 import com.modestie.modestieapp.model.item.LightItem;
 import com.modestie.modestieapp.model.login.LoggedInUser;
-import com.modestie.modestieapp.utils.Utils;
 import com.modestie.modestieapp.utils.network.RequestHelper;
-import com.modestie.modestieapp.utils.network.RequestURLs;
 import com.orhanobut.hawk.Hawk;
 import com.squareup.picasso.Picasso;
 import com.woxthebox.draglistview.DragListView;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
 import java.util.TimeZone;
 
-public class NewEventActivity
+/**
+ * Abstract activity inflating and implementing UI proceedings of the event form used to create and
+ * modify events.
+ * Subclasses activities "NewEventActivity" and "EventModificationActivity" implements theirs
+ * processes of event creation / modification as well as data upload through HTTP requests.
+ */
+public abstract class EventFormActivity
         extends AppCompatActivity
         implements EventPriceEditDialogFragment.OnFragmentInteractionListener,
         ItemSelectionDialogFragment.OnItemSelectedListener
 {
-    private LinearLayoutCompat loadingLayout;
-    private LinearLayoutCompat formLayout;
-    private TextInputLayout formEventName;
-    private TextInputLayout formEventDate;
-    private TextInputLayout formEventTime;
-    private TextInputLayout formEventMaxParticipants;
-    private CheckBox formEventPromoterParticipant;
-    private TextInputLayout formEventDescription;
-    private TextInputLayout formEventImage;
-    private RadioGroup formEventMaxParticipantsType;
-    private DraggableEventPriceAdapter adapter;
+    public static final String TAG = "ACTVT.|EVENTFORM|";
 
-    private LinearLayout eventCardPreview;
+    Toolbar toolbar;
+    TextView activityTitle;
+    Button toolbarAction;
+    LinearLayoutCompat loadingLayout;
+    LinearLayoutCompat formLayout;
+    TextInputLayout formEventName;
+    TextInputLayout formEventDate;
+    TextInputLayout formEventTime;
+    TextInputLayout formEventMaxParticipants;
+    CheckBox formEventPromoterParticipant;
+    TextInputLayout formEventDescription;
+    TextInputLayout formEventImage;
+    RadioGroup formEventMaxParticipantsType;
+    DraggableEventPriceAdapter adapter;
 
-    private EventPriceEditDialogFragment editDialogFragment;
-    private ItemSelectionDialogFragment selectionDialogFragment;
+    LinearLayout eventCardPreview;
+
+    EventPriceEditDialogFragment editDialogFragment;
+    ItemSelectionDialogFragment selectionDialogFragment;
 
     Button formRemoveImage;
     Button formNewPrice;
 
     Event event;
-    private ArrayList<Pair<Long, EventPrice>> listPrices;
-    private int count = 0;
+    ArrayList<Pair<Long, EventPrice>> listPrices;
+    int count = 0;
 
-    private boolean today;
-    private long EPOCH; //Milliseconds
+    boolean today;
+    long EPOCH; //Milliseconds
 
-    private Uri pickedImage;
-    private Bitmap bitmapConvertedImage;
+    Uri pickedImage;
+    Bitmap bitmapConvertedImage;
 
-    private AlertDialog imageUploadError;
+    AlertDialog imageUploadError;
 
-    public static final String TAG = "ACTVT.NEWEVNT";
-    public static final int IMAGE_PICK_INTENT = 1;
+    LoggedInUser loggedInUser;
 
-    private LoggedInUser loggedInUser;
-
-    private RequestHelper requestHelper;
+    RequestHelper requestHelper;
     int SOCKET_TIMEOUT = 3000;
     int MAX_RETRIES = 3;
-    private boolean pending;
-    private int pricePendingRequests;
+    boolean pending;
+    int pricePendingRequests;
 
     private static final int READ_EXTERNAL_STORAGE_REQUEST = 1;
+    private static final int IMAGE_PICK_INTENT = 1;
 
     /*
         ----------------------------
@@ -136,13 +133,17 @@ public class NewEventActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new_event);
+        setContentView(R.layout.activity_event_form);
 
         Log.e(TAG, "ON CREATE");
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        //Toolbar setup
+        this.toolbar = findViewById(R.id.toolbar);
+        this.toolbar.setNavigationOnClickListener(
+                v ->
+                {
+                    if (!this.pending) NavUtils.navigateUpFromSameTask(this);
+                });
 
         /*----------
             Init
@@ -150,6 +151,8 @@ public class NewEventActivity
 
         this.requestHelper = new RequestHelper(getApplicationContext());
 
+        this.activityTitle = this.toolbar.findViewById(R.id.title);
+        this.toolbarAction = this.toolbar.findViewById(R.id.eventFormAction);
         this.loadingLayout = findViewById(R.id.loadingLayout);
         this.formLayout = findViewById(R.id.formLayout);
         this.formEventName = findViewById(R.id.FormEventName);
@@ -175,19 +178,6 @@ public class NewEventActivity
         this.event = new Event();
         this.pickedImage = null;
         this.bitmapConvertedImage = null;
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(NewEventActivity.this, R.style.ThemeOverlay_ModestieTheme_Dialog);
-        builder.setTitle(getString(R.string.image_upload_error_dialog_title))
-                .setMessage(getString(R.string.image_upload_error_dialog_message))
-                .setPositiveButton(getString(R.string.image_upload_error_dialog_pos_btn), (dialog, which) -> postNewEvent(""))
-                .setNegativeButton(R.string.image_upload_error_dialog_neg_btn, (dialog, which) ->
-                {
-                    Intent returnIntent = new Intent();
-                    returnIntent.putExtra("Error", "image");
-                    setResult(Activity.RESULT_CANCELED, returnIntent);
-                    finish();
-                });
-        this.imageUploadError = builder.create();
 
         this.today = true;
         this.EPOCH = 0L;
@@ -318,7 +308,7 @@ public class NewEventActivity
                     long millis = df.parse(s.toString()).getTime() + 86399000; //This date + 23:59:59
                     if (millis < System.currentTimeMillis())
                     {
-                        Toast.makeText(NewEventActivity.this, "Veuillez entrer une date supérieure ou égale à celle d'aujourd'hui", Toast.LENGTH_LONG).show();
+                        Toast.makeText(EventFormActivity.this, "Veuillez entrer une date supérieure ou égale à celle d'aujourd'hui", Toast.LENGTH_LONG).show();
                         s.clear();
                         ((TextView) eventCardPreview.findViewById(R.id.eventDate)).setText("Le -- ---- ---- à --:--");
                     }
@@ -423,13 +413,13 @@ public class NewEventActivity
                 {
                     if (timediff <= 0)
                     {
-                        Toast.makeText(NewEventActivity.this, "Veuillez choisir un horaire supérieur à l'heure actuelle", Toast.LENGTH_LONG).show();
+                        Toast.makeText(EventFormActivity.this, "Veuillez choisir un horaire supérieur à l'heure actuelle", Toast.LENGTH_LONG).show();
                         s.clear();
                         correct = false;
                     }
                     else if (timediff < 30)
                     {
-                        Toast.makeText(NewEventActivity.this, "Veuillez organiser votre événement au moins une demie-heure en avance", Toast.LENGTH_LONG).show();
+                        Toast.makeText(EventFormActivity.this, "Veuillez organiser votre événement au moins une demie-heure en avance", Toast.LENGTH_LONG).show();
                         s.clear();
                         correct = false;
                     }
@@ -580,7 +570,7 @@ public class NewEventActivity
                                     return false;
                                 }
                             });
-                    popup.getMenuInflater().inflate(R.menu.new_event_selection_menu, popup.getMenu());
+                    popup.getMenuInflater().inflate(R.menu.event_form_price_type_selection_menu, popup.getMenu());
                     popup.show();
                 });
     }
@@ -608,14 +598,6 @@ public class NewEventActivity
         OUT-OF-LIFECYCLE OVERRIDDEN METHODS
         -----------------------------------
      */
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.new_event_bar_menu, menu);
-        return true;
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
@@ -672,35 +654,6 @@ public class NewEventActivity
     {
         assert this.editDialogFragment != null;
         this.editDialogFragment.updatePriceItem(item);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the HomeActivity/Up button, so long
-        // as you specify a parentView activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.save_event)
-        {
-            Log.e(TAG, "SAVE EVENT OPTION SELECTED");
-            if (!this.pending)
-            {
-                if (validateForm())
-                {
-                    Log.e(TAG, "FORM VALID");
-                    this.loadingLayout.setVisibility(View.VISIBLE);
-                    this.formLayout.setVisibility(View.INVISIBLE);
-                    hideKeyboardFrom(NewEventActivity.this, this.formLayout);
-                    beginEventPost();
-                }
-                return true;
-            }
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     /*
@@ -762,228 +715,6 @@ public class NewEventActivity
         }
 
         return result;
-    }
-
-    private void beginEventPost()
-    {
-        Log.e(TAG, "BEGIN EVENT POST");
-        StringRequest imageUploadRequest = new StringRequest(
-                Request.Method.POST, RequestURLs.IMGUR_IMG_UPLOAD,
-                response ->
-                {
-                    try
-                    {
-                        JSONObject jsonResponse = new JSONObject(response);
-                        Log.e(TAG, jsonResponse.toString());
-
-                        if (jsonResponse.getBoolean("success"))
-                            postNewEvent(jsonResponse.getJSONObject("data").getString("link"));
-                        else
-                            imageUploadError.show();
-                    }
-                    catch (JSONException e)
-                    {
-                        Log.e(TAG, e.getLocalizedMessage());
-                        pending = false;
-                        finalizeEventPostThenActivity(false, "image");
-                    }
-                },
-                error ->
-                {
-                    Log.e(TAG, error.toString());
-                    Log.e(TAG, "finish/error upload");
-                    imageUploadError.show();
-                })
-        {
-            @Override
-            public Map<String, String> getHeaders()
-            {
-                Map<String, String> headers = new HashMap<>();
-                headers.put("Authorization", "Client-ID " + RequestURLs.IMGUR_CLIENT_ID);
-                return headers;
-            }
-
-            @Override
-            protected Map<String, String> getParams()
-            {
-                Map<String, String> params = new HashMap<>();
-                params.put(RequestURLs.IMGUR_TAG_IMAGE, Utils.getBase64Image(bitmapConvertedImage));
-                params.put(RequestURLs.IMGUR_TAG_TYPE, "base64");
-                params.put(RequestURLs.IMGUR_TAG_TITLE, formEventImage.getEditText().getText() + "");
-                params.put(RequestURLs.IMGUR_TAG_NAME, String.valueOf(System.currentTimeMillis()));
-                return params;
-            }
-        };
-
-        //Retry MAX_RETRIES times, one every SOCKET_TIMEOUT milliseconds
-        imageUploadRequest.setRetryPolicy(new DefaultRetryPolicy(SOCKET_TIMEOUT, MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-        //Check if an image was picked by user
-        if (this.bitmapConvertedImage != null)
-            this.requestHelper.addToRequestQueue(imageUploadRequest);
-        else
-            postNewEvent("");
-
-        this.pending = true;
-    }
-
-    @SuppressLint("SimpleDateFormat")
-    public void postNewEvent(String imageLink)
-    {
-        Log.e(TAG, "POST NEW EVENT");
-        SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-        df.setTimeZone(TimeZone.getDefault());
-        try
-        {
-            JSONObject postparams = new JSONObject();
-            postparams.put("name", this.formEventName.getEditText().getText());
-            postparams.put("promoter", "11148489");
-            postparams.put("epoch", EPOCH / 1000);
-            postparams.put("description", this.formEventDescription.getEditText().getText() + "");
-            if (this.formEventMaxParticipantsType.getCheckedRadioButtonId() == R.id.participationType1)
-                postparams.put("maxparticipants", this.formEventMaxParticipants.getEditText().getText() + "");
-            else
-                postparams.put("maxparticipants", "-1");
-            if (this.formEventPromoterParticipant.isChecked())
-                postparams.put("promoterParticipant", "1");
-            else
-                postparams.put("promoterParticipant", "0");
-            postparams.put("image", imageLink);
-            postparams.put("apiKey", loggedInUser.getAPIKey());
-
-            Log.e(TAG, "ADDEVENT");
-
-            JsonObjectRequest request = new JsonObjectRequest(
-                    Request.Method.POST, RequestURLs.MODESTIE_EVENTS_ADD, postparams,
-                    response ->
-                    {
-                        try
-                        {
-                            if (this.listPrices.size() > 0)
-                            {
-                                postPrices(response.getInt("id"));
-                            }
-                            else
-                            {
-                                pending = false;
-                                finalizeEventPostThenActivity(true, null);
-                            }
-                        }
-                        catch (JSONException e)
-                        {
-                            Log.e(TAG, e.getLocalizedMessage());
-                            pending = false;
-                            finalizeEventPostThenActivity(false, "event");
-                        }
-                    },
-                    error ->
-                    {
-                        //Log.e(TAG, error.getLocalizedMessage());
-                        Log.e(TAG, "EVENT SENDING FAILED");
-                        finalizeEventPostThenActivity(false, "event");
-                    }
-            )
-            {
-                @Override
-                public Map<String, String> getHeaders()
-                {
-                    Map<String, String> params = new HashMap<>();
-                    params.put("Authorization", "Bearer " + loggedInUser.getToken());
-                    return params;
-                }
-            };
-
-            request.setRetryPolicy(new DefaultRetryPolicy(
-                    0,
-                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-            ));
-
-            this.requestHelper.addToRequestQueue(request, "newEventPostRequest");
-        }
-        catch (JSONException e)
-        {
-            Log.e(TAG, e.getLocalizedMessage());
-        }
-    }
-
-    public void postPrices(int eventID)
-    {
-        pricePendingRequests = 0;
-        for (int i = 0; i < this.listPrices.size(); i++)
-        {
-            try
-            {
-                EventPrice price = this.listPrices.get(i).second;
-                JSONObject postparams = new JSONObject();
-                postparams.put("eventID", eventID);
-                postparams.put("degree", this.listPrices.get(i).first);
-                postparams.put("itemID", price.getItemID());
-                postparams.put("itemName", price.getItemName());
-                postparams.put("itemIcon", price.getItemIconURL());
-                postparams.put("amount", price.getAmount());
-                postparams.put("apiKey", loggedInUser.getAPIKey());
-
-                ++pricePendingRequests;
-                Log.e(TAG, "PRICE SENDING NUMBER " + pricePendingRequests + " DEGREE " + this.listPrices.get(i).first);
-                JsonObjectRequest priceRequest = new JsonObjectRequest(
-                        Request.Method.POST, RequestURLs.MODESTIE_PRICES_ADD, postparams,
-                        response ->
-                        {
-                            if (--pricePendingRequests == 0)
-                                finalizeEventPostThenActivity(true, null);
-                        },
-                        error ->
-                        {
-                            //Log.e(TAG, error.getMessage());
-                            Log.e(TAG, "PRICE SENDING FAILED");
-                            pricePendingRequests--;
-                        }
-                )
-                {
-                    @Override
-                    public Map<String, String> getHeaders()
-                    {
-                        Map<String, String> params = new HashMap<>();
-                        params.put("Authorization", "Bearer " + loggedInUser.getToken());
-                        return params;
-                    }
-                };
-
-                priceRequest.setRetryPolicy(new DefaultRetryPolicy(
-                        0,
-                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-                ));
-
-                this.requestHelper.addToRequestQueue(priceRequest, "newPricePostRequest" + pricePendingRequests);
-            }
-            catch (JSONException e)
-            {
-                Log.e(TAG, e.getLocalizedMessage());
-                pricePendingRequests--;
-            }
-        }
-    }
-
-    public void finalizeEventPostThenActivity(boolean success, @Nullable String errorValue)
-    {
-        Log.e(TAG, "FINAL");
-        if (success)
-        {
-            Toast.makeText(this, "Événement créé", Toast.LENGTH_SHORT).show();
-            Intent returnIntent = new Intent();
-            setResult(Activity.RESULT_OK, returnIntent);
-            finish();
-        }
-        else
-        {
-            Intent returnIntent = new Intent();
-            returnIntent.putExtra("Error", errorValue);
-            setResult(Activity.RESULT_CANCELED, returnIntent);
-            finish();
-            pending = false;
-        }
     }
 
     public static void hideKeyboardFrom(Context context, View view)

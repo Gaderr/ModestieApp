@@ -1,4 +1,4 @@
-package com.modestie.modestieapp.activities.events;
+package com.modestie.modestieapp.activities.events.list;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

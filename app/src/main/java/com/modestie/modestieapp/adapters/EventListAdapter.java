@@ -22,7 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.modestie.modestieapp.R;
-import com.modestie.modestieapp.activities.events.EventDetailsDialogFragment;
+import com.modestie.modestieapp.activities.events.list.EventDetailsDialogFragment;
 import com.modestie.modestieapp.model.character.LightCharacter;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.freeCompany.FreeCompanyMember;

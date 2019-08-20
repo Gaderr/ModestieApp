@@ -3,12 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/itemPrice"
-        android:title="Objet"
+        android:title="@string/menu_new_price_option_item"
         android:orderInCategory="100"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/gilsPrice"
-        android:title="Gils"
+        android:title="@string/menu_new_price_option_gils"
         android:orderInCategory="101"
         app:showAsAction="ifRoom"/>
 </menu>

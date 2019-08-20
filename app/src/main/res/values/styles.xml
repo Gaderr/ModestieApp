@@ -50,10 +50,11 @@
     </style>
 
     <style name="ThemeOverlay.ModestieTheme.ToolbarButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
-        <item name="android:backgroundTint">@color/color_secondary</item>
+        <item name="android:backgroundTint">@color/toolbar_btn_bg_color_selector</item>
         <item name="android:insetTop">8dp</item>
         <item name="android:insetBottom">8dp</item>
         <item name="android:textAppearance">@style/TextAppearance.ModestieTheme.Button</item>
+        <item name="android:textColor">@color/text_color_secondary_selector</item>
     </style>
 
     <style name="ThemeOverlay.ModestieTheme.FullScreenDialog" parent="ThemeOverlay.ModestieTheme.Dialog">
