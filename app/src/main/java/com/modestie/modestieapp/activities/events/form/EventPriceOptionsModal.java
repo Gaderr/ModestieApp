@@ -3,6 +3,7 @@ package com.modestie.modestieapp.activities.events.form;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,23 +45,24 @@ public class EventPriceOptionsModal extends BottomSheetDialogFragment
         ConstraintLayout editLayout = view.findViewById(R.id.optionEdit);
         ConstraintLayout deleteLayout = view.findViewById(R.id.optionDelete);
 
-        editLayout.setOnClickListener(v ->
-            {
-                //Log.e(TAG, itemPosition+"");
-                Bundle bundle = adapter.dataset.get(itemPosition).second.toBundle();
-                bundle.putInt("position", itemPosition);
-                //((EventFormActivity) getContext()).editPriceFragment(bundle);
-                EventPriceEditDialogFragment.display(((AppCompatActivity) getContext()).getSupportFragmentManager(), bundle);
-                dismiss();
-            });
+        editLayout.setOnClickListener(
+                v ->
+                {
+                    Bundle bundle = this.adapter.dataset.get(this.itemPosition).second.toBundle();
+                    bundle.putInt("position", this.itemPosition);
+                    EventPriceEditDialogFragment.display(((AppCompatActivity) getContext()).getSupportFragmentManager(), bundle);
+                    dismiss();
+                });
 
-        deleteLayout.setOnClickListener(v ->
-            {
-                //Log.e("MODAL", "REMOVED");
-                adapter.dataset.remove(itemPosition);
-                adapter.notifyDataSetChanged();
-                dismiss();
-            });
+        deleteLayout.setOnClickListener(
+                v ->
+                {
+                    this.adapter.dataset.remove(this.itemPosition);
+                    this.adapter.notifyDataSetChanged();
+                    if (this.context instanceof EventFormActivity)
+                        ((EventFormActivity) this.context).pricesChanged = true;
+                    dismiss();
+                });
     }
 
     @Override

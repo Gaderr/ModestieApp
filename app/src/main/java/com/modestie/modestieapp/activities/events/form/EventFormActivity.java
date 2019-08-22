@@ -45,7 +45,6 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.adapters.DraggableEventPriceAdapter;
 import com.modestie.modestieapp.model.character.LightCharacter;
-import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.event.EventPrice;
 import com.modestie.modestieapp.model.item.LightItem;
 import com.modestie.modestieapp.model.login.LoggedInUser;
@@ -100,12 +99,16 @@ public abstract class EventFormActivity
     Button formRemoveImage;
     Button formNewPrice;
 
-    Event event;
     ArrayList<Pair<Long, EventPrice>> listPrices;
     int count = 0;
 
     boolean today;
-    long EPOCH; //Milliseconds
+    Long EPOCH = null; //Milliseconds
+    int year;
+    int month;
+    int day;
+    int hourOfDay;
+    int minutesOfDay;
 
     Uri pickedImage;
     Bitmap bitmapConvertedImage;
@@ -119,6 +122,9 @@ public abstract class EventFormActivity
     int MAX_RETRIES = 3;
     boolean pending;
     int pricePendingRequests;
+
+    boolean illustrationChanged;
+    boolean pricesChanged;
 
     private static final int READ_EXTERNAL_STORAGE_REQUEST = 1;
     private static final int IMAGE_PICK_INTENT = 1;
@@ -175,30 +181,50 @@ public abstract class EventFormActivity
 
         loggedInUser = Hawk.get("LoggedInUser");
 
-        this.event = new Event();
         this.pickedImage = null;
         this.bitmapConvertedImage = null;
 
-        this.today = true;
-        this.EPOCH = 0L;
+        this.pending = false;
+        this.illustrationChanged = false;
+        this.pricesChanged = false;
+
         final Calendar c = Calendar.getInstance(Locale.FRANCE);
-        int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
-        int day = c.get(Calendar.DAY_OF_MONTH);
+
+        //In event modification case, EPOCH value should be changed by EventModificationActivity subclass beforehand
+        if(this.EPOCH == null) //Set current timestamp if not initiated
+        {
+            this.EPOCH = System.currentTimeMillis();
+            c.setTimeInMillis(EPOCH);
+            this.hourOfDay = 12;
+            this.minutesOfDay = 0;
+        }
+        else
+        {
+            c.setTimeInMillis(EPOCH);
+            this.hourOfDay = c.get(Calendar.HOUR_OF_DAY);
+            this.minutesOfDay = c.get(Calendar.MINUTE);
+        }
+        this.year = c.get(Calendar.YEAR);
+        this.month = c.get(Calendar.MONTH);
+        this.day = c.get(Calendar.DAY_OF_MONTH);
+
         String cDay, cMonth;
-        if (day < 10)
-            cDay = "0" + day;
+        if (this.day < 10)
+            cDay = "0" + this.day;
         else
-            cDay = day + "";
-        if (month < 10)
-            cMonth = "0" + (month + 1);
+            cDay = this.day + "";
+        if (this.month < 10)
+            cMonth = "0" + (this.month + 1);
         else
-            cMonth = (month + 1) + "";
+            cMonth = (this.month + 1) + "";
         this.formEventDate.getEditText().setText(String.format(Locale.FRANCE, "%s/%s/%d", cDay, cMonth, year));
 
         ((TextView) this.eventCardPreview.findViewById(R.id.participantsCount)).setText("--/∞");
 
-        this.pending = false;
+        Calendar todayCalendar = Calendar.getInstance(Locale.FRANCE);
+        this.today = this.day == todayCalendar.get(Calendar.DAY_OF_MONTH)
+                && this.month + 1 == todayCalendar.get(Calendar.MONTH) + 1
+                && this.year == todayCalendar.get(Calendar.YEAR);
 
         /*-----------------
             Text fields
@@ -260,9 +286,9 @@ public abstract class EventFormActivity
 
                     formEventDate.getEditText().setText(String.format(Locale.FRANCE, "%s/%s/%d", sDay, sMonth, pickedYear));
                 },
-                year,
-                month,
-                day
+                this.year,
+                this.month,
+                this.day
         );
         datePickerDialog.setOnCancelListener(
                 dialog ->
@@ -355,8 +381,8 @@ public abstract class EventFormActivity
 
                     formEventTime.getEditText().setText(String.format(Locale.FRANCE, "%s:%s", sHour, sMinute));
                 },
-                12,
-                0,
+                hourOfDay,
+                minutesOfDay,
                 true
         );
         timePickerDialog.setOnCancelListener(
@@ -398,7 +424,7 @@ public abstract class EventFormActivity
                     return;
 
                 int sHour = Integer.parseInt(s.toString().substring(0, 2));
-                int sMinute = Integer.parseInt(s.toString().substring(3, 5));
+                int sMinute = Integer.parseInt(s.toString().substring(3));
                 long sSeconds = sHour * 3600 + sMinute * 60;
 
                 @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
@@ -500,6 +526,7 @@ public abstract class EventFormActivity
         this.formRemoveImage.setOnClickListener(
                 v ->
                 {
+                    this.illustrationChanged = true;
                     this.bitmapConvertedImage = null;
                     this.formEventImage.getEditText().setText("");
                     this.formRemoveImage.setEnabled(false);
@@ -525,12 +552,26 @@ public abstract class EventFormActivity
 
         DragListView formPricesList = findViewById(R.id.PricesLayout);
         this.listPrices = new ArrayList<>();
-        this.adapter = new DraggableEventPriceAdapter(this.listPrices, false, this.event, this);
+        this.adapter = new DraggableEventPriceAdapter(this.listPrices, false, this);
         formPricesList.getRecyclerView().setHorizontalScrollBarEnabled(false);
         formPricesList.setScrollingEnabled(false);
         formPricesList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         formPricesList.setAdapter(this.adapter, true);
         formPricesList.setCanDragHorizontally(false);
+        formPricesList.setDragListListener(new DragListView.DragListListener()
+        {
+            @Override
+            public void onItemDragStarted(int position) { }
+
+            @Override
+            public void onItemDragging(int itemPosition, float x, float y) { }
+
+            @Override
+            public void onItemDragEnded(int fromPosition, int toPosition)
+            {
+                pricesChanged = true;
+            }
+        });
 
         /*----------------------
             New price button
@@ -562,6 +603,7 @@ public abstract class EventFormActivity
                                 if (newPrice != null)
                                 {
                                     this.listPrices.add(new Pair<>((long) ++count, newPrice));
+                                    this.pricesChanged = true;
                                     this.adapter.notifyDataSetChanged();
                                     return true;
                                 }
@@ -600,12 +642,19 @@ public abstract class EventFormActivity
      */
 
     @Override
+    public void onBackPressed()
+    {
+        if(!this.pending) super.onBackPressed();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK)
             if (requestCode == IMAGE_PICK_INTENT)
             {
+                this.illustrationChanged = true;
                 //data.getData returns the content URI for the selected Image
                 this.pickedImage = data.getData();
                 String[] filePathColumn = {MediaStore.Images.Media.DATA};
@@ -647,6 +696,7 @@ public abstract class EventFormActivity
         Long id = this.listPrices.get(position - 1).first;
         this.listPrices.set(position - 1, new Pair<>(id, editedPrice));
         this.adapter.notifyDataSetChanged();
+        this.pricesChanged = true;
     }
 
     @Override

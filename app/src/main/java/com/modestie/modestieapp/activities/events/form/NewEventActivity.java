@@ -5,10 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -33,6 +30,8 @@ import java.util.TimeZone;
 
 public class NewEventActivity extends EventFormActivity
 {
+    public static final String TAG = "ACTVT.NEWEVENT";
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -46,11 +45,9 @@ public class NewEventActivity extends EventFormActivity
                 .setPositiveButton(getString(R.string.image_upload_error_dialog_pos_btn), (dialog, which) -> eventPostStep2(""))
                 .setNegativeButton(R.string.image_upload_error_dialog_neg_btn, (dialog, which) ->
                 {
-                    Intent returnIntent = new Intent();
-                    returnIntent.putExtra("Error", "image");
-                    setResult(Activity.RESULT_CANCELED, returnIntent);
-                    this.toolbarAction.setEnabled(false);
-                    finish();
+                    this.loadingLayout.setVisibility(View.VISIBLE);
+                    this.formLayout.setVisibility(View.INVISIBLE);
+                    this.toolbarAction.setEnabled(true);
                 });
         this.imageUploadError = builder.create();
 
@@ -60,7 +57,7 @@ public class NewEventActivity extends EventFormActivity
                     Log.e(TAG, "SAVE EVENT OPTION SELECTED");
                     if (!this.pending)
                     {
-                        if (validateForm())
+                        if (this.validateForm())
                         {
                             Log.e(TAG, "FORM VALID");
                             this.loadingLayout.setVisibility(View.VISIBLE);
@@ -80,7 +77,6 @@ public class NewEventActivity extends EventFormActivity
      */
     void eventPostStep1()
     {
-        Log.e(TAG, "BEGIN EVENT POST");
         StringRequest imageUploadRequest = new StringRequest(
                 Request.Method.POST, RequestURLs.IMGUR_IMG_UPLOAD,
                 response ->
@@ -93,13 +89,12 @@ public class NewEventActivity extends EventFormActivity
                         if (jsonResponse.getBoolean("success"))
                             eventPostStep2(jsonResponse.getJSONObject("data").getString("link"));
                         else
-                            imageUploadError.show();
+                            this.imageUploadError.show();
                     }
                     catch (JSONException e)
                     {
                         Log.e(TAG, e.getLocalizedMessage());
-                        pending = false;
-                        this.toolbarAction.setEnabled(true);
+                        this.pending = false;
                         eventPostFinal(false, "image");
                     }
                 },
@@ -107,7 +102,7 @@ public class NewEventActivity extends EventFormActivity
                 {
                     Log.e(TAG, error.toString());
                     Log.e(TAG, "finish/error upload");
-                    imageUploadError.show();
+                    this.imageUploadError.show();
                 })
         {
             @Override
@@ -138,8 +133,6 @@ public class NewEventActivity extends EventFormActivity
             this.requestHelper.addToRequestQueue(imageUploadRequest);
         else
             eventPostStep2("");
-
-        this.pending = true;
     }
 
     /**
@@ -149,14 +142,13 @@ public class NewEventActivity extends EventFormActivity
     @SuppressLint("SimpleDateFormat")
     public void eventPostStep2(String imageLink)
     {
-        Log.e(TAG, "POST NEW EVENT");
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
         df.setTimeZone(TimeZone.getDefault());
         try
         {
             JSONObject postparams = new JSONObject();
             postparams.put("name", this.formEventName.getEditText().getText());
-            postparams.put("promoter", "11148489");
+            postparams.put("promoter", this.loggedInUser.getCharacterID());
             postparams.put("epoch", EPOCH / 1000);
             postparams.put("description", this.formEventDescription.getEditText().getText() + "");
             if (this.formEventMaxParticipantsType.getCheckedRadioButtonId() == R.id.participationType1)
@@ -170,8 +162,6 @@ public class NewEventActivity extends EventFormActivity
             postparams.put("image", imageLink);
             postparams.put("apiKey", loggedInUser.getAPIKey());
 
-            Log.e(TAG, "ADDEVENT");
-
             JsonObjectRequest request = new JsonObjectRequest(
                     Request.Method.POST, RequestURLs.MODESTIE_EVENTS_ADD, postparams,
                     response ->
@@ -184,16 +174,14 @@ public class NewEventActivity extends EventFormActivity
                             }
                             else
                             {
-                                pending = false;
-                                this.toolbarAction.setEnabled(true);
+                                this.pending = false;
                                 eventPostFinal(true, null);
                             }
                         }
                         catch (JSONException e)
                         {
                             Log.e(TAG, e.getLocalizedMessage());
-                            pending = false;
-                            this.toolbarAction.setEnabled(true);
+                            this.pending = false;
                             eventPostFinal(false, "event");
                         }
                     },
@@ -225,7 +213,7 @@ public class NewEventActivity extends EventFormActivity
         catch (JSONException e)
         {
             Log.e(TAG, e.getLocalizedMessage());
-            this.toolbarAction.setEnabled(true);
+            eventPostFinal(false, "event");
         }
     }
 
@@ -238,7 +226,7 @@ public class NewEventActivity extends EventFormActivity
      */
     public void eventPostStep3(int eventID)
     {
-        pricePendingRequests = 0;
+        this.pricePendingRequests = 0;
         for (int i = 0; i < this.listPrices.size(); i++)
         {
             try
@@ -251,22 +239,22 @@ public class NewEventActivity extends EventFormActivity
                 postparams.put("itemName", price.getItemName());
                 postparams.put("itemIcon", price.getItemIconURL());
                 postparams.put("amount", price.getAmount());
-                postparams.put("apiKey", loggedInUser.getAPIKey());
+                postparams.put("apiKey", this.loggedInUser.getAPIKey());
 
-                ++pricePendingRequests;
-                Log.e(TAG, "PRICE SENDING NUMBER " + pricePendingRequests + " DEGREE " + this.listPrices.get(i).first);
+                ++this.pricePendingRequests;
+                //Log.e(TAG, "PRICE SENDING NUMBER " + this.pricePendingRequests + " DEGREE " + this.listPrices.get(i).first);
                 JsonObjectRequest priceRequest = new JsonObjectRequest(
                         Request.Method.POST, RequestURLs.MODESTIE_PRICES_ADD, postparams,
                         response ->
                         {
-                            if (--pricePendingRequests == 0)
+                            if (--this.pricePendingRequests == 0)
                                 eventPostFinal(true, null);
                         },
                         error ->
                         {
                             //Log.e(TAG, error.getMessage());
                             Log.e(TAG, "PRICE SENDING FAILED");
-                            pricePendingRequests--;
+                            this.pricePendingRequests--;
                         }
                 )
                 {
@@ -285,19 +273,18 @@ public class NewEventActivity extends EventFormActivity
                         DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
                 ));
 
-                this.requestHelper.addToRequestQueue(priceRequest, "newPricePostRequest" + pricePendingRequests);
+                this.requestHelper.addToRequestQueue(priceRequest, "newPricePostRequest" + this.pricePendingRequests);
             }
             catch (JSONException e)
             {
                 Log.e(TAG, e.getLocalizedMessage());
-                pricePendingRequests--;
+                this.pricePendingRequests--;
             }
         }
     }
 
     public void eventPostFinal(boolean success, @Nullable String errorValue)
     {
-        Log.e(TAG, "FINAL");
         if (success)
         {
             Toast.makeText(this, "Événement créé", Toast.LENGTH_SHORT).show();
@@ -313,6 +300,5 @@ public class NewEventActivity extends EventFormActivity
             finish();
             pending = false;
         }
-        this.toolbarAction.setEnabled(true);
     }
 }

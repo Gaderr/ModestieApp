@@ -10,18 +10,15 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.FragmentManager;
 
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.events.form.EventPriceOptionsModal;
 import com.modestie.modestieapp.activities.events.form.EventFormActivity;
-import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.event.EventPrice;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
@@ -40,8 +37,6 @@ public class DraggableEventPriceAdapter extends DragItemAdapter<Pair<Long, Event
     private int grabHandleId;
     private boolean dragOnLongPress;
 
-    private Event event;
-
     private EventFormActivity parent;
     private FragmentManager fragmentManager;
 
@@ -49,7 +44,7 @@ public class DraggableEventPriceAdapter extends DragItemAdapter<Pair<Long, Event
 
     public static final String TAG = "ADPTR.EVENTPRICE";
 
-    public class ViewHolder extends DragItemAdapter.ViewHolder
+    class ViewHolder extends DragItemAdapter.ViewHolder
     {
         View rootview;
 
@@ -60,7 +55,7 @@ public class DraggableEventPriceAdapter extends DragItemAdapter<Pair<Long, Event
 
         int priceDegree;
 
-        public ViewHolder(final View v)
+        ViewHolder(final View v)
         {
             super(v, grabHandleId, dragOnLongPress);
             this.rootview = v;
@@ -70,19 +65,18 @@ public class DraggableEventPriceAdapter extends DragItemAdapter<Pair<Long, Event
             this.dragHandle = v.findViewById(R.id.dragHandle);
         }
 
-        public void clearAnimation()
+        void clearAnimation()
         {
             this.rootview.clearAnimation();
         }
     }
 
-    public DraggableEventPriceAdapter(ArrayList<Pair<Long, EventPrice>> list, boolean readonly, Event event, EventFormActivity context)
+    public DraggableEventPriceAdapter(ArrayList<Pair<Long, EventPrice>> list, boolean readonly, EventFormActivity context)
     {
         this.dataset = list;
         this.grabHandleId = R.id.dragHandle;
         this.dragOnLongPress = false;
         this.readonly = readonly;
-        this.event = event;
         this.parent = context;
         this.fragmentManager = this.parent.getSupportFragmentManager();
         setItemList(list);
@@ -127,12 +121,12 @@ public class DraggableEventPriceAdapter extends DragItemAdapter<Pair<Long, Event
         }
         holder.reward.setText(reward);
 
-        Transformation transformation = new RoundedTransformationBuilder()
+        /*Transformation transformation = new RoundedTransformationBuilder()
                 .borderColor(Color.TRANSPARENT)
                 .borderWidthDp(0)
                 .cornerRadiusDp(3)
                 .oval(false)
-                .build();
+                .build();*/
 
         if(!price.getItemIconURL().equals(""))
         {
@@ -160,14 +154,13 @@ public class DraggableEventPriceAdapter extends DragItemAdapter<Pair<Long, Event
     public void onViewAttachedToWindow(@NonNull ViewHolder holder)
     {
         super.onViewAttachedToWindow(holder);
-        NestedScrollView view = this.parent.findViewById(R.id.newEventView);
-        view.post(() -> view.fullScroll(ScrollView.FOCUS_DOWN));
+        /*NestedScrollView view = this.parent.findViewById(R.id.scrollView);
+        view.post(() -> view.fullScroll(ScrollView.FOCUS_DOWN));*/
     }
 
     @Override
     public void onViewDetachedFromWindow(@NonNull ViewHolder holder)
     {
-        Log.e(TAG, "VIEW DETACHED FROM WINDOW");
         super.onViewDetachedFromWindow(holder);
         holder.clearAnimation();
     }

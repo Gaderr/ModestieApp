@@ -25,7 +25,6 @@ import androidx.appcompat.widget.Toolbar;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.modestie.modestieapp.R;
-import com.modestie.modestieapp.activities.events.form.EventFormActivity;
 import com.modestie.modestieapp.activities.events.form.NewEventActivity;
 import com.modestie.modestieapp.adapters.EventListAdapter;
 import com.modestie.modestieapp.model.event.Event;
@@ -134,11 +133,11 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
     }
 
     @Override
-    protected void onPause()
+    protected void onStop()
     {
-        super.onPause();
         if(this.eventDetailsFragment != null && this.eventDetailsFragment.isVisible())
             this.eventDetailsFragment.dismiss();
+        super.onStop();
     }
 
     @Override

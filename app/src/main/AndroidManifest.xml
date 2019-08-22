@@ -33,6 +33,17 @@
                 android:value="com.modestie.modestieapp.activities.events.list.EventListActivity" />
         </activity>
         <activity
+            android:name=".activities.events.form.EventModificationActivity"
+            android:configChanges="orientation"
+            android:label="@string/title_event_modification_activity"
+            android:parentActivityName=".activities.events.list.EventListActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/ModestieTheme.DayNight">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.modestie.modestieapp.activities.events.list.EventListActivity" />
+        </activity>
+        <activity
             android:name=".activities.events.list.EventListActivity"
             android:configChanges="orientation"
             android:label="@string/title_event_list_activity"

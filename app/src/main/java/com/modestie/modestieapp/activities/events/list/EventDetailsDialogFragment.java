@@ -1,5 +1,6 @@
 package com.modestie.modestieapp.activities.events.list;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,8 +21,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.google.android.material.snackbar.Snackbar;
 import com.modestie.modestieapp.R;
+import com.modestie.modestieapp.activities.events.form.EventModificationActivity;
 import com.modestie.modestieapp.adapters.StaticEventPriceAdapter;
 import com.modestie.modestieapp.model.character.LightCharacter;
 import com.modestie.modestieapp.model.event.Event;
@@ -97,7 +98,9 @@ public class EventDetailsDialogFragment extends DialogFragment
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.dialog_event_details, container, false);
 
+        //Toolbar and action button click listener
         this.toolbar = rootView.findViewById(R.id.toolbar);
+
         //Get selected event
         this.event = Hawk.get("SelectedEvent");
         this.promoter = Hawk.get("SelectedEventPromoter");
@@ -131,7 +134,7 @@ public class EventDetailsDialogFragment extends DialogFragment
         {
             Button editEventAction = this.toolbar.findViewById(R.id.eventDetailsEditAction);
             editEventAction.setVisibility(View.VISIBLE);
-            editEventAction.setOnClickListener(v -> Snackbar.make(this.rootview, "En cours de développement", Snackbar.LENGTH_SHORT).show());
+            editEventAction.setOnClickListener(v -> startActivity(new Intent(getContext(), EventModificationActivity.class)));
         }
         this.rootview = view;
     }
@@ -331,8 +334,6 @@ public class EventDetailsDialogFragment extends DialogFragment
                         e.printStackTrace();
                     }
                 });
-
-        //TODO : EVENT MODIFICATION INTENT BUTTON
     }
 
     private void setupParticipationsCount()
