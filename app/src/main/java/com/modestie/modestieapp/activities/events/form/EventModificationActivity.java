@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -22,6 +23,7 @@ import com.modestie.modestieapp.model.event.EventPrice;
 import com.modestie.modestieapp.utils.Utils;
 import com.modestie.modestieapp.utils.network.RequestURLs;
 import com.orhanobut.hawk.Hawk;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -101,6 +103,12 @@ public class EventModificationActivity extends EventFormActivity
 
         this.formEventDescription.getEditText().setText(this.event.getDescription());
         this.formEventImage.getEditText().setText(this.event.getImageURL());
+
+        if(!this.event.getImageURL().equals(""))
+        {
+            ImageView imagePreview = this.eventCardPreview.findViewById(R.id.eventImage);
+            Picasso.get().load(this.event.getImageURL()).fit().centerCrop().into(imagePreview);
+        }
 
         if (this.event.getMaxParticipants() == -1)
         {
