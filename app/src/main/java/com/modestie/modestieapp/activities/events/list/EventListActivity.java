@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
@@ -46,6 +47,7 @@ import static com.android.volley.Request.Method.GET;
 
 public class EventListActivity extends AppCompatActivity implements EventDetailsDialogFragment.OnParticipationChanged
 {
+    private TextView noEventPlaceholder;
     private ArrayList<Event> events;
     private RecyclerView recyclerView;
     private RecyclerView.Adapter<EventListAdapter.EventViewHolder> adapter;
@@ -79,6 +81,7 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
+        this.noEventPlaceholder = findViewById(R.id.noEventsPlaceholder);
         this.recyclerView = findViewById(R.id.eventsCardsView);
         this.progressBar = findViewById(R.id.progressBar);
         this.FAB = findViewById(R.id.newEventFAB);
@@ -178,8 +181,11 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
 
             if (resultCode == RESULT_CANCELED)
             {
+                if (data == null)
+                    return;
+
                 if (data.hasExtra("Error"))
-                    Toast.makeText(this, "Echec de l'envoi, nous rencontrons des difficultés techniques.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Echec du processus, nous rencontrons des difficultés techniques.", Toast.LENGTH_SHORT).show();
                 else
                     Toast.makeText(this, "Envoi annulé.", Toast.LENGTH_SHORT).show();
             }
@@ -224,12 +230,26 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
                             this.events.add(new Event(tempEvent));
                         }
                         Collections.sort(this.events, Event.EventDateComparator);
-                        //If user is logged in, the fab is visible and a blank space must be added
-                        //at the end of the list avoid obstructing visibility of the last card
-                        if (this.userLoggedIn) this.events.add(null);
-                        this.adapter.notifyDataSetChanged();
-                        this.progressBar.setVisibility(View.INVISIBLE);
-                        this.pending = false;
+                        if (this.events.isEmpty())
+                        {
+                            this.progressBar.setVisibility(View.INVISIBLE);
+                            this.noEventPlaceholder.setVisibility(View.VISIBLE);
+                            if (this.userLoggedIn)
+                            {
+                                this.noEventPlaceholder.setText(getString(R.string.no_event_user));
+                                this.FAB.extend();
+                            }
+                            else this.noEventPlaceholder.setText(getString(R.string.no_event));
+                        }
+                        else
+                        {
+                            //If user is logged in, the fab is visible and a blank space must be added
+                            //at the end of the list avoid obstructing visibility of the last card
+                            if (this.userLoggedIn) this.events.add(null);
+                            this.adapter.notifyDataSetChanged();
+                            this.progressBar.setVisibility(View.INVISIBLE);
+                            this.pending = false;
+                        }
                     }
                     catch (JSONException e)
                     {

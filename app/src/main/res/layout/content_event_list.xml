@@ -6,6 +6,19 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
+    <TextView
+        android:id="@+id/noEventsPlaceholder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:textAppearance="@style/TextAppearance.ModestieTheme.Body1"
+        android:textAlignment="center"
+        android:text="@string/no_event"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/eventsCardsView"
         android:layout_width="match_parent"

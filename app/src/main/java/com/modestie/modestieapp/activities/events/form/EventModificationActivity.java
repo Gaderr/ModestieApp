@@ -104,7 +104,7 @@ public class EventModificationActivity extends EventFormActivity
         this.formEventDescription.getEditText().setText(this.event.getDescription());
         this.formEventImage.getEditText().setText(this.event.getImageURL());
 
-        if(!this.event.getImageURL().equals(""))
+        if (!this.event.getImageURL().equals(""))
         {
             ImageView imagePreview = this.eventCardPreview.findViewById(R.id.eventImage);
             Picasso.get().load(this.event.getImageURL()).fit().centerCrop().into(imagePreview);
@@ -129,6 +129,28 @@ public class EventModificationActivity extends EventFormActivity
             this.listPrices.add(new Pair<>((long) ++count, this.event.getPrices().get(i)));
         }
         this.adapter.notifyDataSetChanged();
+
+        this.eventManagementLayout.setVisibility(View.VISIBLE);
+
+        //Delete event button listener
+        this.deleteEventButton.setOnClickListener(
+                v ->
+                {
+                    AlertDialog.Builder deleteEventAlertBuilder = new AlertDialog.Builder(this, R.style.ThemeOverlay_ModestieTheme_Dialog);
+                    deleteEventAlertBuilder.setTitle(getString(R.string.event_deletion_alert_title))
+                            .setMessage(getString(R.string.event_deletion_alert_body))
+                            .setPositiveButton(getString(R.string.event_deletion_alert_confirm), (dialog, which) ->
+                            {
+                                this.loadingLayout.setVisibility(View.VISIBLE);
+                                this.formLayout.setVisibility(View.INVISIBLE);
+                                hideKeyboardFrom(this, this.formLayout);
+                                this.toolbarAction.setEnabled(false);
+                                eventDelete();
+                            })
+                            .setNegativeButton(R.string.event_deletion_alert_cancel, (dialog, which) -> {});
+                    deleteEventAlertBuilder.create().show();
+                }
+        );
     }
 
     /**
@@ -212,7 +234,7 @@ public class EventModificationActivity extends EventFormActivity
 
                 //Retry MAX_RETRIES times, one every SOCKET_TIMEOUT milliseconds
                 imageUploadRequest.setRetryPolicy(new DefaultRetryPolicy(SOCKET_TIMEOUT, MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-                
+
                 this.requestHelper.addToRequestQueue(imageUploadRequest);
             }
         }
@@ -239,7 +261,7 @@ public class EventModificationActivity extends EventFormActivity
                         Request.Method.POST, RequestURLs.MODESTIE_PRICES_REMOVE, pricesRemovalParams,
                         response ->
                         {
-                            if(this.listPrices.size() == 0)
+                            if (this.listPrices.size() == 0)
                                 eventUpdateStep3();
                             else
                                 eventUpdateStep2_1();
@@ -399,6 +421,58 @@ public class EventModificationActivity extends EventFormActivity
         }
     }
 
+    /**
+     * Creates an HTTP request to delete the current event
+     */
+    private void eventDelete()
+    {
+        try
+        {
+            JSONObject deletePostRequest = new JSONObject();
+            deletePostRequest.put("eventID", this.event.getID());
+            deletePostRequest.put("apiKey", this.loggedInUser.getAPIKey());
+
+            JsonObjectRequest request = new JsonObjectRequest(
+                    Request.Method.POST, RequestURLs.MODESTIE_EVENTS_REMOVE, deletePostRequest,
+                    response ->
+                    {
+                        this.pending = false;
+                        eventDeleteFinal(true, null);
+                    },
+                    error ->
+                    {
+                        //Log.e(TAG, error.getLocalizedMessage());
+                        Log.e(TAG, "EVENT DELETE FAILED");
+                        eventUpdateFinal(false, "delete");
+                    }
+            )
+            {
+                @Override
+                public Map<String, String> getHeaders()
+                {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("Authorization", "Bearer " + loggedInUser.getToken());
+                    return params;
+                }
+            };
+
+            request.setRetryPolicy(new DefaultRetryPolicy(
+                    0,
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            ));
+
+            this.requestHelper.addToRequestQueue(request, "deleteEventPostRequest");
+
+            this.pending = true;
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+            eventDeleteFinal(false, "delete");
+        }
+    }
+
     private void eventUpdateFinal(boolean success, @Nullable String errorValue)
     {
         if (success)
@@ -414,7 +488,26 @@ public class EventModificationActivity extends EventFormActivity
             returnIntent.putExtra("Error", errorValue);
             setResult(Activity.RESULT_CANCELED, returnIntent);
             finish();
-            pending = false;
+            this.pending = false;
+        }
+    }
+
+    private void eventDeleteFinal(boolean success, @Nullable String errorValue)
+    {
+        if (success)
+        {
+            Toast.makeText(this, "Événement supprimé", Toast.LENGTH_SHORT).show();
+            Intent returnIntent = new Intent();
+            setResult(Activity.RESULT_OK, returnIntent);
+            finish();
+        }
+        else
+        {
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra("Error", errorValue);
+            setResult(Activity.RESULT_CANCELED, returnIntent);
+            finish();
+            this.pending = false;
         }
     }
 }

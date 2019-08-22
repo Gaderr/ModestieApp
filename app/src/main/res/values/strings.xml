@@ -107,6 +107,9 @@
     <string name="title_event_list_activity">Events</string>
     <string name="ext_fab_add_event">Événement</string>
 
+    <string name="no_event">Aucun événement en cours…</string>
+    <string name="no_event_user">Ce n\'est pas très actif par ici…\nEt si vous créiez un événement ?</string>
+
     <string name="event_pariticpation_feedback">Vous participez</string>
     <string name="event_self_promoter_feedback">Vous êtes l\'organisateur</string>
 
@@ -158,6 +161,7 @@
     <string name="form_participations_type_label">Participations</string>
     <string name="form_details_label">Détails</string>
     <string name="form_prices_label">Récompenses</string>
+    <string name="form_management_label">Gestion</string>
     <string name="form_image_preview_text">Prévisualisation :</string>
 
     <string name="button_remove_image">Supprimer l\'image</string>
@@ -184,6 +188,13 @@
     <string name="image_upload_error_dialog_message">Le téléversement de votre image n\'a pas fonctionné, continuer la mise en ligne de votre événement sans illustration ? Une image par défaut sera utilisée.</string>
     <string name="image_upload_error_dialog_pos_btn">Continuer</string>
     <string name="image_upload_error_dialog_neg_btn">Annuler</string>
+
+    <string name="button_delete_event">Supprimer l\'événement</string>
+
+    <string name="event_deletion_alert_title">Supprimer cet événement ?</string>
+    <string name="event_deletion_alert_body">Êtes vous certain de vouloir supprimer votre événement ? Cette action est irréversible.</string>
+    <string name="event_deletion_alert_confirm">Supprimer</string>
+    <string name="event_deletion_alert_cancel">Annuler</string>
 
     <!-- PREFERENCES ACTIVITY -->
     <string name="title_settings_activity">Paramètres</string>

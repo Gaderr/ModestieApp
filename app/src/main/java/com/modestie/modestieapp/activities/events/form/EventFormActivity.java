@@ -81,6 +81,7 @@ public abstract class EventFormActivity
     Button toolbarAction;
     LinearLayoutCompat loadingLayout;
     LinearLayoutCompat formLayout;
+    LinearLayoutCompat eventManagementLayout;
     TextInputLayout formEventName;
     TextInputLayout formEventDate;
     TextInputLayout formEventTime;
@@ -90,6 +91,7 @@ public abstract class EventFormActivity
     TextInputLayout formEventImage;
     RadioGroup formEventMaxParticipantsType;
     DraggableEventPriceAdapter adapter;
+    Button deleteEventButton;
 
     LinearLayout eventCardPreview;
 
@@ -161,6 +163,7 @@ public abstract class EventFormActivity
         this.toolbarAction = this.toolbar.findViewById(R.id.eventFormAction);
         this.loadingLayout = findViewById(R.id.loadingLayout);
         this.formLayout = findViewById(R.id.formLayout);
+        this.eventManagementLayout = findViewById(R.id.formSectionManagement);
         this.formEventName = findViewById(R.id.FormEventName);
         this.formEventDate = findViewById(R.id.FormEventDate);
         this.formEventTime = findViewById(R.id.FormEventTime);
@@ -171,6 +174,7 @@ public abstract class EventFormActivity
         this.formEventPromoterParticipant = findViewById(R.id.FormEventPromoterParticipant);
         this.formRemoveImage = findViewById(R.id.removeImage);
         this.formNewPrice = findViewById(R.id.addPriceButton);
+        this.deleteEventButton = findViewById(R.id.deleteEventButton);
 
         this.eventCardPreview = findViewById(R.id.cardPreview);
 
