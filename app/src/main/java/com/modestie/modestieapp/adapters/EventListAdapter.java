@@ -7,19 +7,14 @@ import android.database.sqlite.SQLiteDatabase;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.events.list.EventDetailsDialogFragment;
@@ -70,7 +65,6 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         TextView description;
         TextView participantCount;
         //ImageView expand;
-        Button action;
         ImageView participationCheck;
         TextView participationText;
 
@@ -99,7 +93,6 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
                 this.participationText.setTextColor(context.getColor(R.color.colorValidateLight));
             }
 
-            this.action = v.findViewById(R.id.actionBtn);
             this.expanded = false;
 
             this.promoterParticipation = false;
@@ -220,21 +213,13 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         //Participation text feedback
         if (holder.userIsPromoter) //Is app user promoter ?
         {
-            holder.action.setVisibility(View.INVISIBLE); //Promoters must modify their events to change their participation
             holder.participationText.setText(R.string.event_self_promoter_feedback);
             holder.participationText.setVisibility(View.VISIBLE);
             holder.participationCheck.setVisibility(View.VISIBLE);
-
-            ConstraintSet set = new ConstraintSet();
-            ConstraintLayout parentLayout = holder.v.findViewById(R.id.eventCardContent);
-            int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, context.getResources().getDisplayMetrics());
-            set.clone(parentLayout);
-            set.connect(R.id.participationCheck, ConstraintSet.START, R.id.eventCardContent, ConstraintSet.START, margin);
-            set.applyTo(parentLayout);
         }
         else
         {
-            holder.participationText.setText(R.string.event_pariticpation_feedback);
+            holder.participationText.setText(R.string.event_participation_feedback);
             //Check user participation
             if (holder.userParticipation)
             {
@@ -245,58 +230,12 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         //Participants count
         updateParticipantsViews(holder, event);
 
-        //Action button
-        if (userIsLoggedIn)
-        {
-            holder.action.setOnClickListener(
-                    v ->
-                    {
-                        if (!holder.userParticipation) //User is not participating
-                        {
-                            if (event.getMaxParticipants() == -1) //Unlimited participations
-                            {
-                                holder.userParticipation = true;
-                                updateUserParticipation(holder, event);
-                            }
-                            else if (event.getParticipantsIDs().size() < event.getMaxParticipants()) //Limited participations
-                            {
-                                holder.userParticipation = true;
-                                updateUserParticipation(holder, event);
-                            }
-                            else
-                            {
-                                Toast.makeText(context, "Désolé, c'est complet !", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                        else //User already participating
-                        {
-                            holder.userParticipation = false;
-                            updateUserParticipation(holder, event);
-                        }
-
-                        updateParticipationButton(holder);
-                        updateParticipantsViews(holder, event);
-                    });
-        }
-        else
-        {
-            holder.action.setEnabled(false);
-        }
-
         holder.v.setOnClickListener(
                 v ->
                 {
                     if(Hawk.put("SelectedEvent", event) && Hawk.put("SelectedEventPromoter", promoter))
                         EventDetailsDialogFragment.display(((AppCompatActivity) context).getSupportFragmentManager());
                 });
-    }
-
-    private void updateUserParticipation(EventListCardViewHolder holder, Event event)
-    {
-        if (holder.userParticipation)
-            event.getParticipantsIDs().add(this.userCharacter.getID());
-        else
-            event.removeParticipant(this.userCharacter.getID());
     }
 
     private void updateParticipantsViews(EventListCardViewHolder holder, Event event)
@@ -314,13 +253,11 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
     {
         if (holder.userParticipation)
         {
-            holder.action.setText(R.string.button_cancel_participation);
             holder.participationCheck.setVisibility(View.VISIBLE);
             holder.participationText.setVisibility(View.VISIBLE);
         }
         else
         {
-            holder.action.setText(R.string.button_participate);
             holder.participationCheck.setVisibility(View.INVISIBLE);
             holder.participationText.setVisibility(View.INVISIBLE);
         }

@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.android.material.snackbar.Snackbar;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.events.form.EventModificationActivity;
 import com.modestie.modestieapp.adapters.StaticEventPriceAdapter;
@@ -231,7 +232,6 @@ public class EventDetailsDialogFragment extends DialogFragment
 
         //Participation buttons and feeback elements
         setupParticipationButtons();
-        this.participationText.setText(getString(R.string.event_pariticpation_feedback));
 
         // Listeners
         this.participationButton.setOnClickListener(
@@ -251,17 +251,34 @@ public class EventDetailsDialogFragment extends DialogFragment
                                 POST, RequestURLs.MODESTIE_PARTICIPANTS_ADD, postparams,
                                 response ->
                                 {
-                                    this.event.getParticipantsIDs().add(this.user.getID());
-                                    this.userIsParticipant = true;
-                                    setupParticipationButtons();
-                                    setupParticipationsCount();
-                                    this.callback.participationChanged();
-                                    this.progressBar.setVisibility(View.INVISIBLE);
-                                    this.pending = false;
+                                    try
+                                    {
+                                        if (!response.getBoolean("result"))
+                                        {
+                                            if (response.getString("status").equals("Event full"))
+                                                Snackbar.make(this.rootview, R.string.snackbar_message_event_full, Snackbar.LENGTH_LONG).show();
+                                            else if (response.getString("status").equals("This character is already a participant"))
+                                                Snackbar.make(this.rootview, R.string.snackbar_message_event_already_participant, Snackbar.LENGTH_LONG).show();
+                                        }
+                                        else
+                                        {
+                                            this.event.getParticipantsIDs().add(this.user.getID());
+                                            this.userIsParticipant = true;
+                                            this.callback.participationChanged();
+                                        }
+                                        setupParticipationButtons();
+                                        setupParticipationsCount();
+                                        this.progressBar.setVisibility(View.INVISIBLE);
+                                        this.pending = false;
+                                    }
+                                    catch (JSONException e)
+                                    {
+                                        e.printStackTrace();
+                                    }
                                 },
                                 error ->
                                 {
-                                    Toast.makeText(getContext(), "Erreur", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), "Une erreur est survenue, veuillez réessayer", Toast.LENGTH_SHORT).show();
                                     this.participationButton.setEnabled(true);
                                     this.progressBar.setVisibility(View.INVISIBLE);
                                     this.pending = false;
@@ -372,13 +389,6 @@ public class EventDetailsDialogFragment extends DialogFragment
             return;
         }
 
-        //Participation
-        this.participationButton.setEnabled(true);
-        if (this.userIsParticipant || !this.userLoggedIn)
-            this.participationButton.setVisibility(View.INVISIBLE);
-        else
-            this.participationButton.setVisibility(View.VISIBLE);
-
         //Withdraw
         this.withdrawButton.setEnabled(true);
         if (this.userIsParticipant)
@@ -386,12 +396,32 @@ public class EventDetailsDialogFragment extends DialogFragment
             this.withdrawButton.setVisibility(View.VISIBLE);
             this.participationCheck.setVisibility(View.VISIBLE);
             this.participationText.setVisibility(View.VISIBLE);
+            this.participationText.setText(getString(R.string.event_participation_feedback));
         }
         else
         {
             this.withdrawButton.setVisibility(View.INVISIBLE);
             this.participationCheck.setVisibility(View.INVISIBLE);
             this.participationText.setVisibility(View.INVISIBLE);
+        }
+
+        //Participation
+        // Check if there's still room for participants
+        if (this.event.getMaxParticipants() != -1
+                && this.event.getParticipantsIDs().size() + (this.event.isPromoterParticipant() ? 1 : 0) >= this.event.getMaxParticipants())
+        {
+            this.participationText.setVisibility(View.VISIBLE);
+            this.participationText.setTextColor(getContext().getColor(R.color.color_error));
+            this.participationText.setText(getString(R.string.event_full_feedback));
+            this.participationButton.setEnabled(false);
+        }
+        else
+        {
+            this.participationButton.setEnabled(true);
+            if (this.userIsParticipant || !this.userLoggedIn)
+                this.participationButton.setVisibility(View.INVISIBLE);
+            else
+                this.participationButton.setVisibility(View.VISIBLE);
         }
     }
 

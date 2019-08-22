@@ -110,7 +110,8 @@
     <string name="no_event">Aucun événement en cours…</string>
     <string name="no_event_user">Ce n\'est pas très actif par ici…\nEt si vous créiez un événement ?</string>
 
-    <string name="event_pariticpation_feedback">Vous participez</string>
+    <string name="event_participation_feedback">Vous participez</string>
+    <string name="event_full_feedback">Complet</string>
     <string name="event_self_promoter_feedback">Vous êtes l\'organisateur</string>
 
     <string name="event_description_null">Pas de description</string>
@@ -136,6 +137,8 @@
     <string name="action_edit_event">Modifier</string>
     <string name="button_participate">Participer</string>
     <string name="button_withdraw">Ne plus participer</string>
+    <string name="snackbar_message_event_full">Désole, c\'est complet !</string>
+    <string name="snackbar_message_event_already_participant">Vous participez déjà</string>
 
     <!-- EVENT FORM ACTIVITIES -->
     <string name="title_new_event_activity">Nouvel événement</string>

@@ -550,6 +550,18 @@ public abstract class EventFormActivity
 
         ((TextView) this.eventCardPreview.findViewById(R.id.characterPromoter)).setText(String.format("Organisé par %s", character.getName()));
 
+        ImageView participationCheckPreview = this.eventCardPreview.findViewById(R.id.participationCheck);
+        TextView participationFeedbackPreview = this.eventCardPreview.findViewById(R.id.participationText);
+        participationCheckPreview.setVisibility(View.VISIBLE);
+        participationFeedbackPreview.setText(getString(R.string.event_self_promoter_feedback));
+        participationFeedbackPreview.setVisibility(View.VISIBLE);
+
+        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
+        {
+            participationCheckPreview.setColorFilter(getColor(R.color.colorValidateLight));
+            participationFeedbackPreview.setTextColor(getColor(R.color.colorValidateLight));
+        }
+
         /*-----------------
             Prices list
         -----------------*/
