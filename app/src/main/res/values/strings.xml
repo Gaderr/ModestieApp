@@ -38,7 +38,7 @@
     <string name="characregist_frag2_2_search_field_label">Nom</string>
     <string name="characregist_frag2_2_search_placeholder_instruction">Cherchez votre personnage dans le champ ci-dessus</string>
 
-    <string name="characregist_frag3_title">Vérificiation</string>
+    <string name="characregist_frag3_title">Vérification</string>
     <string name="characregist_frag3_instructions">Nos mogs secrétaires vont vérifier que ce personnage vous appartient, puis l\'enregistrer.</string>
     <string name="characregist_frag3_step1">1. Copiez cette clé dans la description de votre profil Lodestone</string>
     <string name="characregist_frag3_step2">2. Cliquez ensuite sur \"Enregistrement\" pour faire vérifier votre personnage</string>
