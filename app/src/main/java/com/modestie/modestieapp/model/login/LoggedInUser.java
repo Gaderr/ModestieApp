@@ -1,5 +1,7 @@
 package com.modestie.modestieapp.model.login;
 
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -8,6 +10,8 @@ import org.json.JSONObject;
  */
 public class LoggedInUser
 {
+    private static final String TAG = "MODEL.LGDINUSER";
+
     private String token;
     private String userEmail;
     private String userNiceName;

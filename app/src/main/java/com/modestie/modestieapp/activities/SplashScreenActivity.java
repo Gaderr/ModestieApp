@@ -168,7 +168,8 @@ public class SplashScreenActivity extends AppCompatActivity
             @Override
             public void onAnimationEnd(Animator animation)
             {
-                if (doLogin) startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                if (doLogin)
+                    startActivity(new Intent(getApplicationContext(), LoginActivity.class));
                 else startActivity(new Intent(getApplicationContext(), HomeActivity.class));
             }
         });
@@ -239,6 +240,7 @@ public class SplashScreenActivity extends AppCompatActivity
                 && Hawk.contains("UserCharacter")) //The presence of this object means that the user have a character registered
         {
             LoggedInUser user = Hawk.get("LoggedInUser");
+            LightCharacter character = Hawk.get("UserCharacter");
 
             if (user.getExpiration() > System.currentTimeMillis())
             {
@@ -249,7 +251,7 @@ public class SplashScreenActivity extends AppCompatActivity
                 this.requestHelper.addToRequestQueue(
                         new JsonObjectRequest(
                                 Request.Method.GET,
-                                RequestURLs.XIVAPI_CHARACTER_REQ + "/" + user.getCharacterID() + RequestURLs.XIVAPI_CHARACTER_PARAM_LIGHT,
+                                RequestURLs.XIVAPI_CHARACTER_REQ + "/" + character.getID() + RequestURLs.XIVAPI_CHARACTER_PARAM_LIGHT,
                                 null,
                                 response ->
                                 {
@@ -308,23 +310,24 @@ public class SplashScreenActivity extends AppCompatActivity
                             },
                             error ->
                             {
-                                switch (error.networkResponse.statusCode)
+                                if (error.networkResponse == null)
                                 {
-                                    case 503:
+                                    new MaterialAlertDialogBuilder(SplashScreenActivity.this)
+                                            .setTitle("Erreur inconnue")
+                                            .setMessage("Obtention des données impossible. Veuillez contacter un grand modeste si l'erreur persiste.")
+                                            .setPositiveButton("Ok", (dialog, which) -> finish())
+                                            .show();
+                                }
+                                else
+                                {
+                                    if (error.networkResponse.statusCode == 503)
+                                    {
                                         new MaterialAlertDialogBuilder(SplashScreenActivity.this)
                                                 .setTitle("Erreur code 503")
                                                 .setMessage("De tièrces parties nécéssaires à l'obtention d'informations sont temporairement indisponibles en raison d'une maintenance ou de difficultés techniques. Veuillez réessayer plus tard.")
                                                 .setPositiveButton("Ok", (dialog, which) -> finish())
                                                 .show();
-                                        break;
-
-                                    default:
-                                        new MaterialAlertDialogBuilder(SplashScreenActivity.this)
-                                                .setTitle("Erreur inconnue")
-                                                .setMessage("Obtention des données impossible. Veuillez contacter un grand modeste si l'erreur persiste.")
-                                                .setPositiveButton("Ok", (dialog, which) -> finish())
-                                                .show();
-                                        break;
+                                    }
                                 }
                             }));
         }

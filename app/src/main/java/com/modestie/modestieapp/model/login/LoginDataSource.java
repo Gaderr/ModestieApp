@@ -1,6 +1,7 @@
 package com.modestie.modestieapp.model.login;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -37,7 +38,16 @@ public class LoginDataSource
             this.requestHelper.addToRequestQueue(new JsonObjectRequest(
                     Request.Method.POST, RequestURLs.MODESTIE_GET_JWT_APIKEY, postParams,
                     response -> callback.onServerResponse(new Result.Success<>(new LoggedInUser(response, expiration))),
-                    error -> callback.onServerResponse(new Result.Error(R.string.login_wrong_credentials))
+                    error ->
+                    {
+                        if (error.networkResponse != null)
+                        {
+                            if(error.networkResponse.statusCode == 403)
+                                callback.onServerResponse(new Result.Error(R.string.login_wrong_credentials));
+                            else
+                                callback.onServerResponse(new Result.Error(R.string.login_network_error));
+                        }
+                    }
             ));
         }
         catch (Exception e)
