@@ -40,25 +40,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.facebook.shimmer.ShimmerFrameLayout
+    <include
         android:id="@+id/shimmerLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:shimmer_direction="left_to_right"
-        app:shimmer_tilt="10.0"
+        layout="@layout/eventlist_card_shimmer"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <include layout="@layout/eventlist_card"/>
-
-        </LinearLayout>
-
-    </com.facebook.shimmer.ShimmerFrameLayout>
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/newEventFAB"

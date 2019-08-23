@@ -267,7 +267,10 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
 
                 }, error ->
                 {
-                    Toast.makeText(EventListActivity.this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show();
+                    if (error.networkResponse != null)
+                        Toast.makeText(EventListActivity.this, error.networkResponse.statusCode + " : Échec de la récupération des données", Toast.LENGTH_SHORT).show();
+                    else
+                        Toast.makeText(EventListActivity.this, error.networkResponse.statusCode + " : Échec de la récupération des données", Toast.LENGTH_SHORT).show();
                     this.pending = false;
                     onBackPressed();
                 }
