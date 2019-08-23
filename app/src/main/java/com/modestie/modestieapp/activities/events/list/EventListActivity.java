@@ -67,6 +67,8 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
 
     private int NEW_EVENT_REQUEST = 1;
 
+    private String GET_EVENT_REQUEST_TAG = "GetEventsRequest";
+
     public static final String TAG = "ACTVT - EVNTLST";
 
 
@@ -101,7 +103,12 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
         {
             //FAB intent
             this.FAB.show();
-            this.FAB.setOnClickListener(v -> startActivityForResult(new Intent(getApplicationContext(), NewEventActivity.class), this.NEW_EVENT_REQUEST));
+            this.FAB.setOnClickListener(
+                    v ->
+                    {
+                        this.requestHelper.cancelPendingRequests(this.GET_EVENT_REQUEST_TAG);
+                        startActivityForResult(new Intent(getApplicationContext(), NewEventActivity.class), this.NEW_EVENT_REQUEST);
+                    });
             //FAB animations
             this.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
             {
@@ -141,7 +148,7 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
     @Override
     protected void onStop()
     {
-        if(this.eventDetailsFragment != null && this.eventDetailsFragment.isVisible())
+        if (this.eventDetailsFragment != null && this.eventDetailsFragment.isVisible())
             this.eventDetailsFragment.dismiss();
         super.onStop();
     }
@@ -197,19 +204,21 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
 
     private void updateList()
     {
-        if(this.pending) return;
+        if (this.pending) return;
 
         this.pending = true;
 
         //Clear list
-        if(!this.events.isEmpty())
+        if (!this.events.isEmpty())
         {
             this.events.clear();
             this.adapter.notifyDataSetChanged();
             //this.progressBar.setVisibility(View.VISIBLE);
-            this.shimmerFrameLayout.startShimmer();
-            this.shimmerFrameLayout.setVisibility(View.VISIBLE);
         }
+
+        this.noEventPlaceholder.setVisibility(View.GONE);
+        this.shimmerFrameLayout.setVisibility(View.VISIBLE);
+        this.shimmerFrameLayout.startShimmer();
 
         FreeCompanyDbHelper dbHelper = new FreeCompanyDbHelper(getApplicationContext());
         SQLiteDatabase database = dbHelper.getReadableDatabase();
@@ -257,8 +266,8 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
                             //this.progressBar.setVisibility(View.INVISIBLE);
                             this.shimmerFrameLayout.stopShimmer();
                             this.shimmerFrameLayout.setVisibility(View.INVISIBLE);
-                            this.pending = false;
                         }
+                        this.pending = false;
                     }
                     catch (JSONException e)
                     {
@@ -274,7 +283,7 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
                     this.pending = false;
                     onBackPressed();
                 }
-        ));
+        ), this.GET_EVENT_REQUEST_TAG);
     }
 
     @Override

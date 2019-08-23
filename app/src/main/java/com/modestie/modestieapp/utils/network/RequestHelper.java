@@ -27,7 +27,7 @@ public class RequestHelper
      */
     public RequestQueue getRequestQueue()
     {
-        if(this.context == null) return null;
+        if (this.context == null) return null;
 
         if (this.requestQueue == null)
             this.requestQueue = Volley.newRequestQueue(context);
@@ -37,7 +37,7 @@ public class RequestHelper
 
     public <T> void addToRequestQueue(Request<T> req, String tag)
     {
-        if(this.context == null) return;
+        if (this.context == null) return;
 
         // set the default tag if tag is empty
         req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
@@ -49,7 +49,7 @@ public class RequestHelper
 
     public <T> void addToRequestQueue(Request<T> req)
     {
-        if(this.context == null) return;
+        if (this.context == null) return;
 
         // set the default tag if tag is empty
         req.setTag(TAG);
@@ -61,5 +61,11 @@ public class RequestHelper
     {
         if (requestQueue != null)
             requestQueue.cancelAll(tag);
+    }
+
+    public void stopPendingRequests()
+    {
+        if (requestQueue != null)
+            requestQueue.stop();
     }
 }
