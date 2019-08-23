@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.events.form.NewEventActivity;
@@ -53,6 +54,7 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
     private RecyclerView.Adapter<EventListAdapter.EventViewHolder> adapter;
     private RecyclerView.LayoutManager layoutManager;
     private ProgressBar progressBar;
+    private ShimmerFrameLayout shimmerFrameLayout;
     private ExtendedFloatingActionButton FAB;
 
     private EventDetailsDialogFragment eventDetailsFragment;
@@ -84,6 +86,7 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
         this.noEventPlaceholder = findViewById(R.id.noEventsPlaceholder);
         this.recyclerView = findViewById(R.id.eventsCardsView);
         this.progressBar = findViewById(R.id.progressBar);
+        this.shimmerFrameLayout = findViewById(R.id.shimmerLayout);
         this.FAB = findViewById(R.id.newEventFAB);
         this.FAB.shrink();
 
@@ -203,7 +206,9 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
         {
             this.events.clear();
             this.adapter.notifyDataSetChanged();
-            this.progressBar.setVisibility(View.VISIBLE);
+            //this.progressBar.setVisibility(View.VISIBLE);
+            this.shimmerFrameLayout.startShimmer();
+            this.shimmerFrameLayout.setVisibility(View.VISIBLE);
         }
 
         FreeCompanyDbHelper dbHelper = new FreeCompanyDbHelper(getApplicationContext());
@@ -232,7 +237,9 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
                         Collections.sort(this.events, Event.EventDateComparator);
                         if (this.events.isEmpty())
                         {
-                            this.progressBar.setVisibility(View.INVISIBLE);
+                            //this.progressBar.setVisibility(View.INVISIBLE);
+                            this.shimmerFrameLayout.stopShimmer();
+                            this.shimmerFrameLayout.setVisibility(View.INVISIBLE);
                             this.noEventPlaceholder.setVisibility(View.VISIBLE);
                             if (this.userLoggedIn)
                             {
@@ -247,7 +254,9 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
                             //at the end of the list avoid obstructing visibility of the last card
                             if (this.userLoggedIn) this.events.add(null);
                             this.adapter.notifyDataSetChanged();
-                            this.progressBar.setVisibility(View.INVISIBLE);
+                            //this.progressBar.setVisibility(View.INVISIBLE);
+                            this.shimmerFrameLayout.stopShimmer();
+                            this.shimmerFrameLayout.setVisibility(View.INVISIBLE);
                             this.pending = false;
                         }
                     }

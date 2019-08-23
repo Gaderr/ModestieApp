@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.NavUtils;
 import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
@@ -93,7 +94,7 @@ public abstract class EventFormActivity
     DraggableEventPriceAdapter adapter;
     Button deleteEventButton;
 
-    LinearLayout eventCardPreview;
+    ConstraintLayout eventCardPreview;
 
     EventPriceEditDialogFragment editDialogFragment;
     ItemSelectionDialogFragment selectionDialogFragment;
@@ -546,6 +547,7 @@ public abstract class EventFormActivity
 
         Picasso.get()
                 .load(character.getAvatarURL())
+                .placeholder(R.color.color_surface_dimmed)
                 .into((ImageView) this.eventCardPreview.findViewById(R.id.promoterAvatar));
 
         ((TextView) this.eventCardPreview.findViewById(R.id.characterPromoter)).setText(String.format("Organisé par %s", character.getName()));

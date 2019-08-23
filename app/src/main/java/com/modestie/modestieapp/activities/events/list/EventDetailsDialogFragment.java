@@ -28,6 +28,7 @@ import com.modestie.modestieapp.adapters.StaticEventPriceAdapter;
 import com.modestie.modestieapp.model.character.LightCharacter;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.event.EventPrice;
+import com.modestie.modestieapp.model.freeCompany.FreeCompany;
 import com.modestie.modestieapp.model.freeCompany.FreeCompanyMember;
 import com.modestie.modestieapp.model.login.LoggedInUser;
 import com.modestie.modestieapp.utils.network.RequestHelper;
@@ -69,7 +70,7 @@ public class EventDetailsDialogFragment extends DialogFragment
     private boolean pending;
 
     private Event event;
-    private FreeCompanyMember promoter;
+    private Object promoter;
     private LightCharacter user;
 
     private OnParticipationChanged callback;
@@ -176,9 +177,17 @@ public class EventDetailsDialogFragment extends DialogFragment
                     .centerCrop()
                     .into(illustration);
 
-        Picasso.get()
-                .load(this.promoter.getAvatarURL())
-                .into(promoterAvatar);
+        if (this.promoter instanceof FreeCompanyMember)
+            Picasso.get()
+                    .load(((FreeCompanyMember) this.promoter).getAvatarURL())
+                    .placeholder(R.color.color_surface_dimmed)
+                    .into(promoterAvatar);
+
+        if (this.promoter instanceof LightCharacter)
+            Picasso.get()
+                    .load(((LightCharacter) this.promoter).getAvatarURL())
+                    .placeholder(R.color.color_surface_dimmed)
+                    .into(promoterAvatar);
 
         //Event title
         eventTitle.setText(this.event.getName());
@@ -214,10 +223,19 @@ public class EventDetailsDialogFragment extends DialogFragment
             else
                 promoterTextView.setText(getString(R.string.event_connected_promoter_details_text_view));
         }
-        else if (this.event.isPromoterParticipant())
-            promoterTextView.setText(String.format("%s " + getString(R.string.event_promoter_is_participating_details), promoter.getName()));
         else
-            promoterTextView.setText(String.format("%s " + getString(R.string.event_promoter_details_text_view), promoter.getName()));
+        {
+            String promoterName = "";
+            if (this.promoter instanceof FreeCompanyMember)
+                promoterName = ((FreeCompanyMember) this.promoter).getName();
+            if (this.promoter instanceof LightCharacter)
+                promoterName = ((LightCharacter) this.promoter).getName();
+
+            if (this.event.isPromoterParticipant())
+                promoterTextView.setText(String.format("%s " + getString(R.string.event_promoter_is_participating_details), promoterName));
+            else
+                promoterTextView.setText(String.format("%s " + getString(R.string.event_promoter_details_text_view), promoterName));
+        }
 
         //Description
         description.setText(this.event.getDescription());

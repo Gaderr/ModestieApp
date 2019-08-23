@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
@@ -16,16 +17,22 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.facebook.shimmer.Shimmer;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.events.list.EventDetailsDialogFragment;
 import com.modestie.modestieapp.model.character.LightCharacter;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.freeCompany.FreeCompanyMember;
 import com.modestie.modestieapp.sqlite.FreeCompanyReaderContract;
+import com.modestie.modestieapp.utils.network.RequestHelper;
+import com.modestie.modestieapp.utils.network.RequestURLs;
 import com.orhanobut.hawk.Hawk;
 import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,6 +41,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import static com.android.volley.Request.Method.GET;
+
 public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.EventViewHolder>
 {
     public Context context;
@@ -41,6 +50,8 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
     private LightCharacter userCharacter;
     private ArrayList<Event> events;
     private Map<Integer, FreeCompanyMember> members;
+    private RequestHelper requestHelper;
+    private LightCharacter nonFCMemberPromoter;
 
     private static final int VIEW_CARD = 0;
     private static final int VIEW_SPACE = 1;
@@ -57,6 +68,8 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
     public static class EventListCardViewHolder extends EventViewHolder
     {
         View v;
+        ShimmerFrameLayout cardShimmerLayout;
+        CardView eventCard;
         TextView title;
         TextView promoter;
         ImageView promoterAvatar;
@@ -68,7 +81,6 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         ImageView participationCheck;
         TextView participationText;
 
-        boolean expanded;
         boolean promoterParticipation;
         boolean userParticipation;
         boolean userIsPromoter;
@@ -77,6 +89,8 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         {
             super(v);
             this.v = v;
+            this.cardShimmerLayout = v.findViewById(R.id.cardShimmerLayout);
+            this.eventCard = v.findViewById(R.id.eventCardView);
             this.title = v.findViewById(R.id.eventTitle);
             this.promoter = v.findViewById(R.id.characterPromoter);
             this.promoterAvatar = v.findViewById(R.id.promoterAvatar);
@@ -92,9 +106,6 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
                 this.participationCheck.setColorFilter(context.getColor(R.color.colorValidateLight));
                 this.participationText.setTextColor(context.getColor(R.color.colorValidateLight));
             }
-
-            this.expanded = false;
-
             this.promoterParticipation = false;
             this.userParticipation = false;
             this.userIsPromoter = false;
@@ -108,6 +119,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         this.context = context;
         this.userIsLoggedIn = userIsLoggedIn;
         this.userCharacter = character;
+        this.requestHelper = new RequestHelper(this.context);
 
         Hawk.init(context).build();
 
@@ -163,10 +175,76 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         if (getItemViewType(position) == VIEW_SPACE) return;
 
         EventListCardViewHolder holder = (EventListCardViewHolder) vHolder;
-
+        holder.eventCard.setVisibility(View.GONE);
         Event event = this.events.get(position);
-        FreeCompanyMember promoter = this.members.get(event.getPromoterID());
-        assert promoter != null;
+        if(this.members.containsKey(event.getPromoterID()))
+        {
+            setupCardData(holder, event, this.members.get(event.getPromoterID()));
+        }
+        else
+        {
+            this.requestHelper.addToRequestQueue(
+                    new JsonObjectRequest(
+                            GET,
+                            RequestURLs.XIVAPI_CHARACTER_REQ + "/" + event.getPromoterID() + RequestURLs.XIVAPI_CHARACTER_PARAM_LIGHT,
+                            null,
+                            response ->
+                            {
+                                try
+                                {
+                                    if (Hawk.put("SelectedEventPromoter", new LightCharacter(response.getJSONObject("Character")))) //Store avatar URL
+                                    {
+                                        this.nonFCMemberPromoter = new LightCharacter(response.getJSONObject("Character"));
+                                        setupCardData(holder, event, this.nonFCMemberPromoter);
+                                    }
+                                }
+                                catch (JSONException e)
+                                {
+                                    e.printStackTrace();
+                                }
+                            },
+                            error ->
+                            {
+                            }
+                    ));
+        }
+    }
+
+    private void updateParticipantsViews(EventListCardViewHolder holder, Event event)
+    {
+        int participants = event.getParticipantsIDs().size();
+        if (holder.promoterParticipation) participants++;
+
+        if (event.getMaxParticipants() == -1)
+            holder.participantCount.setText(String.format(Locale.FRANCE, "%d/∞", participants));
+        else
+            holder.participantCount.setText(String.format(Locale.FRANCE, "%d/%d", participants, event.getMaxParticipants()));
+    }
+
+    private void updateParticipationButton(EventListCardViewHolder holder)
+    {
+        if (holder.userParticipation)
+        {
+            holder.participationCheck.setVisibility(View.VISIBLE);
+            holder.participationText.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            holder.participationCheck.setVisibility(View.INVISIBLE);
+            holder.participationText.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    // Return the size of the dataset (invoked by the layout manager)
+    @Override
+    public int getItemCount()
+    {
+        return events.size();
+    }
+
+    private void setupCardData(EventListCardViewHolder holder, Event event, Object promoter)
+    {
+        holder.eventCard.setVisibility(View.VISIBLE);
 
         if (this.userCharacter != null)
             holder.userIsPromoter = event.getPromoterID() == this.userCharacter.getID();
@@ -183,10 +261,22 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
 
         //Header (avatar + title + promoter)
         holder.title.setText(event.getName());
-        holder.promoter.setText(String.format(Locale.FRANCE, "Organisé par %s", promoter.getName()));
-        Picasso.get()
-                .load(promoter.getAvatarURL())
-                .into(holder.promoterAvatar);
+        if(promoter instanceof FreeCompanyMember)
+        {
+            holder.promoter.setText(String.format(Locale.FRANCE, "Organisé par %s", ((FreeCompanyMember) promoter).getName()));
+            Picasso.get()
+                    .load(((FreeCompanyMember) promoter).getAvatarURL())
+                    .placeholder(R.color.color_surface_dimmed)
+                    .into(holder.promoterAvatar);
+        }
+        if(promoter instanceof LightCharacter)
+        {
+            holder.promoter.setText(String.format(Locale.FRANCE, "Organisé par %s", ((LightCharacter) promoter).getName()));
+            Picasso.get()
+                    .load(((LightCharacter) promoter).getAvatarURL())
+                    .placeholder(R.color.color_surface_dimmed)
+                    .into(holder.promoterAvatar);
+        }
 
         //Event image
         if (event.getImageURL() != null && !event.getImageURL().equals(""))
@@ -238,35 +328,5 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
                 });
     }
 
-    private void updateParticipantsViews(EventListCardViewHolder holder, Event event)
-    {
-        int participants = event.getParticipantsIDs().size();
-        if (holder.promoterParticipation) participants++;
 
-        if (event.getMaxParticipants() == -1)
-            holder.participantCount.setText(String.format(Locale.FRANCE, "%d/∞", participants));
-        else
-            holder.participantCount.setText(String.format(Locale.FRANCE, "%d/%d", participants, event.getMaxParticipants()));
-    }
-
-    private void updateParticipationButton(EventListCardViewHolder holder)
-    {
-        if (holder.userParticipation)
-        {
-            holder.participationCheck.setVisibility(View.VISIBLE);
-            holder.participationText.setVisibility(View.VISIBLE);
-        }
-        else
-        {
-            holder.participationCheck.setVisibility(View.INVISIBLE);
-            holder.participationText.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    // Return the size of the dataset (invoked by the layout manager)
-    @Override
-    public int getItemCount()
-    {
-        return events.size();
-    }
 }

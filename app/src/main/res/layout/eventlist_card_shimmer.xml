@@ -1,43 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.facebook.shimmer.ShimmerFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/eventCardLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    app:shimmer_auto_start="true"
+    app:shimmer_direction="left_to_right"
+    app:shimmer_tilt="10.0"
     tools:ignore="ContentDescription">
 
-    <include
-        android:id="@+id/cardShimmerLayout"
-        layout="@layout/eventlist_card_shimmer"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/eventCardView"
+        android:id="@+id/_eventCardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         card_view:cardCornerRadius="4dp"
         card_view:cardElevation="4dp"
-        card_view:cardUseCompatPadding="true"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        card_view:cardUseCompatPadding="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:foreground="?android:attr/selectableItemBackground">
+            android:foreground="?android:attr/selectableItemBackground"
+            android:orientation="vertical">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/eventCardHeader"
+                android:id="@+id/_eventCardHeader"
                 android:layout_width="match_parent"
                 android:layout_height="72dp">
 
+                <TextView
+                    android:id="@+id/_eventTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:textAppearance="@style/TextAppearance.ModestieTheme.Headline6"
+                    app:firstBaselineToTopHeight="34dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/_promoterAvatar"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/_characterPromoter"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:textAppearance="@style/TextAppearance.ModestieTheme.Subtitle2"
+                    app:firstBaselineToTopHeight="56dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/_promoterAvatar"
+                    app:layout_constraintTop_toTopOf="parent" />
+
                 <com.makeramen.roundedimageview.RoundedImageView
-                    android:id="@+id/promoterAvatar"
+                    android:id="@+id/_promoterAvatar"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_marginStart="16dp"
@@ -50,50 +71,59 @@
                     app:riv_corner_radius="30dp"
                     app:riv_oval="false" />
 
-                <TextView
-                    android:id="@+id/eventTitle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:ellipsize="end"
-                    android:singleLine="true"
-                    android:textAppearance="@style/TextAppearance.ModestieTheme.Headline6"
-                    app:firstBaselineToTopHeight="34dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/promoterAvatar"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/characterPromoter"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:ellipsize="end"
-                    android:singleLine="true"
-                    android:textAppearance="@style/TextAppearance.ModestieTheme.Subtitle2"
-                    app:firstBaselineToTopHeight="56dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/promoterAvatar"
-                    app:layout_constraintTop_toTopOf="parent" />
-
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <ImageView
-                android:id="@+id/eventImage"
+                android:id="@+id/_eventImage"
                 android:layout_width="match_parent"
                 android:layout_height="194dp"
-                android:scaleType="center"
-                app:srcCompat="@drawable/logout_icon1" />
+                android:scaleType="center"/>
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/eventCardContent"
+                android:id="@+id/_eventCardContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
+                <ImageView
+                    android:id="@+id/_participationCheck"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:tint="@color/colorValidate"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/_eventDescription"
+                    app:srcCompat="@drawable/ic_check_24dp" />
+
+                <ImageView
+                    android:id="@+id/_personIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/_participationText"
+                    app:layout_constraintEnd_toStartOf="@+id/_participantsCount"
+                    app:layout_constraintTop_toTopOf="@+id/_participationText"
+                    app:srcCompat="@drawable/ic_person_24dp" />
+
                 <TextView
-                    android:id="@+id/eventDescription"
+                    android:id="@+id/_participationText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="8dp"
+                    android:textAppearance="@style/TextAppearance.ModestieTheme.Body2"
+                    android:textColor="@color/colorValidate"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="@+id/_participationCheck"
+                    app:layout_constraintEnd_toStartOf="@+id/_personIcon"
+                    app:layout_constraintStart_toEndOf="@+id/_participationCheck"
+                    app:layout_constraintTop_toTopOf="@+id/_participationCheck" />
+
+                <TextView
+                    android:id="@+id/_eventDescription"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -109,7 +139,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/eventDate"
+                    android:id="@+id/_eventDate"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -122,54 +152,16 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/participationText"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="8dp"
-                    android:textAppearance="@style/TextAppearance.ModestieTheme.Body2"
-                    android:textColor="@color/colorValidate"
-                    android:visibility="invisible"
-                    app:layout_constraintBottom_toBottomOf="@+id/participationCheck"
-                    app:layout_constraintEnd_toStartOf="@+id/personIcon"
-                    app:layout_constraintStart_toEndOf="@+id/participationCheck"
-                    app:layout_constraintTop_toTopOf="@+id/participationCheck" />
-
-                <ImageView
-                    android:id="@+id/participationCheck"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="16dp"
-                    android:tint="@color/colorValidate"
-                    android:visibility="invisible"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/eventDescription"
-                    app:srcCompat="@drawable/ic_check_24dp" />
-
-                <ImageView
-                    android:id="@+id/personIcon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
-                    app:layout_constraintBottom_toBottomOf="@+id/participationText"
-                    app:layout_constraintEnd_toStartOf="@+id/participantsCount"
-                    app:layout_constraintTop_toTopOf="@+id/participationText"
-                    app:srcCompat="@drawable/ic_person_24dp" />
-
-                <TextView
-                    android:id="@+id/participantsCount"
+                    android:id="@+id/_participantsCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
                     android:fontFamily="@font/davidsans"
                     android:letterSpacing="0.075"
                     android:textAppearance="@style/TextAppearance.ModestieTheme.Caption"
-                    app:layout_constraintBottom_toBottomOf="@+id/personIcon"
+                    app:layout_constraintBottom_toBottomOf="@+id/_personIcon"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/personIcon" />
+                    app:layout_constraintTop_toTopOf="@+id/_personIcon" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -177,4 +169,4 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</com.facebook.shimmer.ShimmerFrameLayout>
