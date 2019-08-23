@@ -114,6 +114,8 @@ public class LoginActivity extends AppCompatActivity
                             {
                                 if (Hawk.put("UserCharacter", new LightCharacter(response.getJSONObject("Character")))) //Store avatar URL
                                 {
+                                    this.loggedInUser.setCharacterID(characterID);
+                                    Hawk.put("LoggedInUser", this.loggedInUser);
                                     if (newCharacter)
                                     {
                                         ((CharacterRegistrationFragment) this.pagerAdapter.getFragment(

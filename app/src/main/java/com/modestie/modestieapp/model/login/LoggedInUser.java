@@ -83,6 +83,11 @@ public class LoggedInUser
         return characterID;
     }
 
+    public void setCharacterID(int characterID)
+    {
+        this.characterID = characterID;
+    }
+
     public long getExpiration()
     {
         return expiration;
