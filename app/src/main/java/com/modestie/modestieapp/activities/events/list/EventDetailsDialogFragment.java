@@ -400,7 +400,7 @@ public class EventDetailsDialogFragment extends DialogFragment
 
     private void setupParticipationButtons()
     {
-        if (this.userIsPromoter)
+        if (this.userIsPromoter || !this.userLoggedIn)
         {
             this.participationButton.setVisibility(View.GONE);
             this.withdrawButton.setVisibility(View.GONE);

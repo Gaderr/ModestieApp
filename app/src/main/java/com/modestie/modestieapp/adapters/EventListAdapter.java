@@ -255,7 +255,10 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         holder.promoterParticipation = event.isPromoterParticipant();
 
         //Get user participation
-        holder.userParticipation = event.getParticipantsIDs().contains(this.userCharacter.getID());
+        if(this.userCharacter != null)
+            holder.userParticipation = event.getParticipantsIDs().contains(this.userCharacter.getID());
+        else
+            holder.userParticipation = false;
 
         //Initialize views
 
