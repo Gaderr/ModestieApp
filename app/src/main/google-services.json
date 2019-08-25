@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "365459330234",
+    "firebase_url": "https://modestieapp.firebaseio.com",
+    "project_id": "modestieapp",
+    "storage_bucket": "modestieapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:365459330234:android:2b61e2d551512dc8",
+        "android_client_info": {
+          "package_name": "com.modestie.modestieapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "365459330234-pqqfb3tao35smkmg7bis5gdfnp1ssv06.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAo9qrk7rT0sGYC7nOc5OeN3AA38EK4wnk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "365459330234-pqqfb3tao35smkmg7bis5gdfnp1ssv06.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

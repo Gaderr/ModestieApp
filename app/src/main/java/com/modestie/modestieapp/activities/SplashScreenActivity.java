@@ -24,9 +24,9 @@ import android.widget.Toast;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.login.LoginActivity;
-import com.modestie.modestieapp.model.character.Character;
 import com.modestie.modestieapp.model.character.LightCharacter;
 import com.modestie.modestieapp.model.freeCompany.FreeCompany;
 import com.modestie.modestieapp.model.login.LoggedInUser;
@@ -67,12 +67,16 @@ public class SplashScreenActivity extends AppCompatActivity
     private FreeCompanyDbHelper dbHelper;
     private RequestHelper requestHelper;
 
+    private FirebaseAnalytics mFirebaseAnalytics;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
 
         Log.e(TAG, "ON CREATE");
+
+        this.mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         //Load theme preference
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
