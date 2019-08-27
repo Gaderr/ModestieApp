@@ -1,5 +1,6 @@
 package com.modestie.modestieapp.model.character;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -7,16 +8,16 @@ public class Character
 {
     private static final String TAG = "XIVAPI.CHA";
 
-    String name;
-    int ID;
-    String race;
-    String tribe;
-    String title;
-    int gender;
-    String bio;
-    String nameday;
-    String avatarURL;
-    String portraitURL;
+    private String name;
+    private long ID;
+    private String race;
+    private String tribe;
+    private String title;
+    private int gender;
+    private String bio;
+    private String nameday;
+    private String avatarURL;
+    private String portraitURL;
 
     public Character(String name, int ID, String race, String tribe, String title, int gender, String bio, String nameday, String avatarURL, String portraitURL)
     {
@@ -36,7 +37,7 @@ public class Character
     {
         try
         {
-            this.ID = characterObject.getInt("ID");
+            this.ID = characterObject.getLong("ID");
             this.name = characterObject.getString("Name");
             this.gender = characterObject.getInt("Gender");
             this.nameday = characterObject.getString("Nameday");
@@ -58,7 +59,7 @@ public class Character
         return name;
     }
 
-    public int getID()
+    public long getID()
     {
         return ID;
     }
@@ -103,6 +104,7 @@ public class Character
         return portraitURL;
     }
 
+    @NotNull
     @Override
     public String toString()
     {

@@ -28,11 +28,16 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.HomeActivity;
 import com.modestie.modestieapp.model.login.LoggedInUser;
+import com.modestie.modestieapp.model.login.Result;
 import com.modestie.modestieapp.model.login.UserCredentials;
 import com.orhanobut.hawk.Hawk;
 
@@ -56,11 +61,9 @@ public class LoginFragment extends Fragment
     private ProgressBar loadingProgressBar;
     private TextView loadingFeedback;
 
-    private LoginViewModel loginViewModel;
+    private FirebaseAuth fbAuth;
 
     private SharedPreferences preferences;
-
-    private boolean autoLoginAttempt;
 
     private OnFragmentInteractionListener mListener;
 
@@ -71,6 +74,7 @@ public class LoginFragment extends Fragment
 
     /**
      * Creates a new instance of this fragment.
+     *
      * @return A new instance of fragment LoginFragment.
      */
     public static LoginFragment newInstance()
@@ -93,6 +97,7 @@ public class LoginFragment extends Fragment
         this.usernameEditText = rootView.findViewById(R.id.username);
         this.passwordEditText = rootView.findViewById(R.id.password);
         this.loginButton = rootView.findViewById(R.id.login);
+        this.loginButton.setEnabled(true);
         Button guestButton = rootView.findViewById(R.id.loginGuest);
         Button toWebsite = rootView.findViewById(R.id.toWebsite);
         this.loadingProgressBar = rootView.findViewById(R.id.loading);
@@ -101,8 +106,6 @@ public class LoginFragment extends Fragment
         this.rememberMeCheckBox.setChecked(false);
         this.autoLoginCheckBox = rootView.findViewById(R.id.autologinCheckbox);
         this.autoLoginCheckBox.setChecked(false);
-
-        this.loginViewModel = ViewModelProviders.of(this, new LoginViewModelFactory()).get(LoginViewModel.class);
 
         //Get key-value storage
         Hawk.init(getContext()).build();
@@ -138,7 +141,7 @@ public class LoginFragment extends Fragment
                     this.preferences.edit().putBoolean("RememberMe", isChecked).apply();
                     //The autologin must be enabled only if the user wants to be remembered
                     this.autoLoginCheckBox.setEnabled(isChecked);
-                    if(!isChecked) this.preferences.edit().remove("AutoLogin").apply();
+                    if (!isChecked) this.preferences.edit().remove("AutoLogin").apply();
                 });
         this.autoLoginCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> this.preferences.edit().putBoolean("AutoLogin", isChecked).apply());
 
@@ -148,17 +151,11 @@ public class LoginFragment extends Fragment
             UserCredentials data = Hawk.get("UserCredentials");
             this.usernameEditText.getEditText().setText(data.getUsername());
             this.passwordEditText.getEditText().setText(data.getPassword());
-            //Notify data changed -> That makes the login button active
-            this.loginViewModel.loginDataChanged(this.usernameEditText.getEditText().getText().toString(), this.passwordEditText.getEditText().getText().toString());
-            //Enable auto-login attempt if desired
-            if(this.autoLoginCheckBox.isChecked())
-                this.autoLoginAttempt = true;
         }
         else
         {
             this.usernameEditText.getEditText().setText("");
             this.passwordEditText.getEditText().setText("");
-            this.autoLoginAttempt = false;
         }
 
         //To website button
@@ -180,106 +177,14 @@ public class LoginFragment extends Fragment
     {
         super.onStart();
 
-        this.loginViewModel.getLoginFormState().observe(
-                this, loginFormState ->
-                {
-                    if (loginFormState == null)
-                    {
-                        return;
-                    }
-                    this.loginButton.setEnabled(loginFormState.isDataValid());
-
-                    if (loginFormState.getUsernameError() != null)
-                    {
-                        this.usernameEditText.getEditText().setError(getString(loginFormState.getUsernameError()));
-                    }
-                    if (loginFormState.getPasswordError() != null)
-                    {
-                        this.passwordEditText.getEditText().setError(getString(loginFormState.getPasswordError()));
-                    }
-                    //Auto-login attempt (after loading of user credentials in text fields (onCreateView))
-                    if(this.autoLoginAttempt)
-                    {
-                        this.autoLoginAttempt = false;
-                        beginLogin();
-                    }
-                });
-
-        this.loginViewModel.getLoginResult().observe(
-                this, loginResult ->
-                {
-                    if (loginResult == null)
-                    {
-                        hideProgressBar();
-                        this.usernameEditText.setEnabled(true);
-                        this.passwordEditText.setEnabled(true);
-                        this.rememberMeCheckBox.setEnabled(true);
-                        this.autoLoginCheckBox.setEnabled(true);
-                        this.loginButton.setEnabled(true);
-                        return;
-                    }
-                    if (loginResult.getError() != null)
-                    {
-                        showLoginFailed(loginResult.getError());
-                        hideProgressBar();
-                        this.usernameEditText.setEnabled(true);
-                        this.passwordEditText.setEnabled(true);
-                        this.rememberMeCheckBox.setEnabled(true);
-                        this.autoLoginCheckBox.setEnabled(true);
-                        this.loginButton.setEnabled(true);
-                        return;
-                    }
-                    if (loginResult.getSuccess() != null)
-                    {
-                        //Store user details and token
-                        Hawk.put("LoggedInUser", loginResult.getSuccess());
-
-                        //Store user credentials
-                        if(this.rememberMeCheckBox.isChecked())
-                            Hawk.put("UserCredentials", new UserCredentials(
-                                    this.usernameEditText.getEditText().getText().toString(),
-                                    this.passwordEditText.getEditText().getText().toString()));
-                        else
-                            Hawk.delete("UserCredentials");
-
-                        //Call listener
-                        onLoginSuccess(loginResult.getSuccess().getUserEmail(), loginResult.getSuccess().getCharacterID());
-                    }
-                    ((LoginActivity) getContext()).setResult(Activity.RESULT_OK);
-                });
-
-        TextWatcher afterTextChangedListener = new TextWatcher()
-        {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) { }
-
-            @Override
-            public void afterTextChanged(Editable s)
-            {
-                loginViewModel.loginDataChanged(usernameEditText.getEditText().getText().toString(),
-                                                passwordEditText.getEditText().getText().toString());
-            }
-        };
-        this.usernameEditText.getEditText().addTextChangedListener(afterTextChangedListener);
-        this.passwordEditText.getEditText().addTextChangedListener(afterTextChangedListener);
-        this.passwordEditText.getEditText().setOnEditorActionListener(
-                (v, actionId, event) ->
-                {
-                    if (actionId == EditorInfo.IME_ACTION_DONE) beginLogin();
-                    return false;
-                });
-
         this.loginButton.setOnClickListener(v -> beginLogin());
     }
 
-    private void onLoginSuccess(String userEmail, int characterID)
+    private void onLoginSuccess(String userID)
     {
         if (mListener != null)
         {
-            mListener.onLoginSuccess(userEmail, characterID);
+            mListener.onLoginSuccess(userID);
         }
     }
 
@@ -318,10 +223,61 @@ public class LoginFragment extends Fragment
         this.passwordEditText.setEnabled(false);
         this.rememberMeCheckBox.setEnabled(false);
         this.autoLoginCheckBox.setEnabled(false);
+
+        this.fbAuth = FirebaseAuth.getInstance();
+
+        boolean formValid = true;
+
+        if (this.usernameEditText.getEditText().getText().toString().isEmpty())
+        {
+            this.usernameEditText.getEditText().setError("Requis");
+            formValid = false;
+        }
+
+        if (this.passwordEditText.getEditText().getText().toString().isEmpty())
+        {
+            this.passwordEditText.getEditText().setError("Requis");
+            formValid = false;
+        }
+
+        if (!formValid)
+        {
+            Log.e(TAG, "form is empty");
+            return;
+        }
+
+
         this.loginButton.setEnabled(false);
-        this.loginViewModel.login(this.usernameEditText.getEditText().getText().toString(),
-                                  this.passwordEditText.getEditText().getText().toString(),
-                                  getContext());
+
+        this.fbAuth.signInWithEmailAndPassword(this.usernameEditText.getEditText().getText().toString(), this.passwordEditText.getEditText().getText().toString())
+                .addOnCompleteListener(getActivity(), task ->
+                {
+                    if (task.isSuccessful())
+                    {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d(TAG, "signInWithEmail:success");
+                        FirebaseUser user = fbAuth.getCurrentUser();
+                        //Store user details and token
+                        Hawk.put("LoggedInUser", user);
+
+                        //Store user credentials
+                        if (this.rememberMeCheckBox.isChecked())
+                            Hawk.put("UserCredentials", new UserCredentials(
+                                    this.usernameEditText.getEditText().getText().toString(),
+                                    this.passwordEditText.getEditText().getText().toString()));
+                        else
+                            Hawk.delete("UserCredentials");
+
+                        //Call listener
+                        onLoginSuccess(user.getUid());
+                    }
+                    else
+                    {
+                        // If sign in fails, display a message to the user.
+                        Toast.makeText(getContext(), getString(R.string.login_wrong_credentials), Toast.LENGTH_SHORT).show();
+                        resetLoginElements();
+                    }
+                });
     }
 
     void resetLoginElements()
@@ -340,18 +296,6 @@ public class LoginFragment extends Fragment
         this.loadingFeedback.setText(text);
     }
 
-    private void updateUiWithUser(LoggedInUser model)
-    {
-        String welcome = getString(R.string.welcome) + model.getDisplayName();
-        // Initiate successful logged in experience
-        Toast.makeText(getContext(), welcome, Toast.LENGTH_LONG).show();
-    }
-
-    private void showLoginFailed(@StringRes Integer errorString)
-    {
-        Toast.makeText(getContext(), errorString, Toast.LENGTH_LONG).show();
-    }
-
     private static void hideKeyboardFrom(Context context, View view)
     {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -365,6 +309,6 @@ public class LoginFragment extends Fragment
      */
     public interface OnFragmentInteractionListener
     {
-        void onLoginSuccess(String userEmail, int characterID);
+        void onLoginSuccess(String userID);
     }
 }

@@ -7,8 +7,9 @@ public class LightCharacter
 {
     private String avatarURL;
     private String name;
-    private int ID;
+    private long ID;
     private String server;
+    private long lastUpdate;
 
     public LightCharacter(String avatarURL, String name, int ID, String server)
     {
@@ -16,6 +17,7 @@ public class LightCharacter
         this.name = name;
         this.ID = ID;
         this.server = server;
+        this.lastUpdate = System.currentTimeMillis();
     }
 
     public LightCharacter(JSONObject object)
@@ -24,8 +26,9 @@ public class LightCharacter
         {
             this.avatarURL = object.getString("Avatar");
             this.name = object.getString("Name");
-            this.ID = object.getInt("ID");
+            this.ID = object.getLong("ID");
             this.server = object.getString("Server");
+            this.lastUpdate = System.currentTimeMillis();
         }
         catch (JSONException e)
         {
@@ -43,7 +46,7 @@ public class LightCharacter
         return name;
     }
 
-    public int getID()
+    public long getID()
     {
         return ID;
     }
@@ -51,5 +54,15 @@ public class LightCharacter
     public String getServer()
     {
         return server;
+    }
+
+    public void setLastUpdate(long lastUpdate)
+    {
+        this.lastUpdate = lastUpdate;
+    }
+
+    public long getLastUpdate()
+    {
+        return lastUpdate;
     }
 }

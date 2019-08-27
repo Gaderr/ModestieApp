@@ -41,7 +41,8 @@ public abstract class RequestURLs
     public static final String XIVAPI_CHARACTER_REQ = XIVAPI_DOMAIN + "/character";
     public static final String XIVAPI_CHARACTER_PARAM_EXTENDED = "?language=fr&extended=1";
     public static final String XIVAPI_CHARACTER_PARAM_LIGHT = "?columns=Character.Name,Character.Avatar,Character.ID,Character.Server&language=fr";
-    public static final String XIVAPI_CHARACTER_EXT_UPDATE = "/update";
+    public static final String XIVAPI_CHARACTER_PARAM_BIO = "?columns=Character.Bio";
+    public static final String XIVAPI_CHARACTER_PARAM_FREECOMPANY_ID = "?columns=Character.FreeCompanyId";
     public static final String XIVAPI_CHARACTER_EXT_SEARCH = "/search";
     public static final String XIVAPI_CHARACTER_EXT_SEARCH_SERVER_PARAM = "server=";
     public static final String XIVAPI_CHARACTER_EXT_SEARCH_NAME_PARAM = "name=";
@@ -81,12 +82,6 @@ public abstract class RequestURLs
 
     // JWT + API KEY (extending WP plugin)
     public static final String MODESTIE_GET_JWT_APIKEY = MODESTIE_REST_ENDPOINT + "/token";
-
-    // Registrations
-    public static final String MODESTIE_REGISTRATIONS_REGISTER_REQ = MODESTIE_REST_ENDPOINT + "/registrations/register";
-    public static final String MODESTIE_REGISTRATIONS_CHECK_REQ = MODESTIE_REST_ENDPOINT + "/registrations/check";
-    public static final String MODESTIE_REGISTRATIONS_CHECK_ID_PARAM = "?lodestoneID=";
-    public static final String MODESTIE_REGISTRATIONS_CHECK_EMAIL_PARAM = "?userEmail=";
 
     // Events
     public static final String MODESTIE_EVENTS_REQ = MODESTIE_REST_ENDPOINT + "/events";

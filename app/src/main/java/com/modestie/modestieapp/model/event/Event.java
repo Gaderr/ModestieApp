@@ -15,13 +15,13 @@ public class Event
 {
     private int ID;
     private String name;
-    private int promoterID;
+    private Long promoterID;
     private Long eventEpochTime;
     private String imageURL;
     private String description;
     private int maxParticipants;
     private boolean promoterIsParticipant;
-    private ArrayList<Integer> participantsIDs;
+    private ArrayList<Long> participantsIDs;
     private ArrayList<EventPrice> prices;
 
     public static Comparator<Event> EventDateComparator = (e1, e2) -> Long.compare(e1.getEventEpochTime(), e2.getEventEpochTime());
@@ -33,7 +33,7 @@ public class Event
     public Event()
     {
         this.name = "";
-        this.promoterID = 0;
+        this.promoterID = 0L;
         this.eventEpochTime = 0L;
         this.imageURL = "";
         this.description = "";
@@ -43,7 +43,7 @@ public class Event
         this.prices = new ArrayList<>();
     }
 
-    public Event(String name, int promoterID, Long eventEpochTime, String imageURL, String description, int maxParticipants, boolean promoterIsParticipant, ArrayList<Integer> participantsIDs, ArrayList<EventPrice> prices)
+    public Event(String name, Long promoterID, Long eventEpochTime, String imageURL, String description, int maxParticipants, boolean promoterIsParticipant, ArrayList<Long> participantsIDs, ArrayList<EventPrice> prices)
     {
         this.name = name;
         this.promoterID = promoterID;
@@ -66,7 +66,7 @@ public class Event
 
             this.ID = event.getInt("id");
             this.name = event.getString("eventName");
-            this.promoterID = Integer.parseInt(event.getString("promoterID"));
+            this.promoterID = Long.parseLong(event.getString("promoterID"));
             this.eventEpochTime = Long.parseLong(event.getString("eventEPOCH"));
             this.imageURL = event.getString("image_url");
             this.description = event.getString("description");
@@ -76,7 +76,7 @@ public class Event
             this.participantsIDs = new ArrayList<>();
             for(int i = 0; i < participants.length(); i++)
             {
-                this.participantsIDs.add(Integer.parseInt(participants.getJSONObject(i).getString("participantID")));
+                this.participantsIDs.add(Long.parseLong(participants.getJSONObject(i).getString("participantID")));
             }
 
             this.prices = new ArrayList<>();
@@ -174,12 +174,12 @@ public class Event
         this.name = name;
     }
 
-    public int getPromoterID()
+    public long getPromoterID()
     {
         return promoterID;
     }
 
-    public void setPromoterID(int promoterID)
+    public void setPromoterID(long promoterID)
     {
         this.promoterID = promoterID;
     }
@@ -234,12 +234,12 @@ public class Event
         this.promoterIsParticipant = promoterIsParticipant;
     }
 
-    public ArrayList<Integer> getParticipantsIDs()
+    public ArrayList<Long> getParticipantsIDs()
     {
         return participantsIDs;
     }
 
-    public void setParticipantsIDs(ArrayList<Integer> participantsIDs)
+    public void setParticipantsIDs(ArrayList<Long> participantsIDs)
     {
         this.participantsIDs = participantsIDs;
     }
@@ -254,7 +254,7 @@ public class Event
         this.prices = prices;
     }
 
-    public void removeParticipant(Integer ID)
+    public void removeParticipant(long ID)
     {
         for(int i = 0; i < this.participantsIDs.size(); i++)
         {

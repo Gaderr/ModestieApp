@@ -3,7 +3,7 @@
     <!-- LOGIN ACTIVITY -->
     <string name="title_activity_login">Connexion</string>
     <string name="login_title_textview">Lali-ho !</string>
-    <string name="login_instructions">Veuillez vous connecter avec votre compte modestie.fr</string>
+    <string name="login_instructions">Veuillez vous connecter ou créer un compte</string>
     <string name="prompt_username">Nom d\'utilisateur</string>
     <string name="prompt_password">Mot de passe</string>
     <string name="remember_me_checkbox_text">Se souvenir de moi</string>
@@ -18,7 +18,7 @@
     <string name="login_wrong_credentials">Identifiant ou mot de passe incorrect</string>
     <string name="login_network_error">Erreur réseau, veuillez réessayer</string>
     <string name="login_fatal">Erreur système</string>
-    <string name="login_feedback_modestiefr_connection">Connection à modestie.fr…</string>
+    <string name="login_feedback_modestiefr_connection">Authentification…</string>
     <string name="login_feedback_modestiefr_check_registration">Vérification de votre personnage enregistré…</string>
     <string name="login_feedback_modestiefr_get_character">Récupération des données de votre personnage…</string>
     <string name="login_feedback_modestiefr_update_db">Mise à jour de la base de données…</string>
@@ -29,6 +29,9 @@
     <string name="characregist_frag1_fc_member_question">Question préalable : \nFaites vous partie de la compagnie libre ?</string>
     <string name="characregist_frag1_btn_q_yes">Oui</string>
     <string name="characregist_frag1_btn_q_no">Non</string>
+    <string name="characregist_frag1_VIP_instructions">Veuillez entrer la clé d\'invitation qui vous a été donnée par le staff de Modestie</string>
+    <string name="characregist_frag1_VIP_key_hint">Clé d\'invitation</string>
+    <string name="characregist_frag1_btn_verify">OK</string>
 
     <string name="characregist_frag2_title">Vous êtes de la compagnie</string>
     <string name="characregist_frag2_instructions">Sélectionnez votre personnage :</string>

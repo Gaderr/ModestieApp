@@ -30,6 +30,9 @@ import android.widget.Toast;
 
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.modestie.modestieapp.R;
@@ -63,6 +66,9 @@ public class CharacterRegistrationFragment extends Fragment
 
     private Button yesBtn;
     private Button noBtn;
+    private ConstraintLayout VIPfieldsLayout;
+    private TextInputLayout VIPkeyField;
+    private Button VIPverifyButton;
     private View loadingView;
     private ImageView clipboardAction;
     private TextView hashTextView;
@@ -73,12 +79,12 @@ public class CharacterRegistrationFragment extends Fragment
 
     private FreeCompanyMember member;
     private LightCharacter character;
-    private int characterID;
+    private long characterID;
     private String characterAvatar;
 
     //ExtendedCharacter selection
     private View CharacterSelection_FCMember;
-    private View CharacterSelection_BasicUser;
+    private View CharacterSelection_VIP_user;
 
     private FrameLayout characterSelectionLayout;
     private ImageView searchIcon;
@@ -174,8 +180,57 @@ public class CharacterRegistrationFragment extends Fragment
     {
         this.yesBtn = rootView.findViewById(R.id.yesBtn);
         this.noBtn = rootView.findViewById(R.id.noBtn);
+        this.VIPfieldsLayout = rootView.findViewById(R.id.VIPfieldsLayout);
+        this.VIPkeyField = rootView.findViewById(R.id.VIPkeyField);
+        this.VIPverifyButton = rootView.findViewById(R.id.checkVIPkeyButton);
         this.yesBtn.setOnClickListener(v -> userTypeSelection(true));
-        this.noBtn.setOnClickListener(v -> userTypeSelection(false));
+        this.noBtn.setOnClickListener(v -> this.VIPfieldsLayout.setVisibility(View.VISIBLE));
+        this.VIPverifyButton.setOnClickListener(
+                v ->
+                {
+                    if(this.VIPkeyField.getEditText().getText().toString().isEmpty())
+                    {
+                        this.VIPkeyField.setError("Requis");
+                    }
+                    else
+                    {
+                        this.VIPkeyField.setError("");
+
+                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+                        DocumentReference docRef = db.collection("registrations").document("VIP keys");
+                        docRef.get().addOnCompleteListener(
+                                task ->
+                                {
+                                    if (task.isSuccessful())
+                                    {
+                                        DocumentSnapshot document = task.getResult();
+                                        if (document.exists())
+                                        {
+                                            ArrayList<String> keys = (ArrayList<String>) document.get("keys");
+                                            if(keys.contains(this.VIPkeyField.getEditText().getText().toString()))
+                                            {
+                                                userTypeSelection(false);
+                                            }
+                                            else
+                                            {
+                                                Toast.makeText(getContext(), "Clé non reconnue", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Toast.makeText(getContext(), "Erreur à la lecture de la base de données", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Log.d(TAG, "get failed with ", task.getException());
+                                    }
+                                });
+                    }
+
+
+                });
+                //5vr32xQ5Z6Vu9BqjKiAIwBTI6yb2 = 11148489
     }
 
     /**
@@ -190,26 +245,26 @@ public class CharacterRegistrationFragment extends Fragment
 
         LayoutInflater inflater = LayoutInflater.from(getContext());
         this.CharacterSelection_FCMember = inflater.inflate(R.layout.fragment_character_regist_2_fc_member, null);
-        this.CharacterSelection_BasicUser = inflater.inflate(R.layout.fragment_character_regist_2_basic_character, null);
+        this.CharacterSelection_VIP_user = inflater.inflate(R.layout.fragment_character_regist_2_basic_character, null);
 
         this.loadingView = this.CharacterSelection_FCMember.findViewById(R.id.loadingView);
 
         //Recycler view setup
         this.dataset = new ArrayList<>();
-        this.searchIcon = this.CharacterSelection_BasicUser.findViewById(R.id.searchIcon);
-        this.noContentPlaceholder = this.CharacterSelection_BasicUser.findViewById(R.id.noContentPlaceholder);
-        this.noContentProgressBar = this.CharacterSelection_BasicUser.findViewById(R.id.noContentProgress);
-        this.noContentLabel = this.CharacterSelection_BasicUser.findViewById(R.id.noContentLabel);
-        this.searchLayout = this.CharacterSelection_BasicUser.findViewById(R.id.searchLayout);
-        this.pagerLayout = this.CharacterSelection_BasicUser.findViewById(R.id.searchPagerLayout);
-        this.recyclerView = this.CharacterSelection_BasicUser.findViewById(R.id.characterRecyclerView);
+        this.searchIcon = this.CharacterSelection_VIP_user.findViewById(R.id.searchIcon);
+        this.noContentPlaceholder = this.CharacterSelection_VIP_user.findViewById(R.id.noContentPlaceholder);
+        this.noContentProgressBar = this.CharacterSelection_VIP_user.findViewById(R.id.noContentProgress);
+        this.noContentLabel = this.CharacterSelection_VIP_user.findViewById(R.id.noContentLabel);
+        this.searchLayout = this.CharacterSelection_VIP_user.findViewById(R.id.searchLayout);
+        this.pagerLayout = this.CharacterSelection_VIP_user.findViewById(R.id.searchPagerLayout);
+        this.recyclerView = this.CharacterSelection_VIP_user.findViewById(R.id.characterRecyclerView);
         this.layoutManager = new LinearLayoutManager(getContext());
         this.recyclerView.setLayoutManager(this.layoutManager);
         //Set adapter and call callback listener to return selected item
         this.adapter = new CharacterListAdapter(this.dataset, this::characterChoosed);
         this.recyclerView.setAdapter(this.adapter);
 
-        TextInputLayout searchField = this.CharacterSelection_BasicUser.findViewById(R.id.fieldCharacterSearch);
+        TextInputLayout searchField = this.CharacterSelection_VIP_user.findViewById(R.id.fieldCharacterSearch);
 
         searchField.getEditText().setOnEditorActionListener(
                 (v, actionId, event) ->
@@ -346,10 +401,11 @@ public class CharacterRegistrationFragment extends Fragment
     void setCharacterSelectionView(boolean FCMember)
     {
         this.FCMember = FCMember;
+        this.characterSelectionLayout.removeAllViews();
         if (this.FCMember)
             this.characterSelectionLayout.addView(this.CharacterSelection_FCMember);
         else
-            this.characterSelectionLayout.addView(this.CharacterSelection_BasicUser);
+            this.characterSelectionLayout.addView(this.CharacterSelection_VIP_user);
     }
 
     /**
@@ -469,7 +525,7 @@ public class CharacterRegistrationFragment extends Fragment
     {
         if (mListener != null && this.characterID != 0)
         {
-            mListener.onBeginRegistrationInteraction(this.characterID, this.characterAvatar, hash);
+            mListener.onBeginRegistrationInteraction(this.characterID, hash);
         }
     }
 
@@ -516,8 +572,8 @@ public class CharacterRegistrationFragment extends Fragment
     {
         void onUserTypeSelection(boolean FCMember);
 
-        void onCharacterSelection(Object character);
+        void onCharacterSelection(LightCharacter character);
 
-        void onBeginRegistrationInteraction(int characterID, String characterAvatar, String hash);
+        void onBeginRegistrationInteraction(long characterID, String hash);
     }
 }
