@@ -9,8 +9,9 @@
     <string name="remember_me_checkbox_text">Se souvenir de moi</string>
     <string name="auto_login_checkbox_text">Me connecter automatiquement</string>
     <string name="action_sign_in">Se connecter</string>
+    <string name="action_sign_in_google_acct">Compte Google</string>
     <string name="action_sign_in_short">Connexion</string>
-    <string name="action_sign_as_guest">Connexion visiteur</string>
+    <string name="action_sign_as_guest">Visiteur</string>
     <string name="action_to_website">modestie.fr</string>
     <string name="welcome">"Salutations "</string>
     <string name="invalid_username">Nom d\'utilisateur invalide</string>
@@ -23,6 +24,8 @@
     <string name="login_feedback_modestiefr_get_character">Récupération des données de votre personnage…</string>
     <string name="login_feedback_modestiefr_update_db">Mise à jour de la base de données…</string>
     <string name="login_feedback_modestiefr_finished">Terminé…</string>
+    
+    <string name="google_web_client_id">365459330234-pqqfb3tao35smkmg7bis5gdfnp1ssv06.apps.googleusercontent.com</string>
 
     <string name="characregist_frag1_title">Nous vous attendions !</string>
     <string name="characregist_frag1_instructions">Bienvenue ! Pour utiliser l\'application, il est nécéssaire d\'enregistrer un personnage.\n\nEnregistrons le vôtre.</string>

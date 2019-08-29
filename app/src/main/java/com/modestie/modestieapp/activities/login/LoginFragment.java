@@ -7,65 +7,64 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 
-import androidx.annotation.StringRes;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
 
 import android.preference.PreferenceManager;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ProgressBar;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.HomeActivity;
-import com.modestie.modestieapp.model.login.LoggedInUser;
-import com.modestie.modestieapp.model.login.Result;
 import com.modestie.modestieapp.model.login.UserCredentials;
 import com.orhanobut.hawk.Hawk;
 
 import org.jetbrains.annotations.NotNull;
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link LoginFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
+ * Fragment implementing login process and UI for email+password an google accounts sign in
+ * and account creation
  */
 public class LoginFragment extends Fragment
 {
     private static final String TAG = "LOGINFRAGMNT";
 
+    private View rootView;
     private TextInputLayout usernameEditText;
     private TextInputLayout passwordEditText;
-    private CheckBox rememberMeCheckBox;
-    private CheckBox autoLoginCheckBox;
     private Button loginButton;
+    private Button googleSignInButton;
+    private Button guestButton;
+    private Button toWebsite;
     private ProgressBar loadingProgressBar;
     private TextView loadingFeedback;
 
     private FirebaseAuth fbAuth;
+    private GoogleSignInClient googleSignInClient;
 
     private SharedPreferences preferences;
 
     private OnFragmentInteractionListener mListener;
+
+    private int RC_SIGN_IN = 1;
 
     public LoginFragment()
     {
@@ -94,32 +93,29 @@ public class LoginFragment extends Fragment
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_login, container, false);
 
+        this.fbAuth = FirebaseAuth.getInstance();
+
         this.usernameEditText = rootView.findViewById(R.id.username);
         this.passwordEditText = rootView.findViewById(R.id.password);
         this.loginButton = rootView.findViewById(R.id.login);
         this.loginButton.setEnabled(true);
-        Button guestButton = rootView.findViewById(R.id.loginGuest);
-        Button toWebsite = rootView.findViewById(R.id.toWebsite);
+        this.googleSignInButton = rootView.findViewById(R.id.googleSignIn);
+        this.guestButton = rootView.findViewById(R.id.loginGuest);
+        this.toWebsite = rootView.findViewById(R.id.toWebsite);
         this.loadingProgressBar = rootView.findViewById(R.id.loading);
         this.loadingFeedback = rootView.findViewById(R.id.loadingFeedback);
-        this.rememberMeCheckBox = rootView.findViewById(R.id.rememberMeCheckbox);
-        this.rememberMeCheckBox.setChecked(false);
-        this.autoLoginCheckBox = rootView.findViewById(R.id.autologinCheckbox);
-        this.autoLoginCheckBox.setChecked(false);
-
+        this.rootView = rootView;
         //Get key-value storage
         Hawk.init(getContext()).build();
 
         //Guest login
-        guestButton.setOnClickListener(
+        this.guestButton.setOnClickListener(
                 v ->
                 {
                     //Delete user stored data
                     //Hawk.delete("UserCredentials");
                     Hawk.delete("UserCharacter");
                     Hawk.delete("LoggedInUser");
-                    this.rememberMeCheckBox.setEnabled(false);
-                    this.autoLoginCheckBox.setEnabled(false);
                     this.preferences
                             .edit()
                             .putBoolean("RememberMe", false)
@@ -130,23 +126,9 @@ public class LoginFragment extends Fragment
 
         //Load login preferences
         this.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        this.rememberMeCheckBox.setChecked(preferences.getBoolean("RememberMe", false));
-        this.autoLoginCheckBox.setEnabled(preferences.getBoolean("RememberMe", false));
-        this.autoLoginCheckBox.setChecked(preferences.getBoolean("AutoLogin", false));
-
-        //Read checkbox changes and edit preferences
-        this.rememberMeCheckBox.setOnCheckedChangeListener(
-                (buttonView, isChecked) ->
-                {
-                    this.preferences.edit().putBoolean("RememberMe", isChecked).apply();
-                    //The autologin must be enabled only if the user wants to be remembered
-                    this.autoLoginCheckBox.setEnabled(isChecked);
-                    if (!isChecked) this.preferences.edit().remove("AutoLogin").apply();
-                });
-        this.autoLoginCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> this.preferences.edit().putBoolean("AutoLogin", isChecked).apply());
 
         //Load user credentials if stored
-        if (this.rememberMeCheckBox.isChecked() && Hawk.contains("UserCredentials"))
+        if (Hawk.contains("UserCredentials"))
         {
             UserCredentials data = Hawk.get("UserCredentials");
             this.usernameEditText.getEditText().setText(data.getUsername());
@@ -159,7 +141,7 @@ public class LoginFragment extends Fragment
         }
 
         //To website button
-        toWebsite.setOnClickListener(
+        this.toWebsite.setOnClickListener(
                 v ->
                 {
                     String url = "https://modestie.fr";
@@ -168,6 +150,14 @@ public class LoginFragment extends Fragment
                     startActivity(i);
                 }
         );
+
+        // Configure Google Sign In
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        this.googleSignInClient = GoogleSignIn.getClient(getContext(), gso);
+        this.googleSignInButton.setOnClickListener(v -> googleSignIn());
 
         return rootView;
     }
@@ -209,6 +199,29 @@ public class LoginFragment extends Fragment
         this.mListener = null;
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN)
+        {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try
+            {
+                // Google Sign In was successful, authenticate with Firebase
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                firebaseAuthWithGoogle(account);
+            }
+            catch (ApiException e)
+            {
+                // Google Sign In failed
+                Log.w(TAG, "Google sign in failed", e);
+            }
+        }
+    }
+
     void hideProgressBar()
     {
         this.loadingProgressBar.setVisibility(View.GONE);
@@ -216,27 +229,17 @@ public class LoginFragment extends Fragment
 
     private void beginLogin()
     {
-        this.loadingProgressBar.setVisibility(View.VISIBLE);
-        this.loadingFeedback.setText(R.string.login_feedback_modestiefr_connection);
-        hideKeyboardFrom(getContext(), this.loginButton);
-        this.usernameEditText.setEnabled(false);
-        this.passwordEditText.setEnabled(false);
-        this.rememberMeCheckBox.setEnabled(false);
-        this.autoLoginCheckBox.setEnabled(false);
-
-        this.fbAuth = FirebaseAuth.getInstance();
-
         boolean formValid = true;
 
         if (this.usernameEditText.getEditText().getText().toString().isEmpty())
         {
-            this.usernameEditText.getEditText().setError("Requis");
+            this.usernameEditText.setError("Requis");
             formValid = false;
         }
 
         if (this.passwordEditText.getEditText().getText().toString().isEmpty())
         {
-            this.passwordEditText.getEditText().setError("Requis");
+            this.passwordEditText.setError("Requis");
             formValid = false;
         }
 
@@ -246,8 +249,7 @@ public class LoginFragment extends Fragment
             return;
         }
 
-
-        this.loginButton.setEnabled(false);
+        disableLoginElements();
 
         this.fbAuth.signInWithEmailAndPassword(this.usernameEditText.getEditText().getText().toString(), this.passwordEditText.getEditText().getText().toString())
                 .addOnCompleteListener(getActivity(), task ->
@@ -256,20 +258,7 @@ public class LoginFragment extends Fragment
                     {
                         // Sign in success, update UI with the signed-in user's information
                         Log.d(TAG, "signInWithEmail:success");
-                        FirebaseUser user = fbAuth.getCurrentUser();
-                        //Store user details and token
-                        Hawk.put("LoggedInUser", user);
-
-                        //Store user credentials
-                        if (this.rememberMeCheckBox.isChecked())
-                            Hawk.put("UserCredentials", new UserCredentials(
-                                    this.usernameEditText.getEditText().getText().toString(),
-                                    this.passwordEditText.getEditText().getText().toString()));
-                        else
-                            Hawk.delete("UserCredentials");
-
-                        //Call listener
-                        onLoginSuccess(user.getUid());
+                        registerSignedInUserAndContinue(fbAuth.getCurrentUser());
                     }
                     else
                     {
@@ -280,20 +269,80 @@ public class LoginFragment extends Fragment
                 });
     }
 
+    private void googleSignIn()
+    {
+        Intent signInIntent = this.googleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    private void firebaseAuthWithGoogle(GoogleSignInAccount acct)
+    {
+        disableLoginElements();
+
+        Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
+
+        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+        this.fbAuth.signInWithCredential(credential)
+                .addOnCompleteListener(getActivity(), task ->
+                {
+                    if (task.isSuccessful())
+                    {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d(TAG, "signInWithCredential:success");
+                        registerSignedInUserAndContinue(this.fbAuth.getCurrentUser());
+                    }
+                    else
+                    {
+                        // If sign in fails, display a message to the user.
+                        Log.w(TAG, "signInWithCredential:failure", task.getException());
+                        Snackbar.make(this.rootView, "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
+                        resetLoginElements();
+                    }
+                });
+    }
+
+    private void disableLoginElements()
+    {
+        this.loadingProgressBar.setVisibility(View.VISIBLE);
+        this.loadingFeedback.setText(R.string.login_feedback_modestiefr_connection);
+        hideKeyboardFrom(getContext(), this.loginButton);
+        this.usernameEditText.setEnabled(false);
+        this.passwordEditText.setEnabled(false);
+
+        this.loginButton.setEnabled(false);
+        this.googleSignInButton.setEnabled(false);
+        this.guestButton.setEnabled(false);
+        this.toWebsite.setEnabled(false);
+    }
+
     void resetLoginElements()
     {
         this.loadingProgressBar.setVisibility(View.INVISIBLE);
         this.loadingFeedback.setText("");
         this.usernameEditText.setEnabled(true);
         this.passwordEditText.setEnabled(true);
-        this.rememberMeCheckBox.setEnabled(true);
-        this.autoLoginCheckBox.setEnabled(true);
         this.loginButton.setEnabled(true);
+        this.googleSignInButton.setEnabled(true);
+        this.toWebsite.setEnabled(true);
     }
 
     void setFeedbackText(String text)
     {
         this.loadingFeedback.setText(text);
+    }
+
+    private void registerSignedInUserAndContinue(FirebaseUser user)
+    {
+        //Store user details and token
+        Hawk.put("LoggedInUser", user);
+
+        //Store user credentials
+        Hawk.put("UserCredentials", new UserCredentials(
+                this.usernameEditText.getEditText().getText().toString(),
+                this.passwordEditText.getEditText().getText().toString()));
+
+        //Call listener
+        onLoginSuccess(user.getUid());
     }
 
     private static void hideKeyboardFrom(Context context, View view)

@@ -79,60 +79,50 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <CheckBox
-        android:id="@+id/rememberMeCheckbox"
-        style="Widget.MaterialComponents.CompoundButton.CheckBox"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/login"
+        style="@style/Widget.MaterialComponents.Button.UnelevatedButton.Icon"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="48dp"
-        android:layout_marginTop="16dp"
+        android:layout_gravity="start"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="32dp"
-        android:text="@string/remember_me_checkbox_text"
-        android:textAppearance="@style/TextAppearance.ModestieTheme.Body1"
+        android:enabled="false"
+        android:text="@string/action_sign_in"
+        app:icon="@drawable/ic_person_24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/password" />
 
-    <CheckBox
-        android:id="@+id/autologinCheckbox"
-        style="Widget.MaterialComponents.CompoundButton.CheckBox"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
-        android:text="@string/auto_login_checkbox_text"
-        android:textAppearance="@style/TextAppearance.ModestieTheme.Body1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/rememberMeCheckbox"
-        app:layout_constraintTop_toBottomOf="@+id/rememberMeCheckbox" />
-
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/login"
-        style="@style/Widget.MaterialComponents.Button"
+        android:id="@+id/googleSignIn"
+        style="@style/Widget.MaterialComponents.Button.UnelevatedButton.Icon"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="start"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="32dp"
-        android:enabled="false"
-        android:text="@string/action_sign_in"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/autologinCheckbox" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/loginGuest"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="32dp"
-        android:text="@string/action_sign_as_guest"
+        android:text="@string/action_sign_in_google_acct"
+        app:icon="@drawable/ic_google_24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/login" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/loginGuest"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="32dp"
+        android:text="@string/action_sign_as_guest"
+        app:icon="@drawable/ic_person_star_24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/googleSignIn" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/toWebsite"
@@ -150,6 +140,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <LinearLayout
+        android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:gravity="center_horizontal|center_vertical"

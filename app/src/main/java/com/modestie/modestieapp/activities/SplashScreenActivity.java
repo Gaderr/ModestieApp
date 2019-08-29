@@ -30,7 +30,6 @@ import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.login.LoginActivity;
 import com.modestie.modestieapp.model.character.LightCharacter;
 import com.modestie.modestieapp.model.freeCompany.FreeCompany;
-import com.modestie.modestieapp.model.login.UserCredentials;
 import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
 import com.modestie.modestieapp.sqlite.FreeCompanyReaderContract;
 import com.modestie.modestieapp.utils.network.RequestHelper;
@@ -227,59 +226,44 @@ public class SplashScreenActivity extends AppCompatActivity
 
         Log.d(TAG, "AUTH");
 
-        //Authenticate user then get character if registered (not registered => Login activity)
-        if(Hawk.contains("UserCredentials"))
+        //Check user
+        // User sessions expires 1 hour after sign in
+        if (this.fbAuth.getCurrentUser() != null)
         {
-            UserCredentials credentials = Hawk.get("UserCredentials");
-            Log.d(TAG, "AUTHENTICATING");
-            this.characterUpdateFeedback.setText(getString(R.string.login_feedback_modestiefr_connection));
-            this.fbAuth.signInWithEmailAndPassword(credentials.getUsername(), credentials.getPassword())
-                    .addOnCompleteListener(this, task ->
-                    {
-                        if (task.isSuccessful())
-                        {
-                            Log.d(TAG, "AUTH OK");
-                            Log.d(TAG, "CHECKING CHARACTER STORED");
-                            if (Hawk.contains("UserCharacter")) //Check character stored in device
-                            {
-                                this.LOADING_DO_LOGIN = false;
+            Log.d(TAG, "AUTH OK");
+            Log.d(TAG, "CHECKING CHARACTER STORED");
+            if (Hawk.contains("UserCharacter")) //Check character stored in device
+            {
+                this.LOADING_DO_LOGIN = false;
 
-                                //Update character
-                                this.character = Hawk.get("UserCharacter");
-                                if(System.currentTimeMillis() - this.character.getLastUpdate() < updateDelay)
-                                {
-                                    Log.d(TAG, "UPDATING CHARACTER");
-                                    this.characterUpdateFeedback.setText(getString(R.string.login_feedback_modestiefr_get_character));
-                                    this.requestHelper.addToRequestQueue(getCharacterUpdateRequest());
-                                }
-                                else
-                                {
-                                    Log.d(TAG, "NO CHARACTER UPDATE");
-                                    this.characterUpdateFeedback.setText("");
-                                    this.LOADING_CHARACTER_UPDATED = true;
-                                    next();
-                                }
-                            }
-                            else //No character saved in device
-                            {
-                                Log.d(TAG, "CHARACTER NOT FOUND");
-                                this.LOADING_DO_LOGIN = true;
-                                next();
-                            }
-                        }
-                        else
-                        {
-                            Log.d(TAG, "AUTH FAILED");
-                            this.LOADING_DO_LOGIN = true;
-                            this.LOADING_CHARACTER_UPDATED = true;
-                            next();
-                        }
-                    });
+                //Update character
+                this.character = Hawk.get("UserCharacter");
+                if (System.currentTimeMillis() - this.character.getLastUpdate() < updateDelay)
+                {
+                    Log.d(TAG, "UPDATING CHARACTER");
+                    this.characterUpdateFeedback.setText(getString(R.string.login_feedback_modestiefr_get_character));
+                    this.requestHelper.addToRequestQueue(getCharacterUpdateRequest());
+                }
+                else
+                {
+                    Log.d(TAG, "NO CHARACTER UPDATE");
+                    this.characterUpdateFeedback.setText("");
+                    this.LOADING_CHARACTER_UPDATED = true;
+                    next();
+                }
+            }
+            else //No character saved in device
+            {
+                Log.d(TAG, "CHARACTER NOT FOUND");
+                this.LOADING_DO_LOGIN = true;
+                next();
+            }
         }
         else
         {
-            Log.d(TAG, "NO CREDENTIALS");
+            Log.d(TAG, "NO USER INSTANCE");
             this.LOADING_DO_LOGIN = true;
+            this.LOADING_CHARACTER_UPDATED = true;
             next();
         }
 
