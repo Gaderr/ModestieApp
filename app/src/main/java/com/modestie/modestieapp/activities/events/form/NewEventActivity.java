@@ -149,7 +149,7 @@ public class NewEventActivity extends EventFormActivity
             JSONObject postparams = new JSONObject();
             postparams.put("name", this.formEventName.getEditText().getText());
             postparams.put("promoter", this.loggedInUser.getCharacterID());
-            postparams.put("epoch", EPOCH / 1000);
+            postparams.put("epoch", pickedDate.getTime() / 1000);
             postparams.put("description", this.formEventDescription.getEditText().getText() + "");
             if (this.formEventMaxParticipantsType.getCheckedRadioButtonId() == R.id.participationType1)
                 postparams.put("maxparticipants", this.formEventMaxParticipants.getEditText().getText() + "");

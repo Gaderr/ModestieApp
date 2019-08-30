@@ -25,7 +25,17 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.facebook.shimmer.ShimmerFrameLayout;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.events.form.NewEventActivity;
 import com.modestie.modestieapp.adapters.EventListAdapter;
@@ -42,6 +52,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static com.android.volley.Request.Method.GET;
@@ -65,12 +77,13 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
 
     private RequestHelper requestHelper;
 
+    private Snackbar errorSnackbar;
+
     private int NEW_EVENT_REQUEST = 1;
 
     private String GET_EVENT_REQUEST_TAG = "GetEventsRequest";
 
     public static final String TAG = "ACTVT - EVNTLST";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -124,6 +137,10 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
             });
         }
         else this.FAB.hide();
+
+        View contextView = findViewById(R.id.context_view);
+        this.errorSnackbar = Snackbar.make(contextView, "Erreur de réception", BaseTransientBottomBar.LENGTH_INDEFINITE).setAction("Réessayer", v -> updateList());
+
     }
 
     @Override
@@ -172,6 +189,7 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
         if (id == R.id.refresh)
         {
             updateList();
+            this.errorSnackbar.dismiss();
             return true;
         }
 
@@ -230,7 +248,66 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
 
         this.recyclerView.setAdapter(this.adapter);
 
-        this.requestHelper.addToRequestQueue(new JsonObjectRequest(
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("events").get()
+                .addOnCompleteListener(
+                        task ->
+                        {
+                            if (task.isSuccessful())
+                            {
+                                for (QueryDocumentSnapshot document : task.getResult())
+                                {
+                                    //Log.d(TAG, document.getId() + " => " + document.getData());
+                                    this.events.add(new Event(document));
+
+                                }
+                                Collections.sort(this.events, Event.EventDateComparator);
+                                if (this.events.isEmpty())
+                                {
+                                    //this.progressBar.setVisibility(View.INVISIBLE);
+                                    this.shimmerFrameLayout.stopShimmer();
+                                    this.shimmerFrameLayout.setVisibility(View.INVISIBLE);
+                                    this.noEventPlaceholder.setVisibility(View.VISIBLE);
+                                    if (this.userLoggedIn)
+                                    {
+                                        this.noEventPlaceholder.setText(getString(R.string.no_event_user));
+                                        this.FAB.extend();
+                                    }
+                                    else this.noEventPlaceholder.setText(getString(R.string.no_event));
+                                }
+                                else
+                                {
+                                    //If user is logged in, the fab is visible and a blank space must be added
+                                    //at the end of the list avoid obstructing visibility of the last card
+                                    if (this.userLoggedIn) this.events.add(null);
+                                    this.adapter.notifyDataSetChanged();
+                                    //this.progressBar.setVisibility(View.INVISIBLE);
+                                    this.shimmerFrameLayout.stopShimmer();
+                                    this.shimmerFrameLayout.setVisibility(View.INVISIBLE);
+                                }
+                            }
+                            else
+                            {
+                                this.errorSnackbar.show();
+                                Log.e(TAG, "Error getting documents: ", task.getException());
+                            }
+                            this.pending = false;
+                        });
+
+        /*db.collection("prices").get()
+                .addOnCompleteListener(
+                        task ->
+                        {
+                            if (task.isSuccessful())
+                                for (QueryDocumentSnapshot document : task.getResult())
+                                {
+                                    Log.e(TAG, document.getId() + " => " + document.getData());
+                                    Map<String, Object> price = (Map<String, Object>) document.get("price");
+                                    Log.e(TAG, price.toString());
+                                }
+                        });*/
+
+        /*this.requestHelper.addToRequestQueue(new JsonObjectRequest(
                 GET, RequestURLs.MODESTIE_EVENTS_REQ, null,
                 response ->
                 {
@@ -283,7 +360,7 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
                     this.pending = false;
                     onBackPressed();
                 }
-        ), this.GET_EVENT_REQUEST_TAG);
+        ), this.GET_EVENT_REQUEST_TAG);*/
     }
 
     @Override

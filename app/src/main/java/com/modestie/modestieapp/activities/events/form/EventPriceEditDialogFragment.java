@@ -138,8 +138,8 @@ public class EventPriceEditDialogFragment extends DialogFragment
         this.itemQuantity = this.rootview.findViewById(R.id.fieldItemQuantity);
 
         //Init dump prices + radiogroup
-        this.tempGilsPrice = new EventPrice(0, 0, 1, "Gil", "https://xivapi.com/i/065000/065002.png", 100000);
-        this.tempItemPrice = new EventPrice(0, 0, 2, "Éclat de feu", "https://xivapi.com/i/020000/020001.png", 1);
+        this.tempGilsPrice = new EventPrice("0", 0, 1, "Gil", "https://xivapi.com/i/065000/065002.png", 100000);
+        this.tempItemPrice = new EventPrice("0", 0, 2, "Éclat de feu", "https://xivapi.com/i/020000/020001.png", 1);
         if(this.price.getItemID() == 1)
         {
             this.selectPriceType.check(R.id.selectGilsType);

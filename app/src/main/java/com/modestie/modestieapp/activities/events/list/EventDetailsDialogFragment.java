@@ -28,7 +28,6 @@ import com.modestie.modestieapp.adapters.StaticEventPriceAdapter;
 import com.modestie.modestieapp.model.character.LightCharacter;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.event.EventPrice;
-import com.modestie.modestieapp.model.freeCompany.FreeCompany;
 import com.modestie.modestieapp.model.freeCompany.FreeCompanyMember;
 import com.modestie.modestieapp.model.login.LoggedInUser;
 import com.modestie.modestieapp.utils.network.RequestHelper;
@@ -193,10 +192,9 @@ public class EventDetailsDialogFragment extends DialogFragment
         eventTitle.setText(this.event.getName());
 
         //Event date
-        Date eventTime = new Date(this.event.getEventEpochTime() * 1000);
         SimpleDateFormat eventDateFormat = new SimpleDateFormat("dd MMMM yyyy", Locale.FRANCE);
         SimpleDateFormat eventTimeFormat = new SimpleDateFormat("HH:mm", Locale.FRANCE);
-        eventDate.setText(String.format(Locale.FRANCE, "Le %s à %s", eventDateFormat.format(eventTime), eventTimeFormat.format(eventTime)));
+        eventDate.setText(String.format(Locale.FRANCE, "Le %s à %s", eventDateFormat.format(this.event.getEventDate()), eventTimeFormat.format(this.event.getEventDate())));
 
         //Event attributes summary details
         //  Participations count

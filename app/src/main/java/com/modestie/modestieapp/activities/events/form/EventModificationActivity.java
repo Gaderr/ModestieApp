@@ -48,7 +48,7 @@ public class EventModificationActivity extends EventFormActivity
         //Get event to modify
         this.event = Hawk.get("SelectedEvent");
         //Set timestamp before calling superclass for proper instantiation
-        this.EPOCH = this.event.getEventEpochTime() * 1000;
+        this.pickedDate = this.event.getEventDate();
 
         //Call super class to instantiate fields
         super.onCreate(savedInstanceState);
@@ -370,7 +370,7 @@ public class EventModificationActivity extends EventFormActivity
             this.postParams.put("eventID", this.event.getID());
             this.postParams.put("name", this.formEventName.getEditText().getText());
             this.postParams.put("promoter", this.loggedInUser.getCharacterID());
-            this.postParams.put("epoch", EPOCH / 1000);
+            this.postParams.put("epoch", pickedDate.getTime() / 1000);
             this.postParams.put("description", this.formEventDescription.getEditText().getText() + "");
             if (this.formEventMaxParticipantsType.getCheckedRadioButtonId() == R.id.participationType1)
                 this.postParams.put("maxparticipants", this.formEventMaxParticipants.getEditText().getText() + "");

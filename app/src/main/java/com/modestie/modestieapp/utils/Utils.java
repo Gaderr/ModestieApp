@@ -37,4 +37,15 @@ public class Utils
     {
         return String.format("%0" + (data.length*2) + "X", new BigInteger(1, data));
     }
+
+    public static String replaceEscapeChars(String string)
+    {
+        return string.replace("\\n", "\n")
+                .replace("\\r", "\r")
+                .replace("\\t", "\t")
+                .replace("\\b", "\b")
+                .replace("\\f", "\f")
+                .replace("\\" + '"', "\"")
+                .replace("\\" + "'", "\'");
+    }
 }

@@ -12,14 +12,14 @@ public class EventPrice implements Comparable<EventPrice>
 {
     private static final String TAG = "XIVAPI.EVN.EVNTPRCE";
 
-    private int eventID;
-    private int priceRewardDegree;
-    private int itemID;
+    private String eventID;
+    private long priceRewardDegree;
+    private long itemID;
     private String itemName;
     private String itemIconURL;
-    private int amount;
+    private long amount;
 
-    public EventPrice(int eventID, int priceRewardDegree, int itemID, String itemName, String iconURL, int amount)
+    public EventPrice(String eventID, long priceRewardDegree, long itemID, String itemName, String iconURL, long amount)
     {
         this.eventID = eventID;
         this.priceRewardDegree = priceRewardDegree;
@@ -33,7 +33,7 @@ public class EventPrice implements Comparable<EventPrice>
     {
         try
         {
-            this.eventID = Integer.parseInt(obj.getString("eventID"));
+            this.eventID = obj.getString("eventID");
             this.priceRewardDegree = Integer.parseInt(obj.getString("priceRewardDegree"));
             this.itemID = Integer.parseInt(obj.getString("itemID"));
             this.itemName = obj.getString("itemName");
@@ -48,7 +48,7 @@ public class EventPrice implements Comparable<EventPrice>
 
     public EventPrice(Bundle attrs)
     {
-        this.eventID = attrs.getInt("eventID");
+        this.eventID = attrs.getString("eventID");
         this.priceRewardDegree = attrs.getInt("priceRewardDegree");
         this.itemID = attrs.getInt("itemID");
         this.itemName = attrs.getString("itemName");
@@ -59,12 +59,12 @@ public class EventPrice implements Comparable<EventPrice>
     public Bundle toBundle()
     {
         Bundle attrs = new Bundle();
-        attrs.putInt("eventID", this.eventID);
-        attrs.putInt("priceRewardDegree", this.priceRewardDegree);
-        attrs.putInt("itemID", this.itemID);
+        attrs.putString("eventID", this.eventID);
+        attrs.putLong("priceRewardDegree", this.priceRewardDegree);
+        attrs.putLong("itemID", this.itemID);
         attrs.putString("itemName", this.itemName);
         attrs.putString("itemIconURL", this.itemIconURL);
-        attrs.putInt("amount", this.amount);
+        attrs.putLong("amount", this.amount);
         return attrs;
     }
 
@@ -73,17 +73,17 @@ public class EventPrice implements Comparable<EventPrice>
         return this.itemName + " x" + this.amount;
     }
 
-    public int getEventID()
+    public String getEventID()
     {
         return eventID;
     }
 
-    public void setEventID(int eventID)
+    public void setEventID(String eventID)
     {
         this.eventID = eventID;
     }
 
-    public int getPriceRewardDegree()
+    public long getPriceRewardDegree()
     {
         return priceRewardDegree;
     }
@@ -93,7 +93,7 @@ public class EventPrice implements Comparable<EventPrice>
         this.priceRewardDegree = priceRewardDegree;
     }
 
-    public int getItemID()
+    public long getItemID()
     {
         return itemID;
     }
@@ -123,7 +123,7 @@ public class EventPrice implements Comparable<EventPrice>
         this.itemIconURL = itemIconURL;
     }
 
-    public int getAmount()
+    public long getAmount()
     {
         return amount;
     }
@@ -136,6 +136,6 @@ public class EventPrice implements Comparable<EventPrice>
     @Override
     public int compareTo(EventPrice e)
     {
-        return this.getPriceRewardDegree() - e.getPriceRewardDegree();
+        return Integer.parseInt(this.getPriceRewardDegree() + "") - Integer.parseInt(e.getPriceRewardDegree() + "");
     }
 }

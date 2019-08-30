@@ -37,7 +37,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -61,6 +60,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -106,7 +106,7 @@ public abstract class EventFormActivity
     int count = 0;
 
     boolean today;
-    Long EPOCH = null; //Milliseconds
+    Date pickedDate = null;
     int year;
     int month;
     int day;
@@ -195,17 +195,17 @@ public abstract class EventFormActivity
 
         final Calendar c = Calendar.getInstance(Locale.FRANCE);
 
-        //In event modification case, EPOCH value should be changed by EventModificationActivity subclass beforehand
-        if(this.EPOCH == null) //Set current timestamp if not initiated
+        //In event modification case, pickedDate value should be changed by EventModificationActivity subclass beforehand
+        if(this.pickedDate == null) //Set current timestamp if not initiated
         {
-            this.EPOCH = System.currentTimeMillis();
-            c.setTimeInMillis(EPOCH);
+            this.pickedDate = new Date();
+            c.setTimeInMillis(pickedDate.getTime());
             this.hourOfDay = 12;
             this.minutesOfDay = 0;
         }
         else
         {
-            c.setTimeInMillis(EPOCH);
+            c.setTimeInMillis(pickedDate.getTime());
             this.hourOfDay = c.get(Calendar.HOUR_OF_DAY);
             this.minutesOfDay = c.get(Calendar.MINUTE);
         }
@@ -347,15 +347,16 @@ public abstract class EventFormActivity
                     {
                         SimpleDateFormat format = new SimpleDateFormat("'Le' dd MMMM 'à' HH'h'mm ");
                         format.setTimeZone(TimeZone.getDefault());
-                        EPOCH = millis - 86399000;
+                        pickedDate.setTime(millis - 86399000);
                         String time = formEventTime.getEditText().getText().toString();
                         if (!time.equals(""))
                         {
                             int hour = Integer.parseInt(time.substring(0, 2));
                             int minute = Integer.parseInt(time.substring(3, 5));
-                            EPOCH += hour * 3600000 + minute * 60000; //Conversion in MILLISECONDS
+                            long conversion = pickedDate.getTime() + (hour * 3600000 + minute * 60000);
+                            pickedDate.setTime(conversion); //Conversion in MILLISECONDS
                         }
-                        ((TextView) eventCardPreview.findViewById(R.id.eventDate)).setText(format.format(EPOCH));
+                        ((TextView) eventCardPreview.findViewById(R.id.eventDate)).setText(format.format(pickedDate));
                     }
                 }
                 catch (ParseException e)
@@ -462,11 +463,11 @@ public abstract class EventFormActivity
                         String date = formEventDate.getEditText().getText().toString();
                         SimpleDateFormat df_date = new SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE);
                         df_date.setTimeZone(TimeZone.getDefault());
-                        EPOCH = df_date.parse(date).getTime() + sHour * 3600000 + sMinute * 60000;
+                        pickedDate.setTime(df_date.parse(date).getTime() + sHour * 3600000 + sMinute * 60000);
 
                         SimpleDateFormat format = new SimpleDateFormat("'Le' dd MMMM 'à' HH'h'mm ", Locale.FRANCE);
                         format.setTimeZone(TimeZone.getDefault());
-                        ((TextView) eventCardPreview.findViewById(R.id.eventDate)).setText(format.format(EPOCH));
+                        ((TextView) eventCardPreview.findViewById(R.id.eventDate)).setText(format.format(pickedDate));
                     }
                     catch (ParseException e)
                     {
@@ -607,11 +608,11 @@ public abstract class EventFormActivity
                                 switch (item.getItemId())
                                 {
                                     case R.id.itemPrice:
-                                        newPrice = new EventPrice(0, 0, 2, "Éclat de feu", "https://xivapi.com/i/020000/020001.png", 1);
+                                        newPrice = new EventPrice("0", 0, 2, "Éclat de feu", "https://xivapi.com/i/020000/020001.png", 1);
                                         break;
 
                                     case R.id.gilsPrice:
-                                        newPrice = new EventPrice(0, 0, 1, "Gil", "https://xivapi.com/i/065000/065002.png", 100000);
+                                        newPrice = new EventPrice("0", 0, 1, "Gil", "https://xivapi.com/i/065000/065002.png", 100000);
                                         break;
 
                                     default:
@@ -759,7 +760,7 @@ public abstract class EventFormActivity
         else
             this.formEventTime.setError("");
 
-        if (this.EPOCH == 0L)
+        if (this.pickedDate == null)
             result = false;
 
         if (this.formEventMaxParticipantsType.getCheckedRadioButtonId() == R.id.participationType1)

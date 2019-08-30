@@ -18,7 +18,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.facebook.shimmer.Shimmer;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.events.list.EventDetailsDialogFragment;
@@ -292,7 +291,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         }
 
         //Date
-        Date eventTime = new Date(event.getEventEpochTime() * 1000);
+        Date eventTime = event.getEventDate();
         SimpleDateFormat eventDateFormat = new SimpleDateFormat("dd MMMM yyyy", Locale.FRANCE);
         SimpleDateFormat eventTimeFormat = new SimpleDateFormat("HH:mm", Locale.FRANCE);
         holder.date.setText(String.format(Locale.FRANCE, "Le %s à %s", eventDateFormat.format(eventTime), eventTimeFormat.format(eventTime)));

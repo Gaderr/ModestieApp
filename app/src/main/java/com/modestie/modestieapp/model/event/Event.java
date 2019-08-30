@@ -2,6 +2,10 @@ package com.modestie.modestieapp.model.event;
 
 import android.util.Log;
 
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.modestie.modestieapp.utils.Utils;
+
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -10,13 +14,16 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class Event
 {
-    private int ID;
+    private String ID; //TODO delete
     private String name;
     private Long promoterID;
-    private Long eventEpochTime;
+    private Date eventDate;
     private String imageURL;
     private String description;
     private int maxParticipants;
@@ -24,9 +31,9 @@ public class Event
     private ArrayList<Long> participantsIDs;
     private ArrayList<EventPrice> prices;
 
-    public static Comparator<Event> EventDateComparator = (e1, e2) -> Long.compare(e1.getEventEpochTime(), e2.getEventEpochTime());
+    public static Comparator<Event> EventDateComparator = (e1, e2) -> Long.compare(e1.getEventDate().getTime(), e2.getEventDate().getTime());
 
-    public static Comparator<EventPrice> PriceDegreeComparator = (e1, e2) -> Integer.compare(e1.getPriceRewardDegree(), e2.getPriceRewardDegree());
+    public static Comparator<EventPrice> PriceDegreeComparator = (e1, e2) -> Long.compare(e1.getPriceRewardDegree(), e2.getPriceRewardDegree());
 
     public static final String TAG = "MODL.EVENT";
 
@@ -34,7 +41,7 @@ public class Event
     {
         this.name = "";
         this.promoterID = 0L;
-        this.eventEpochTime = 0L;
+        this.eventDate = new Date();
         this.imageURL = "";
         this.description = "";
         this.maxParticipants = 0;
@@ -43,17 +50,46 @@ public class Event
         this.prices = new ArrayList<>();
     }
 
-    public Event(String name, Long promoterID, Long eventEpochTime, String imageURL, String description, int maxParticipants, boolean promoterIsParticipant, ArrayList<Long> participantsIDs, ArrayList<EventPrice> prices)
+    public Event(String name, Long promoterID, Date eventTime, String imageURL, String description, int maxParticipants, boolean promoterIsParticipant, ArrayList<Long> participantsIDs, ArrayList<EventPrice> prices)
     {
         this.name = name;
         this.promoterID = promoterID;
-        this.eventEpochTime = eventEpochTime;
+        this.eventDate = eventTime;
         this.imageURL = imageURL;
         this.description = description;
         this.maxParticipants = maxParticipants;
         this.promoterIsParticipant = promoterIsParticipant;
         this.participantsIDs = participantsIDs;
         this.prices = prices;
+    }
+
+    public Event(DocumentSnapshot document)
+    {
+        this.ID = document.getId();
+        this.name = (String) document.get("name");
+        this.promoterID = (Long) document.get("promoterID");
+        this.eventDate = ((Timestamp) document.get("timestamp")).toDate();
+        this.imageURL = (String) document.get("illustration");
+        this.description = Utils.replaceEscapeChars((String) document.get("description"));
+        this.maxParticipants = Integer.parseInt(String.valueOf(document.get("maxParticipants")));
+        this.promoterIsParticipant = (boolean) document.get("promoterParticipant");
+        this.participantsIDs = (ArrayList<Long>) document.get("participants");
+        this.prices = new ArrayList<>();
+        Map<Map<String, Object>, Object> prices = (Map<Map<String, Object>, Object>) document.get("prices");
+        for(int i = 1; i <= prices.size(); i++)
+        {
+            Map<String, Object> price = (Map<String, Object>) prices.get("price" + i);
+            this.prices.add(
+                    new EventPrice(
+                            this.ID,
+                            (long) price.get("degree"),
+                            (long) price.get("itemID"),
+                            (String) price.get("itemName"),
+                            (String) price.get("itemIconURL"),
+                            (long) price.get("amount")
+                    ));
+        }
+        Collections.sort(this.prices, Event.PriceDegreeComparator);
     }
 
     public Event(@NotNull JSONObject obj)
@@ -64,23 +100,23 @@ public class Event
             JSONArray participants = obj.getJSONArray("Participants");
             JSONArray prices = obj.getJSONArray("Prices");
 
-            this.ID = event.getInt("id");
+            this.ID = event.getInt("id") + "";
             this.name = event.getString("eventName");
             this.promoterID = Long.parseLong(event.getString("promoterID"));
-            this.eventEpochTime = Long.parseLong(event.getString("eventEPOCH"));
+            this.eventDate = new Date(Long.parseLong(event.getString("eventEPOCH")) * 1000);
             this.imageURL = event.getString("image_url");
             this.description = event.getString("description");
             this.maxParticipants = Integer.parseInt(event.getString("maxParticipants"));
             this.promoterIsParticipant = Integer.parseInt(event.getString("promoterIsParticipant")) == 1;
 
             this.participantsIDs = new ArrayList<>();
-            for(int i = 0; i < participants.length(); i++)
+            for (int i = 0; i < participants.length(); i++)
             {
                 this.participantsIDs.add(Long.parseLong(participants.getJSONObject(i).getString("participantID")));
             }
 
             this.prices = new ArrayList<>();
-            for(int i = 0; i < prices.length(); i++)
+            for (int i = 0; i < prices.length(); i++)
             {
                 this.prices.add(new EventPrice(prices.getJSONObject(i)));
             }
@@ -98,21 +134,22 @@ public class Event
     /**
      * Adds a blank price into this event with the given degree reward. If a reward with the given
      * degree already exists, it returns a false result and true if not.
-     * @param degree Price degree
+     *
+     * @param degree    Price degree
      * @param priceType Price type, 0 = gils, other = item;
      * @return Add result
      */
     public Boolean addPrice(int degree, int priceType)
     {
-        for(int i = 0; i < this.prices.size(); i++)
+        for (int i = 0; i < this.prices.size(); i++)
         {
-            if(this.prices.get(i).getPriceRewardDegree() == degree)
+            if (this.prices.get(i).getPriceRewardDegree() == degree)
             {
                 return false;
             }
         }
 
-        this.prices.add(new EventPrice(0, 0, 1, "Gil", "https://xivapi.com/i/065000/065002.png", 100000));
+        this.prices.add(new EventPrice("0", 0, 1, "Gil", "https://xivapi.com/i/065000/065002.png", 100000));
         Collections.sort(this.prices, PriceDegreeComparator);
 
         return true;
@@ -121,9 +158,9 @@ public class Event
     public Boolean removePrice(int degree)
     {
         boolean removed = false;
-        for(int i = 0; i < this.prices.size(); i++)
+        for (int i = 0; i < this.prices.size(); i++)
         {
-            if(this.prices.get(i).getPriceRewardDegree() == degree)
+            if (this.prices.get(i).getPriceRewardDegree() == degree)
             {
                 this.prices.remove(i);
                 removed = true;
@@ -131,14 +168,14 @@ public class Event
             }
         }
 
-        if(removed) Collections.sort(this.prices, PriceDegreeComparator);
+        if (removed) Collections.sort(this.prices, PriceDegreeComparator);
 
         return removed;
     }
 
     public void reattributeDegrees()
     {
-        for(int i = 0; i < this.prices.size(); i++)
+        for (int i = 0; i < this.prices.size(); i++)
         {
             this.prices.get(i).setPriceRewardDegree(i + 1);
         }
@@ -148,7 +185,7 @@ public class Event
     {
         StringBuilder s = new StringBuilder();
         s.append("Prices : \n");
-        for (EventPrice price: prices)
+        for (EventPrice price : prices)
         {
             s.append(price.priceToString()).append("\n");
         }
@@ -159,7 +196,7 @@ public class Event
         GETTERS & SETTERS
      */
 
-    public int getID()
+    public String getID()
     {
         return ID;
     }
@@ -184,14 +221,14 @@ public class Event
         this.promoterID = promoterID;
     }
 
-    public Long getEventEpochTime()
+    public Date getEventDate()
     {
-        return eventEpochTime;
+        return eventDate;
     }
 
-    public void setEventEpochTime(Long eventEpochTime)
+    public void setEventDate(Date eventDate)
     {
-        this.eventEpochTime = eventEpochTime;
+        this.eventDate = eventDate;
     }
 
     public String getImageURL()
@@ -234,7 +271,7 @@ public class Event
         this.promoterIsParticipant = promoterIsParticipant;
     }
 
-    public ArrayList<Long> getParticipantsIDs()
+    public List<Long> getParticipantsIDs()
     {
         return participantsIDs;
     }
@@ -254,11 +291,16 @@ public class Event
         this.prices = prices;
     }
 
+    public void setPrices(DocumentSnapshot document)
+    {
+
+    }
+
     public void removeParticipant(long ID)
     {
-        for(int i = 0; i < this.participantsIDs.size(); i++)
+        for (int i = 0; i < this.participantsIDs.size(); i++)
         {
-            if(this.participantsIDs.get(i).equals(ID))
+            if (this.participantsIDs.get(i).equals(ID))
             {
                 this.participantsIDs.remove(i);
                 Log.e(TAG, "Participant found and removed");
@@ -275,7 +317,7 @@ public class Event
                 "ID=" + ID +
                 ", name='" + name + '\'' +
                 ", promoterID=" + promoterID +
-                ", eventEpochTime=" + eventEpochTime +
+                ", eventDate=" + eventDate +
                 ", imageURL='" + imageURL + '\'' +
                 ", description='" + description + '\'' +
                 ", maxParticipants=" + maxParticipants +
