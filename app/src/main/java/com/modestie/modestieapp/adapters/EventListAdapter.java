@@ -48,7 +48,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
     private boolean userIsLoggedIn;
     private LightCharacter userCharacter;
     private ArrayList<Event> events;
-    private Map<Integer, FreeCompanyMember> members;
+    private Map<Long, FreeCompanyMember> members;
     private RequestHelper requestHelper;
     private LightCharacter nonFCMemberPromoter;
 
@@ -129,9 +129,10 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
             do
             {
                 FreeCompanyMember member = new FreeCompanyMember(cursor);
-                this.members.put(member.getID(), member);
+                this.members.put((long) member.getID(), member);
             }
             while (cursor.moveToNext());
+            Log.e(TAG, this.members.toString());
         }
         else
         {
@@ -178,10 +179,12 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         Event event = this.events.get(position);
         if(this.members.containsKey(event.getPromoterID()))
         {
+            Log.e(TAG, "Promoter is a FC member");
             setupCardData(holder, event, this.members.get(event.getPromoterID()));
         }
         else
         {
+            Log.e(TAG, "Promoter is a VIP member");
             this.requestHelper.addToRequestQueue(
                     new JsonObjectRequest(
                             GET,

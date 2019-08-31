@@ -1,6 +1,5 @@
 package com.modestie.modestieapp.activities.events.form;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,11 +9,14 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.util.Pair;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.model.event.EventPrice;
 import com.modestie.modestieapp.utils.Utils;
@@ -23,19 +25,23 @@ import com.modestie.modestieapp.utils.network.RequestURLs;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 public class NewEventActivity extends EventFormActivity
 {
     public static final String TAG = "ACTVT.NEWEVENT";
 
+    FirebaseFirestore db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        this.db = FirebaseFirestore.getInstance();
 
         this.activityTitle.setText(getString(R.string.title_new_event_activity));
 
@@ -136,151 +142,52 @@ public class NewEventActivity extends EventFormActivity
     }
 
     /**
-     * New event post / Step 2 :: Post event to modestie.fr
-     * Then proceed to step 3
+     * New event post / Step 2 :: Post event to Firebase
+     * Then finalize
      */
-    @SuppressLint("SimpleDateFormat")
     public void eventPostStep2(String imageLink)
     {
-        SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-        df.setTimeZone(TimeZone.getDefault());
-        try
+        Map<String, Object> data = new HashMap<>();
+        data.put("name", this.formEventName.getEditText().getText() + "");
+        data.put("promoterID", this.userCharacter.getID());
+        data.put("timestamp", new Timestamp(this.pickedDate));
+        data.put("illustration", imageLink);
+        data.put("description", this.formEventDescription.getEditText().getText() + "");
+        if (this.formEventMaxParticipantsType.getCheckedRadioButtonId() == R.id.participationType1)
+            data.put("maxParticipants", Integer.parseInt(this.formEventMaxParticipants.getEditText().getText() + ""));
+        else
+            data.put("maxParticipants", -1);
+        data.put("promoterParticipant", this.formEventPromoterParticipant.isChecked());
+        data.put("participants", null);
+        Map<String, Map<String, Object>> prices = new HashMap<>();
+        int count = 0;
+        for(Pair<Long, EventPrice> eventPrice : this.listPrices)
         {
-            JSONObject postparams = new JSONObject();
-            postparams.put("name", this.formEventName.getEditText().getText());
-            postparams.put("promoter", this.loggedInUser.getCharacterID());
-            postparams.put("epoch", pickedDate.getTime() / 1000);
-            postparams.put("description", this.formEventDescription.getEditText().getText() + "");
-            if (this.formEventMaxParticipantsType.getCheckedRadioButtonId() == R.id.participationType1)
-                postparams.put("maxparticipants", this.formEventMaxParticipants.getEditText().getText() + "");
-            else
-                postparams.put("maxparticipants", "-1");
-            if (this.formEventPromoterParticipant.isChecked())
-                postparams.put("promoterParticipant", "1");
-            else
-                postparams.put("promoterParticipant", "0");
-            postparams.put("image", imageLink);
-            postparams.put("apiKey", loggedInUser.getAPIKey());
+            Map<String, Object> documentPrice = new HashMap<>();
+            documentPrice.put("degree", eventPrice.first);
+            documentPrice.put("amount", eventPrice.second.getAmount());
+            documentPrice.put("itemID", eventPrice.second.getItemID());
+            documentPrice.put("itemIconURL", eventPrice.second.getItemIconURL());
+            documentPrice.put("itemName", eventPrice.second.getItemName());
+            prices.put("price" + ++count, documentPrice);
+        }
+        data.put("prices", prices);
 
-            JsonObjectRequest request = new JsonObjectRequest(
-                    Request.Method.POST, RequestURLs.MODESTIE_EVENTS_ADD, postparams,
-                    response ->
-                    {
-                        try
+        this.db.collection("events")
+                .add(data)
+                .addOnCompleteListener(
+                        task ->
                         {
-                            if (this.listPrices.size() > 0)
-                            {
-                                eventPostStep3(response.getInt("id"));
-                            }
-                            else
-                            {
-                                this.pending = false;
-                                eventPostFinal(true, null);
-                            }
-                        }
-                        catch (JSONException e)
+                            this.pending = false;
+                            eventPostFinal(true, null);
+                        })
+                .addOnFailureListener(
+                        e ->
                         {
                             Log.e(TAG, e.getLocalizedMessage());
                             this.pending = false;
                             eventPostFinal(false, "event");
-                        }
-                    },
-                    error ->
-                    {
-                        //Log.e(TAG, error.getLocalizedMessage());
-                        Log.e(TAG, "EVENT SENDING FAILED");
-                        eventPostFinal(false, "event");
-                    }
-            )
-            {
-                @Override
-                public Map<String, String> getHeaders()
-                {
-                    Map<String, String> params = new HashMap<>();
-                    params.put("Authorization", "Bearer " + loggedInUser.getToken());
-                    return params;
-                }
-            };
-
-            request.setRetryPolicy(new DefaultRetryPolicy(
-                    0,
-                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-            ));
-
-            this.requestHelper.addToRequestQueue(request, "newEventPostRequest");
-        }
-        catch (JSONException e)
-        {
-            Log.e(TAG, e.getLocalizedMessage());
-            eventPostFinal(false, "event");
-        }
-    }
-
-    /**
-     * New event post / Step 3 :: Post prices bounded to the posted event
-     * Then finalize
-     *
-     * Note : Prices post requests are separated from event post request to avoid pushing data
-     * to modestie.fr database if the event post request failed.
-     */
-    public void eventPostStep3(int eventID)
-    {
-        this.pricePendingRequests = 0;
-        for (int i = 0; i < this.listPrices.size(); i++)
-        {
-            try
-            {
-                EventPrice price = this.listPrices.get(i).second;
-                JSONObject postparams = new JSONObject();
-                postparams.put("eventID", eventID);
-                postparams.put("degree", this.listPrices.get(i).first);
-                postparams.put("itemID", price.getItemID());
-                postparams.put("itemName", price.getItemName());
-                postparams.put("itemIcon", price.getItemIconURL());
-                postparams.put("amount", price.getAmount());
-                postparams.put("apiKey", this.loggedInUser.getAPIKey());
-
-                ++this.pricePendingRequests;
-                //Log.e(TAG, "PRICE SENDING NUMBER " + this.pricePendingRequests + " DEGREE " + this.listPrices.get(i).first);
-                JsonObjectRequest priceRequest = new JsonObjectRequest(
-                        Request.Method.POST, RequestURLs.MODESTIE_PRICES_ADD, postparams,
-                        response ->
-                        {
-                            if (--this.pricePendingRequests == 0)
-                                eventPostFinal(true, null);
-                        },
-                        error ->
-                        {
-                            //Log.e(TAG, error.getMessage());
-                            Log.e(TAG, "PRICE SENDING FAILED");
-                            this.pricePendingRequests--;
-                        }
-                )
-                {
-                    @Override
-                    public Map<String, String> getHeaders()
-                    {
-                        Map<String, String> params = new HashMap<>();
-                        params.put("Authorization", "Bearer " + loggedInUser.getToken());
-                        return params;
-                    }
-                };
-
-                priceRequest.setRetryPolicy(new DefaultRetryPolicy(
-                        0,
-                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-                ));
-
-                this.requestHelper.addToRequestQueue(priceRequest, "newPricePostRequest" + this.pricePendingRequests);
-            }
-            catch (JSONException e)
-            {
-                Log.e(TAG, e.getLocalizedMessage());
-                this.pricePendingRequests--;
-            }
-        }
+                        });
     }
 
     public void eventPostFinal(boolean success, @Nullable String errorValue)

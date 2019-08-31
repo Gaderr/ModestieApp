@@ -249,47 +249,7 @@ public class EventModificationActivity extends EventFormActivity
      */
     private void eventUpdateStep2()
     {
-        if (this.pricesChanged)
-        {
-            try
-            {
-                JSONObject pricesRemovalParams = new JSONObject();
-                pricesRemovalParams.put("eventID", event.getID());
-                pricesRemovalParams.put("apiKey", this.loggedInUser.getAPIKey());
-
-                JsonObjectRequest priceRequest = new JsonObjectRequest(
-                        Request.Method.POST, RequestURLs.MODESTIE_PRICES_REMOVE, pricesRemovalParams,
-                        response ->
-                        {
-                            if (this.listPrices.size() == 0)
-                                eventUpdateStep3();
-                            else
-                                eventUpdateStep2_1();
-                        },
-                        error -> Log.e(TAG, "PRICE DELETION FAILED")
-                )
-                {
-                    @Override
-                    public Map<String, String> getHeaders()
-                    {
-                        Map<String, String> params = new HashMap<>();
-                        params.put("Authorization", "Bearer " + loggedInUser.getToken());
-                        return params;
-                    }
-                };
-
-                priceRequest.setRetryPolicy(new DefaultRetryPolicy(0, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-                this.requestHelper.addToRequestQueue(priceRequest, "newPricePostRequest" + this.pricePendingRequests);
-            }
-            catch (JSONException e)
-            {
-                e.printStackTrace();
-                eventUpdateFinal(false, "event");
-            }
-        }
-        else
-            eventUpdateStep3();
+        eventUpdateStep3();
     }
 
     /**

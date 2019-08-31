@@ -20,7 +20,7 @@ import java.util.Map;
 
 public class Event
 {
-    private String ID; //TODO delete
+    private String ID;
     private String name;
     private Long promoterID;
     private Date eventDate;
@@ -74,22 +74,25 @@ public class Event
         this.maxParticipants = Integer.parseInt(String.valueOf(document.get("maxParticipants")));
         this.promoterIsParticipant = (boolean) document.get("promoterParticipant");
         this.participantsIDs = (ArrayList<Long>) document.get("participants");
+        if(this.participantsIDs == null) this.participantsIDs = new ArrayList<>();
         this.prices = new ArrayList<>();
-        Map<Map<String, Object>, Object> prices = (Map<Map<String, Object>, Object>) document.get("prices");
-        for(int i = 1; i <= prices.size(); i++)
+        Map<String, Map<String, Object>> prices = (Map<String, Map<String, Object>>) document.get("prices");
+        if(prices != null)
         {
-            Map<String, Object> price = (Map<String, Object>) prices.get("price" + i);
-            this.prices.add(
-                    new EventPrice(
-                            this.ID,
-                            (long) price.get("degree"),
-                            (long) price.get("itemID"),
-                            (String) price.get("itemName"),
-                            (String) price.get("itemIconURL"),
-                            (long) price.get("amount")
-                    ));
+            for(int i = 1; i <= prices.size(); i++)
+            {
+                Map<String, Object> price = prices.get("price" + i);
+                this.prices.add(
+                        new EventPrice(
+                                (long) price.get("degree"),
+                                (long) price.get("itemID"),
+                                (String) price.get("itemName"),
+                                (String) price.get("itemIconURL"),
+                                (long) price.get("amount")
+                        ));
+            }
+            Collections.sort(this.prices, Event.PriceDegreeComparator);
         }
-        Collections.sort(this.prices, Event.PriceDegreeComparator);
     }
 
     public Event(@NotNull JSONObject obj)
@@ -149,7 +152,7 @@ public class Event
             }
         }
 
-        this.prices.add(new EventPrice("0", 0, 1, "Gil", "https://xivapi.com/i/065000/065002.png", 100000));
+        this.prices.add(new EventPrice(0, 1, "Gil", "https://xivapi.com/i/065000/065002.png", 100000));
         Collections.sort(this.prices, PriceDegreeComparator);
 
         return true;

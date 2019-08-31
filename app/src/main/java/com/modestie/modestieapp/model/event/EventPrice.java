@@ -10,18 +10,16 @@ import java.util.Comparator;
 
 public class EventPrice implements Comparable<EventPrice>
 {
-    private static final String TAG = "XIVAPI.EVN.EVNTPRCE";
+    private static final String TAG = "MODL.EVNTPRCE";
 
-    private String eventID;
     private long priceRewardDegree;
     private long itemID;
     private String itemName;
     private String itemIconURL;
     private long amount;
 
-    public EventPrice(String eventID, long priceRewardDegree, long itemID, String itemName, String iconURL, long amount)
+    public EventPrice(long priceRewardDegree, long itemID, String itemName, String iconURL, long amount)
     {
-        this.eventID = eventID;
         this.priceRewardDegree = priceRewardDegree;
         this.itemIconURL = iconURL;
         this.itemID = itemID;
@@ -33,7 +31,6 @@ public class EventPrice implements Comparable<EventPrice>
     {
         try
         {
-            this.eventID = obj.getString("eventID");
             this.priceRewardDegree = Integer.parseInt(obj.getString("priceRewardDegree"));
             this.itemID = Integer.parseInt(obj.getString("itemID"));
             this.itemName = obj.getString("itemName");
@@ -48,7 +45,6 @@ public class EventPrice implements Comparable<EventPrice>
 
     public EventPrice(Bundle attrs)
     {
-        this.eventID = attrs.getString("eventID");
         this.priceRewardDegree = attrs.getInt("priceRewardDegree");
         this.itemID = attrs.getInt("itemID");
         this.itemName = attrs.getString("itemName");
@@ -59,7 +55,6 @@ public class EventPrice implements Comparable<EventPrice>
     public Bundle toBundle()
     {
         Bundle attrs = new Bundle();
-        attrs.putString("eventID", this.eventID);
         attrs.putLong("priceRewardDegree", this.priceRewardDegree);
         attrs.putLong("itemID", this.itemID);
         attrs.putString("itemName", this.itemName);
@@ -71,16 +66,6 @@ public class EventPrice implements Comparable<EventPrice>
     public String priceToString()
     {
         return this.itemName + " x" + this.amount;
-    }
-
-    public String getEventID()
-    {
-        return eventID;
-    }
-
-    public void setEventID(String eventID)
-    {
-        this.eventID = eventID;
     }
 
     public long getPriceRewardDegree()

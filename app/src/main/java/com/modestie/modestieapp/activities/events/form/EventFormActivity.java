@@ -119,6 +119,7 @@ public abstract class EventFormActivity
     AlertDialog imageUploadError;
 
     LoggedInUser loggedInUser;
+    LightCharacter userCharacter;
 
     RequestHelper requestHelper;
     int SOCKET_TIMEOUT = 3000;
@@ -184,7 +185,8 @@ public abstract class EventFormActivity
 
         Hawk.init(getApplicationContext()).build();
 
-        loggedInUser = Hawk.get("LoggedInUser");
+        this.loggedInUser = Hawk.get("LoggedInUser");
+        this.userCharacter = Hawk.get("UserCharacter");
 
         this.pickedImage = null;
         this.bitmapConvertedImage = null;
@@ -608,11 +610,11 @@ public abstract class EventFormActivity
                                 switch (item.getItemId())
                                 {
                                     case R.id.itemPrice:
-                                        newPrice = new EventPrice("0", 0, 2, "Éclat de feu", "https://xivapi.com/i/020000/020001.png", 1);
+                                        newPrice = new EventPrice(0, 2, "Éclat de feu", "https://xivapi.com/i/020000/020001.png", 1);
                                         break;
 
                                     case R.id.gilsPrice:
-                                        newPrice = new EventPrice("0", 0, 1, "Gil", "https://xivapi.com/i/065000/065002.png", 100000);
+                                        newPrice = new EventPrice(0, 1, "Gil", "https://xivapi.com/i/065000/065002.png", 100000);
                                         break;
 
                                     default:
