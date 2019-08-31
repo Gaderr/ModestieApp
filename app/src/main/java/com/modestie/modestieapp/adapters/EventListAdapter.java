@@ -132,7 +132,6 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
                 this.members.put((long) member.getID(), member);
             }
             while (cursor.moveToNext());
-            Log.e(TAG, this.members.toString());
         }
         else
         {
@@ -177,14 +176,12 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         EventListCardViewHolder holder = (EventListCardViewHolder) vHolder;
         holder.eventCard.setVisibility(View.GONE);
         Event event = this.events.get(position);
-        if(this.members.containsKey(event.getPromoterID()))
+        if (this.members.containsKey(event.getPromoterID()))
         {
-            Log.e(TAG, "Promoter is a FC member");
             setupCardData(holder, event, this.members.get(event.getPromoterID()));
         }
         else
         {
-            Log.e(TAG, "Promoter is a VIP member");
             this.requestHelper.addToRequestQueue(
                     new JsonObjectRequest(
                             GET,
@@ -257,7 +254,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         holder.promoterParticipation = event.isPromoterParticipant();
 
         //Get user participation
-        if(this.userCharacter != null)
+        if (this.userCharacter != null)
             holder.userParticipation = event.getParticipantsIDs().contains(this.userCharacter.getID());
         else
             holder.userParticipation = false;
@@ -266,7 +263,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
 
         //Header (avatar + title + promoter)
         holder.title.setText(event.getName());
-        if(promoter instanceof FreeCompanyMember)
+        if (promoter instanceof FreeCompanyMember)
         {
             holder.promoter.setText(String.format(Locale.FRANCE, "Organisé par %s", ((FreeCompanyMember) promoter).getName()));
             Picasso.get()
@@ -274,7 +271,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
                     .placeholder(R.color.color_surface_dimmed)
                     .into(holder.promoterAvatar);
         }
-        if(promoter instanceof LightCharacter)
+        if (promoter instanceof LightCharacter)
         {
             holder.promoter.setText(String.format(Locale.FRANCE, "Organisé par %s", ((LightCharacter) promoter).getName()));
             Picasso.get()
@@ -328,10 +325,8 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         holder.v.setOnClickListener(
                 v ->
                 {
-                    if(Hawk.put("SelectedEvent", event) && Hawk.put("SelectedEventPromoter", promoter))
+                    if (Hawk.put("SelectedEvent", event) && Hawk.put("SelectedEventPromoter", promoter))
                         EventDetailsDialogFragment.display(((AppCompatActivity) context).getSupportFragmentManager());
                 });
     }
-
-
 }

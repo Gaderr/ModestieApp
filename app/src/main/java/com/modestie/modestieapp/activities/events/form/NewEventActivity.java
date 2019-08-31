@@ -13,7 +13,6 @@ import androidx.core.util.Pair;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -25,16 +24,14 @@ import com.modestie.modestieapp.utils.network.RequestURLs;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class NewEventActivity extends EventFormActivity
 {
     public static final String TAG = "ACTVT.NEWEVENT";
 
-    FirebaseFirestore db;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -60,12 +57,10 @@ public class NewEventActivity extends EventFormActivity
         this.toolbarAction.setOnClickListener(
                 v ->
                 {
-                    Log.e(TAG, "SAVE EVENT OPTION SELECTED");
                     if (!this.pending)
                     {
                         if (this.validateForm())
                         {
-                            Log.e(TAG, "FORM VALID");
                             this.loadingLayout.setVisibility(View.VISIBLE);
                             this.formLayout.setVisibility(View.INVISIBLE);
                             hideKeyboardFrom(this, this.formLayout);
@@ -161,7 +156,7 @@ public class NewEventActivity extends EventFormActivity
         data.put("participants", null);
         Map<String, Map<String, Object>> prices = new HashMap<>();
         int count = 0;
-        for(Pair<Long, EventPrice> eventPrice : this.listPrices)
+        for (Pair<Long, EventPrice> eventPrice : this.listPrices)
         {
             Map<String, Object> documentPrice = new HashMap<>();
             documentPrice.put("degree", eventPrice.first);

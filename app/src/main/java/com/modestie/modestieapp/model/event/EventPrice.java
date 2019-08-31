@@ -45,11 +45,11 @@ public class EventPrice implements Comparable<EventPrice>
 
     public EventPrice(Bundle attrs)
     {
-        this.priceRewardDegree = attrs.getInt("priceRewardDegree");
-        this.itemID = attrs.getInt("itemID");
+        this.priceRewardDegree = attrs.getLong("priceRewardDegree");
+        this.itemID = attrs.getLong("itemID");
         this.itemName = attrs.getString("itemName");
         this.itemIconURL = attrs.getString("itemIconURL");
-        this.amount = attrs.getInt("amount");
+        this.amount = attrs.getLong("amount");
     }
 
     public Bundle toBundle()

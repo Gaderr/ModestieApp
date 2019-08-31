@@ -80,21 +80,6 @@ public abstract class RequestURLs
     private static final String MODESTIE_REST_ENDPOINT_UPDATE = "/update";
     private static final String MODESTIE_REST_ENDPOINT_REMOVE = "/remove";
 
-    // JWT + API KEY (extending WP plugin)
-    public static final String MODESTIE_GET_JWT_APIKEY = MODESTIE_REST_ENDPOINT + "/token";
-
-    // Events
-    public static final String MODESTIE_EVENTS_REQ = MODESTIE_REST_ENDPOINT + "/events";
-    public static final String MODESTIE_EVENTS_ID_PARAM = "id=";
-    public static final String MODESTIE_EVENTS_UPDATE = MODESTIE_EVENTS_REQ + MODESTIE_REST_ENDPOINT_UPDATE;
-    public static final String MODESTIE_EVENTS_ADD = MODESTIE_EVENTS_REQ + MODESTIE_REST_ENDPOINT_ADD;
-    public static final String MODESTIE_EVENTS_REMOVE = MODESTIE_EVENTS_REQ + MODESTIE_REST_ENDPOINT_REMOVE;
-
-    // Prices
-    public static final String MODESTIE_PRICES_REQ = MODESTIE_REST_ENDPOINT + "/prices";
-    public static final String MODESTIE_PRICES_ADD = MODESTIE_PRICES_REQ + MODESTIE_REST_ENDPOINT_ADD;
-    public static final String MODESTIE_PRICES_REMOVE = MODESTIE_PRICES_REQ + MODESTIE_REST_ENDPOINT_REMOVE;
-
     // Participants
     public static final String MODESTIE_PARTICIPANTS_REQ = MODESTIE_REST_ENDPOINT + "/participants";
     public static final String MODESTIE_PARTICIPANTS_ADD = MODESTIE_PARTICIPANTS_REQ + MODESTIE_REST_ENDPOINT_ADD;

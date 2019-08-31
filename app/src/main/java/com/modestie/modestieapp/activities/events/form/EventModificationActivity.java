@@ -1,6 +1,5 @@
 package com.modestie.modestieapp.activities.events.form;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,8 +14,9 @@ import androidx.core.util.Pair;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.event.EventPrice;
@@ -28,11 +28,9 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 
 public class EventModificationActivity extends EventFormActivity
 {
@@ -40,13 +38,15 @@ public class EventModificationActivity extends EventFormActivity
 
     private Event event;
 
-    private JSONObject postParams;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+        this.db = FirebaseFirestore.getInstance();
         //Get event to modify
         this.event = Hawk.get("SelectedEvent");
+        Log.e(TAG, this.event.toString());
         //Set timestamp before calling superclass for proper instantiation
         this.pickedDate = this.event.getEventDate();
 
@@ -70,12 +70,10 @@ public class EventModificationActivity extends EventFormActivity
         this.toolbarAction.setOnClickListener(
                 v ->
                 {
-                    Log.e(TAG, "MODIFY EVENT OPTION SELECTED");
                     if (!this.pending)
                     {
                         if (this.validateForm())
                         {
-                            Log.e(TAG, "FORM VALID");
                             this.loadingLayout.setVisibility(View.VISIBLE);
                             this.formLayout.setVisibility(View.INVISIBLE);
                             hideKeyboardFrom(this, this.formLayout);
@@ -147,7 +145,9 @@ public class EventModificationActivity extends EventFormActivity
                                 this.toolbarAction.setEnabled(false);
                                 eventDelete();
                             })
-                            .setNegativeButton(R.string.event_deletion_alert_cancel, (dialog, which) -> {});
+                            .setNegativeButton(R.string.event_deletion_alert_cancel, (dialog, which) ->
+                            {
+                            });
                     deleteEventAlertBuilder.create().show();
                 }
         );
@@ -160,25 +160,12 @@ public class EventModificationActivity extends EventFormActivity
     private void eventUpdateStep1()
     {
         this.pending = true;
-        this.postParams = new JSONObject();
 
         if (this.illustrationChanged)
         {
             //Check if an image was picked by user
             if (this.bitmapConvertedImage == null)
-            {
-                try
-                {
-                    this.postParams.put("image", "");
-                    eventUpdateStep2();
-                }
-                catch (JSONException e)
-                {
-                    e.printStackTrace();
-                    pending = false;
-                    eventUpdateFinal(false, "image");
-                }
-            }
+                eventUpdateStep2("");
             else
             {
                 StringRequest imageUploadRequest = new StringRequest(
@@ -192,8 +179,7 @@ public class EventModificationActivity extends EventFormActivity
 
                                 if (jsonResponse.getBoolean("success"))
                                 {
-                                    this.postParams.put("image", jsonResponse.getJSONObject("data").getString("link"));
-                                    eventUpdateStep2();
+                                    eventUpdateStep2(jsonResponse.getJSONObject("data").getString("link"));
                                 }
                                 else
                                     imageUploadError.show();
@@ -201,7 +187,6 @@ public class EventModificationActivity extends EventFormActivity
                             catch (JSONException e)
                             {
                                 Log.e(TAG, e.getLocalizedMessage());
-                                pending = false;
                                 eventUpdateFinal(false, "image");
                             }
                         },
@@ -239,202 +224,63 @@ public class EventModificationActivity extends EventFormActivity
             }
         }
         else
-            eventUpdateStep2();
+            eventUpdateStep2(this.event.getImageURL());
     }
 
     /**
-     * New update post / Step 2 :: Update prices list - Delete prices
-     * If price list changed delete current prices then proceed to step 2.1
-     * If not, ignore and proceed to step 3
-     */
-    private void eventUpdateStep2()
-    {
-        eventUpdateStep3();
-    }
-
-    /**
-     * New update post / Step 2.1 :: Update prices list - Upload new prices
-     * Then proceed to step 3
-     */
-    private void eventUpdateStep2_1()
-    {
-        this.pricePendingRequests = 0;
-        for (int i = 0; i < this.listPrices.size(); i++)
-        {
-            try
-            {
-                EventPrice price = this.listPrices.get(i).second;
-                JSONObject postParams = new JSONObject();
-                postParams.put("eventID", this.event.getID());
-                postParams.put("degree", this.listPrices.get(i).first);
-                postParams.put("itemID", price.getItemID());
-                postParams.put("itemName", price.getItemName());
-                postParams.put("itemIcon", price.getItemIconURL());
-                postParams.put("amount", price.getAmount());
-                postParams.put("apiKey", this.loggedInUser.getAPIKey());
-
-                ++this.pricePendingRequests;
-                Log.e(TAG, "PRICE SENDING NUMBER " + this.pricePendingRequests + " DEGREE " + this.listPrices.get(i).first);
-                JsonObjectRequest priceRequest = new JsonObjectRequest(
-                        Request.Method.POST, RequestURLs.MODESTIE_PRICES_ADD, postParams,
-                        response ->
-                        {
-                            if (--this.pricePendingRequests == 0)
-                                eventUpdateStep3();
-                        },
-                        error ->
-                        {
-                            //Log.e(TAG, error.getMessage());
-                            Log.e(TAG, "PRICE SENDING FAILED");
-                            this.pricePendingRequests--;
-                        }
-                )
-                {
-                    @Override
-                    public Map<String, String> getHeaders()
-                    {
-                        Map<String, String> params = new HashMap<>();
-                        params.put("Authorization", "Bearer " + loggedInUser.getToken());
-                        return params;
-                    }
-                };
-
-                priceRequest.setRetryPolicy(new DefaultRetryPolicy(
-                        0,
-                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-                ));
-
-                this.requestHelper.addToRequestQueue(priceRequest, "newPricePostRequest" + this.pricePendingRequests);
-            }
-            catch (JSONException e)
-            {
-                Log.e(TAG, e.getLocalizedMessage());
-                this.pricePendingRequests--;
-                eventUpdateFinal(false, "event");
-            }
-        }
-    }
-
-    /**
-     * New update post / Step 3 :: Update event
+     * New update post / Step 2 :: Update event
      * Then finalize
      */
-    @SuppressLint("SimpleDateFormat")
-    private void eventUpdateStep3()
+    private void eventUpdateStep2(String imageLink)
     {
-        SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-        df.setTimeZone(TimeZone.getDefault());
-        try
+        int maxParticipants;
+        if (this.formEventMaxParticipantsType.getCheckedRadioButtonId() == R.id.participationType1)
+            maxParticipants = Integer.parseInt(this.formEventMaxParticipants.getEditText().getText() + "");
+        else
+            maxParticipants = -1;
+
+        Map<String, Map<String, Object>> prices = new HashMap<>();
+        int count = 0;
+        for (Pair<Long, EventPrice> eventPrice : this.listPrices)
         {
-            this.postParams.put("eventID", this.event.getID());
-            this.postParams.put("name", this.formEventName.getEditText().getText());
-            this.postParams.put("promoter", this.loggedInUser.getCharacterID());
-            this.postParams.put("epoch", pickedDate.getTime() / 1000);
-            this.postParams.put("description", this.formEventDescription.getEditText().getText() + "");
-            if (this.formEventMaxParticipantsType.getCheckedRadioButtonId() == R.id.participationType1)
-                this.postParams.put("maxparticipants", this.formEventMaxParticipants.getEditText().getText() + "");
-            else
-                this.postParams.put("maxparticipants", "-1");
-            if (this.formEventPromoterParticipant.isChecked())
-                this.postParams.put("promoterParticipant", "1");
-            else
-                this.postParams.put("promoterParticipant", "0");
-            this.postParams.put("apiKey", loggedInUser.getAPIKey());
-
-            JsonObjectRequest request = new JsonObjectRequest(
-                    Request.Method.POST, RequestURLs.MODESTIE_EVENTS_UPDATE, this.postParams,
-                    response ->
-                    {
-                        this.pending = false;
-                        eventUpdateFinal(true, null);
-                    },
-                    error ->
-                    {
-                        //Log.e(TAG, error.getLocalizedMessage());
-                        Log.e(TAG, "EVENT UPDATE FAILED");
-                        eventUpdateFinal(false, "event");
-                    }
-            )
-            {
-                @Override
-                public Map<String, String> getHeaders()
-                {
-                    Map<String, String> params = new HashMap<>();
-                    params.put("Authorization", "Bearer " + loggedInUser.getToken());
-                    return params;
-                }
-            };
-
-            request.setRetryPolicy(new DefaultRetryPolicy(
-                    0,
-                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-            ));
-
-            this.requestHelper.addToRequestQueue(request, "newEventPostRequest");
+            Map<String, Object> documentPrice = new HashMap<>();
+            documentPrice.put("degree", eventPrice.first);
+            documentPrice.put("amount", eventPrice.second.getAmount());
+            documentPrice.put("itemID", eventPrice.second.getItemID());
+            documentPrice.put("itemIconURL", eventPrice.second.getItemIconURL());
+            documentPrice.put("itemName", eventPrice.second.getItemName());
+            prices.put("price" + ++count, documentPrice);
         }
-        catch (JSONException e)
-        {
-            Log.e(TAG, e.getLocalizedMessage());
-            eventUpdateFinal(false, "event");
-        }
+
+        this.db.collection("events").document(this.event.getID())
+                .update(
+                        "name", this.formEventName.getEditText().getText() + "",
+                        "promoterID", this.userCharacter.getID(),
+                        "timestamp", new Timestamp(this.pickedDate),
+                        "illustration", imageLink,
+                        "description", this.formEventDescription.getEditText().getText() + "",
+                        "maxParticipants", maxParticipants,
+                        "promoterParticipant", this.formEventPromoterParticipant.isChecked(),
+                        "prices", prices)
+                .addOnCompleteListener(task -> eventUpdateFinal(true, null))
+                .addOnFailureListener(e -> eventUpdateFinal(false, "update"));
     }
 
     /**
-     * Creates an HTTP request to delete the current event
+     * Deletes the event document from Firebase
      */
     private void eventDelete()
     {
-        try
-        {
-            JSONObject deletePostRequest = new JSONObject();
-            deletePostRequest.put("eventID", this.event.getID());
-            deletePostRequest.put("apiKey", this.loggedInUser.getAPIKey());
-
-            JsonObjectRequest request = new JsonObjectRequest(
-                    Request.Method.POST, RequestURLs.MODESTIE_EVENTS_REMOVE, deletePostRequest,
-                    response ->
-                    {
-                        this.pending = false;
-                        eventDeleteFinal(true, null);
-                    },
-                    error ->
-                    {
-                        //Log.e(TAG, error.getLocalizedMessage());
-                        Log.e(TAG, "EVENT DELETE FAILED");
-                        eventUpdateFinal(false, "delete");
-                    }
-            )
-            {
-                @Override
-                public Map<String, String> getHeaders()
-                {
-                    Map<String, String> params = new HashMap<>();
-                    params.put("Authorization", "Bearer " + loggedInUser.getToken());
-                    return params;
-                }
-            };
-
-            request.setRetryPolicy(new DefaultRetryPolicy(
-                    0,
-                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-            ));
-
-            this.requestHelper.addToRequestQueue(request, "deleteEventPostRequest");
-
-            this.pending = true;
-        }
-        catch (JSONException e)
-        {
-            e.printStackTrace();
-            eventDeleteFinal(false, "delete");
-        }
+        this.pending = true;
+        this.db.collection("events").document(this.event.getID())
+                .delete()
+                .addOnSuccessListener(aVoid -> eventDeleteFinal(true, null))
+                .addOnFailureListener(e -> eventDeleteFinal(false, "delete"));
     }
 
     private void eventUpdateFinal(boolean success, @Nullable String errorValue)
     {
+        this.pending = false;
         if (success)
         {
             Toast.makeText(this, "Événement modifié", Toast.LENGTH_SHORT).show();
@@ -448,12 +294,12 @@ public class EventModificationActivity extends EventFormActivity
             returnIntent.putExtra("Error", errorValue);
             setResult(Activity.RESULT_CANCELED, returnIntent);
             finish();
-            this.pending = false;
         }
     }
 
     private void eventDeleteFinal(boolean success, @Nullable String errorValue)
     {
+        this.pending = false;
         if (success)
         {
             Toast.makeText(this, "Événement supprimé", Toast.LENGTH_SHORT).show();
@@ -467,7 +313,6 @@ public class EventModificationActivity extends EventFormActivity
             returnIntent.putExtra("Error", errorValue);
             setResult(Activity.RESULT_CANCELED, returnIntent);
             finish();
-            this.pending = false;
         }
     }
 }

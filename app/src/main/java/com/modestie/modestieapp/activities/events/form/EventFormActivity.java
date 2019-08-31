@@ -125,7 +125,6 @@ public abstract class EventFormActivity
     int SOCKET_TIMEOUT = 3000;
     int MAX_RETRIES = 3;
     boolean pending;
-    int pricePendingRequests;
 
     boolean illustrationChanged;
     boolean pricesChanged;
@@ -198,7 +197,7 @@ public abstract class EventFormActivity
         final Calendar c = Calendar.getInstance(Locale.FRANCE);
 
         //In event modification case, pickedDate value should be changed by EventModificationActivity subclass beforehand
-        if(this.pickedDate == null) //Set current timestamp if not initiated
+        if (this.pickedDate == null) //Set current timestamp if not initiated
         {
             this.pickedDate = new Date();
             c.setTimeInMillis(pickedDate.getTime());
@@ -665,7 +664,7 @@ public abstract class EventFormActivity
     @Override
     public void onBackPressed()
     {
-        if(!this.pending) super.onBackPressed();
+        if (!this.pending) super.onBackPressed();
     }
 
     @Override

@@ -11,6 +11,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -86,32 +87,32 @@ public class EventPriceEditDialogFragment extends DialogFragment
     {
         super.onViewCreated(view, savedInstanceState);
 
-        if(this.position == 1) this.toolbar.setTitle(this.position + "er prix");
+        if (this.position == 1) this.toolbar.setTitle(this.position + "er prix");
         else this.toolbar.setTitle(this.position + "ème prix");
 
         this.toolbar.setNavigationOnClickListener(v -> dismiss());
         this.toolbar.setOnMenuItemClickListener(item ->
-            {
-                if(!this.itemQuantity.getEditText().getText().toString().equals(""))
-                {
-                    this.itemQuantity.setError("");
-                    if(this.selectPriceType.getCheckedRadioButtonId() == R.id.selectGilsType)
-                        this.price = this.tempGilsPrice;
-                    else
-                        this.price = this.tempItemPrice;
-                    this.price.setAmount(Integer.parseInt(this.itemQuantity.getEditText().getText() + ""));
-                    callback.onFragmentInteraction(this.price, this.position);
-                    ((EventFormActivity) getContext()).hideKeyboardFrom(getContext(), this.itemQuantity);
-                    dismiss();
-                    return true;
-                }
-                else
-                {
-                    this.itemQuantity.setError("Requis");
+                                                {
+                                                    if (!this.itemQuantity.getEditText().getText().toString().equals(""))
+                                                    {
+                                                        this.itemQuantity.setError("");
+                                                        if (this.selectPriceType.getCheckedRadioButtonId() == R.id.selectGilsType)
+                                                            this.price = this.tempGilsPrice;
+                                                        else
+                                                            this.price = this.tempItemPrice;
+                                                        this.price.setAmount(Integer.parseInt(this.itemQuantity.getEditText().getText() + ""));
+                                                        callback.onFragmentInteraction(this.price, this.position);
+                                                        ((EventFormActivity) getContext()).hideKeyboardFrom(getContext(), this.itemQuantity);
+                                                        dismiss();
+                                                        return true;
+                                                    }
+                                                    else
+                                                    {
+                                                        this.itemQuantity.setError("Requis");
 
-                    return false;
-                }
-            });
+                                                        return false;
+                                                    }
+                                                });
         this.toolbar.inflateMenu(R.menu.edit_price_dialog_menu);
 
         this.rootview = view;
@@ -140,14 +141,16 @@ public class EventPriceEditDialogFragment extends DialogFragment
         //Init dump prices + radiogroup
         this.tempGilsPrice = new EventPrice(0, 1, "Gil", "https://xivapi.com/i/065000/065002.png", 100000);
         this.tempItemPrice = new EventPrice(0, 2, "Éclat de feu", "https://xivapi.com/i/020000/020001.png", 1);
-        if(this.price.getItemID() == 1)
+        if (this.price.getItemID() == 1)
         {
+            Log.e(TAG, "PRICE IS GILS");
             this.selectPriceType.check(R.id.selectGilsType);
             this.tempGilsPrice = this.price;
             this.itemName.setEnabled(false);
         }
         else
         {
+            Log.e(TAG, "PRICE IS ITEM");
             this.selectPriceType.check(R.id.selectItemType);
             this.tempItemPrice = this.price;
             this.tempIconURL = this.price.getItemIconURL();
@@ -156,48 +159,50 @@ public class EventPriceEditDialogFragment extends DialogFragment
         //Init attributes
         Objects.requireNonNull(this.itemName.getEditText()).setText(this.price.getItemName());
         Picasso.get().load(this.price.getItemIconURL()).fit().centerInside().into(this.priceIcon);
-        Objects.requireNonNull(this.itemQuantity.getEditText()).setText(this.price.getAmount()+"");
+        Objects.requireNonNull(this.itemQuantity.getEditText()).setText(this.price.getAmount() + "");
 
         /* LISTENERS */
 
-        selectPriceType.setOnCheckedChangeListener((group, checkedId) ->
-        {
-            EventPrice priceToLoad = null;
-            //Save and load
-            switch(checkedId)
-            {
-                case R.id.selectGilsType :
-                    //Save item price
-                    this.itemName.setEnabled(false);
-                    //Load gils price
-                    priceToLoad = this.tempGilsPrice;
-                    break;
+        selectPriceType.setOnCheckedChangeListener(
+                (group, checkedId) ->
+                {
+                    EventPrice priceToLoad = null;
+                    //Save and load
+                    switch (checkedId)
+                    {
+                        case R.id.selectGilsType:
+                            //Save item price
+                            this.itemName.setEnabled(false);
+                            //Load gils price
+                            priceToLoad = this.tempGilsPrice;
+                            break;
 
-                case R.id.selectItemType :
-                    //Save gils price
-                    this.tempGilsPrice.setAmount(Integer.parseInt(this.itemQuantity.getEditText().getText() + ""));
-                    this.itemName.setEnabled(true);
-                    //Load item price
-                    priceToLoad = this.tempItemPrice;
-                    break;
-            }
-            //Load price
-            if(priceToLoad != null)
-            {
-                this.itemName.getEditText().setText(priceToLoad.getItemName());
-                Picasso.get().load(priceToLoad.getItemIconURL()).fit().centerInside().into(this.priceIcon);
-                this.itemQuantity.getEditText().setText(priceToLoad.getAmount()+"");
-            }
-        });
+                        case R.id.selectItemType:
+                            //Save gils price
+                            this.tempGilsPrice.setAmount(Integer.parseInt(this.itemQuantity.getEditText().getText() + ""));
+                            this.itemName.setEnabled(true);
+                            //Load item price
+                            priceToLoad = this.tempItemPrice;
+                            break;
+                    }
+                    //Load price
+                    if (priceToLoad != null)
+                    {
+                        this.itemName.getEditText().setText(priceToLoad.getItemName());
+                        Picasso.get().load(priceToLoad.getItemIconURL()).fit().centerInside().into(this.priceIcon);
+                        this.itemQuantity.getEditText().setText(priceToLoad.getAmount() + "");
+                    }
+                });
 
-        Objects.requireNonNull(this.itemName.getEditText()).setOnFocusChangeListener((v, hasFocus) ->
-        {
-            if(hasFocus)
-            {
-                ItemSelectionDialogFragment.display(((AppCompatActivity) Objects.requireNonNull(getContext())).getSupportFragmentManager());
-                this.itemName.clearFocus();
-            }
-        });
+        Objects.requireNonNull(this.itemName.getEditText()).setOnFocusChangeListener(
+                (v, hasFocus) ->
+                {
+                    if (hasFocus)
+                    {
+                        ItemSelectionDialogFragment.display(((AppCompatActivity) Objects.requireNonNull(getContext())).getSupportFragmentManager());
+                        this.itemName.clearFocus();
+                    }
+                });
     }
 
     public void updatePriceItem(LightItem item)

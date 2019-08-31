@@ -249,6 +249,8 @@ public class EventDetailsDialogFragment extends DialogFragment
         //Participation buttons and feeback elements
         setupParticipationButtons();
 
+        this.participationButton.setEnabled(false); //Temporary
+
         // Listeners
         this.participationButton.setOnClickListener(
                 v ->
