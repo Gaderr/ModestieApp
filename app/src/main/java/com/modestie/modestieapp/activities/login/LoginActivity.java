@@ -8,10 +8,12 @@ import androidx.viewpager.widget.ViewPager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -39,6 +41,7 @@ public class LoginActivity extends AppCompatActivity
     public static final String TAG = "ACTVT.LOGIN";
 
     private ViewPager pager;
+    private View rootView;
     private LoginFragmentPager pagerAdapter;
 
     public static final int LOGIN_PAGE = 0;
@@ -64,6 +67,8 @@ public class LoginActivity extends AppCompatActivity
         FragmentManager fm = getSupportFragmentManager();
         this.pagerAdapter = new LoginFragmentPager(fm);
         this.pager.setAdapter(pagerAdapter);
+
+        this.rootView = findViewById(R.id.context_view);
 
         this.pending = false;
     }
@@ -280,6 +285,13 @@ public class LoginActivity extends AppCompatActivity
                                                         registrationFragment.toggleMembersListVisibility();
                                                         registrationFragment.pendingEnded();
                                                     });
+                                }
+                                else
+                                {
+                                    Snackbar.make(this.rootView, "La description et la clé ne correspondent pasgabr", Snackbar.LENGTH_LONG).show();
+                                    registrationFragment.toggleMembersListVisibility();
+                                    registrationFragment.pendingEnded();
+                                    this.pending = false;
                                 }
                             }
                             catch (JSONException e)

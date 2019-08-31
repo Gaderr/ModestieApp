@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:paddingTop="56dp"
+    android:focusableInTouchMode="true"
     tools:showIn="@layout/dialog_item_selection"
     tools:ignore="ContentDescription"
     android:theme="@style/ModestieTheme.DayNight">

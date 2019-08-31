@@ -91,28 +91,29 @@ public class EventPriceEditDialogFragment extends DialogFragment
         else this.toolbar.setTitle(this.position + "ème prix");
 
         this.toolbar.setNavigationOnClickListener(v -> dismiss());
-        this.toolbar.setOnMenuItemClickListener(item ->
-                                                {
-                                                    if (!this.itemQuantity.getEditText().getText().toString().equals(""))
-                                                    {
-                                                        this.itemQuantity.setError("");
-                                                        if (this.selectPriceType.getCheckedRadioButtonId() == R.id.selectGilsType)
-                                                            this.price = this.tempGilsPrice;
-                                                        else
-                                                            this.price = this.tempItemPrice;
-                                                        this.price.setAmount(Integer.parseInt(this.itemQuantity.getEditText().getText() + ""));
-                                                        callback.onFragmentInteraction(this.price, this.position);
-                                                        ((EventFormActivity) getContext()).hideKeyboardFrom(getContext(), this.itemQuantity);
-                                                        dismiss();
-                                                        return true;
-                                                    }
-                                                    else
-                                                    {
-                                                        this.itemQuantity.setError("Requis");
+        this.toolbar.setOnMenuItemClickListener(
+                item ->
+                {
+                    if (!this.itemQuantity.getEditText().getText().toString().equals(""))
+                    {
+                        this.itemQuantity.setError("");
+                        if (this.selectPriceType.getCheckedRadioButtonId() == R.id.selectGilsType)
+                            this.price = this.tempGilsPrice;
+                        else
+                            this.price = this.tempItemPrice;
+                        this.price.setAmount(Integer.parseInt(this.itemQuantity.getEditText().getText() + ""));
+                        callback.onFragmentInteraction(this.price, this.position);
+                        ((EventFormActivity) getContext()).hideKeyboardFrom(getContext(), this.itemQuantity);
+                        dismiss();
+                        return true;
+                    }
+                    else
+                    {
+                        this.itemQuantity.setError("Requis");
 
-                                                        return false;
-                                                    }
-                                                });
+                        return false;
+                    }
+                });
         this.toolbar.inflateMenu(R.menu.edit_price_dialog_menu);
 
         this.rootview = view;

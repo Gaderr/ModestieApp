@@ -165,8 +165,8 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
     @Override
     protected void onStop()
     {
-        if (this.eventDetailsFragment != null && this.eventDetailsFragment.isVisible())
-            this.eventDetailsFragment.dismiss();
+        /*if (this.eventDetailsFragment != null && this.eventDetailsFragment.isVisible())
+            this.eventDetailsFragment.dismiss();*/
         super.onStop();
     }
 

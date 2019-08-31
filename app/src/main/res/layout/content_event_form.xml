@@ -152,6 +152,7 @@
                                 style="@style/Widget.MaterialComponents.CompoundButton.RadioButton"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.ModestieTheme.Body1"
                                 android:text="@string/form_participations_type_0" />
 
                             <com.google.android.material.radiobutton.MaterialRadioButton
@@ -159,6 +160,7 @@
                                 style="@style/Widget.MaterialComponents.CompoundButton.RadioButton"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.ModestieTheme.Body1"
                                 android:text="@string/form_participations_type_1" />
                         </RadioGroup>
 
@@ -188,6 +190,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
+                    android:textAppearance="@style/TextAppearance.ModestieTheme.Body1"
                     android:text="@string/form_event_promoter_participant" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
