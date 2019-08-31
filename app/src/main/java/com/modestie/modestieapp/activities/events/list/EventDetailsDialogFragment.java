@@ -20,8 +20,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.events.form.EventModificationActivity;
 import com.modestie.modestieapp.adapters.StaticEventPriceAdapter;
@@ -30,24 +31,15 @@ import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.event.EventPrice;
 import com.modestie.modestieapp.model.freeCompany.FreeCompanyMember;
 import com.modestie.modestieapp.model.login.LoggedInUser;
-import com.modestie.modestieapp.utils.network.RequestHelper;
-import com.modestie.modestieapp.utils.network.RequestURLs;
 import com.orhanobut.hawk.Hawk;
 import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
-
-import static com.android.volley.Request.Method.POST;
 
 public class EventDetailsDialogFragment extends DialogFragment
 {
@@ -70,11 +62,9 @@ public class EventDetailsDialogFragment extends DialogFragment
 
     private Event event;
     private Object promoter;
-    private LightCharacter user;
+    private LightCharacter userCharacter;
 
     private OnParticipationChanged callback;
-
-    private RequestHelper requestHelper;
 
     public EventDetailsDialogFragment() { }
 
@@ -90,7 +80,6 @@ public class EventDetailsDialogFragment extends DialogFragment
     {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NORMAL, R.style.ThemeOverlay_ModestieTheme_FullScreenDialog);
-        this.requestHelper = new RequestHelper(getContext());
     }
 
     @Override
@@ -110,7 +99,7 @@ public class EventDetailsDialogFragment extends DialogFragment
         if (this.userLoggedIn)
         {
             this.userIsParticipant = this.event.getParticipantsIDs().contains(((LightCharacter) Hawk.get("UserCharacter")).getID());
-            this.user = Hawk.get("UserCharacter");
+            this.userCharacter = Hawk.get("UserCharacter");
         }
         else
             this.userIsParticipant = false;
@@ -249,7 +238,7 @@ public class EventDetailsDialogFragment extends DialogFragment
         //Participation buttons and feeback elements
         setupParticipationButtons();
 
-        this.participationButton.setEnabled(false); //Temporary
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // Listeners
         this.participationButton.setOnClickListener(
@@ -257,65 +246,29 @@ public class EventDetailsDialogFragment extends DialogFragment
                 {
                     this.participationButton.setEnabled(false);
                     this.progressBar.setVisibility(View.VISIBLE);
-                    LoggedInUser user = Hawk.get("LoggedInUser");
                     this.pending = true;
-                    try
-                    {
-                        JSONObject postparams = new JSONObject();
-                        postparams.put("eventID", this.event.getID());
-                        postparams.put("characterID", this.user.getID());
-                        postparams.put("apiKey", user.getAPIKey());
-                        this.requestHelper.addToRequestQueue(new JsonObjectRequest(
-                                POST, RequestURLs.MODESTIE_PARTICIPANTS_ADD, postparams,
-                                response ->
-                                {
-                                    try
+
+                    db.collection("events").document(this.event.getID())
+                            .update("participants", FieldValue.arrayUnion(this.userCharacter.getID()))
+                            .addOnCompleteListener(
+                                    task ->
                                     {
-                                        if (!response.getBoolean("result"))
-                                        {
-                                            if (response.getString("status").equals("Event full"))
-                                                Snackbar.make(this.rootview, R.string.snackbar_message_event_full, Snackbar.LENGTH_LONG).show();
-                                            else if (response.getString("status").equals("This character is already a participant"))
-                                                Snackbar.make(this.rootview, R.string.snackbar_message_event_already_participant, Snackbar.LENGTH_LONG).show();
-                                        }
-                                        else
-                                        {
-                                            this.event.getParticipantsIDs().add(this.user.getID());
-                                            this.userIsParticipant = true;
-                                            this.callback.participationChanged();
-                                        }
+                                        this.event.getParticipantsIDs().add(this.userCharacter.getID());
+                                        this.userIsParticipant = true;
+                                        this.callback.participationChanged();
                                         setupParticipationButtons();
                                         setupParticipationsCount();
                                         this.progressBar.setVisibility(View.INVISIBLE);
                                         this.pending = false;
-                                    }
-                                    catch (JSONException e)
+                                    })
+                            .addOnFailureListener(
+                                    e ->
                                     {
-                                        e.printStackTrace();
-                                    }
-                                },
-                                error ->
-                                {
-                                    Toast.makeText(getContext(), "Une erreur est survenue, veuillez réessayer", Toast.LENGTH_SHORT).show();
-                                    this.participationButton.setEnabled(true);
-                                    this.progressBar.setVisibility(View.INVISIBLE);
-                                    this.pending = false;
-                                }
-                        )
-                        {
-                            @Override
-                            public Map<String, String> getHeaders()
-                            {
-                                Map<String, String> params = new HashMap<>();
-                                params.put("Authorization", "Bearer " + user.getToken());
-                                return params;
-                            }
-                        });
-                    }
-                    catch (JSONException e)
-                    {
-                        e.printStackTrace();
-                    }
+                                        Toast.makeText(getContext(), "Une erreur est survenue, veuillez réessayer", Toast.LENGTH_SHORT).show();
+                                        this.participationButton.setEnabled(true);
+                                        this.progressBar.setVisibility(View.INVISIBLE);
+                                        this.pending = false;
+                                    });
                 });
 
         this.withdrawButton.setOnClickListener(
@@ -327,47 +280,29 @@ public class EventDetailsDialogFragment extends DialogFragment
                     this.participationText.setVisibility(View.INVISIBLE);
                     LoggedInUser user = Hawk.get("LoggedInUser");
                     this.pending = true;
-                    try
-                    {
-                        JSONObject postparams = new JSONObject();
-                        postparams.put("eventID", this.event.getID());
-                        postparams.put("characterID", this.user.getID());
-                        postparams.put("apiKey", user.getAPIKey());
-                        this.requestHelper.addToRequestQueue(new JsonObjectRequest(
-                                POST, RequestURLs.MODESTIE_PARTICIPANTS_REMOVE, postparams,
-                                response ->
-                                {
-                                    this.event.getParticipantsIDs().remove(this.event.getParticipantsIDs().indexOf(this.user.getID()));
-                                    this.userIsParticipant = false;
-                                    setupParticipationButtons();
-                                    setupParticipationsCount();
-                                    this.callback.participationChanged();
-                                    this.progressBar.setVisibility(View.INVISIBLE);
-                                    this.pending = false;
-                                },
-                                error ->
-                                {
-                                    Toast.makeText(getContext(), "Erreur", Toast.LENGTH_SHORT).show();
-                                    this.withdrawButton.setEnabled(true);
-                                    this.progressBar.setVisibility(View.INVISIBLE);
-                                    this.pending = false;
 
-                                }
-                        )
-                        {
-                            @Override
-                            public Map<String, String> getHeaders()
-                            {
-                                Map<String, String> params = new HashMap<>();
-                                params.put("Authorization", "Bearer " + user.getToken());
-                                return params;
-                            }
-                        });
-                    }
-                    catch (JSONException e)
-                    {
-                        e.printStackTrace();
-                    }
+                    db.collection("events").document(this.event.getID())
+                            .update("participants", FieldValue.arrayRemove(this.userCharacter.getID()))
+                            .addOnCompleteListener(
+                                    task ->
+                                    {
+                                        this.event.getParticipantsIDs().remove(this.event.getParticipantsIDs().indexOf(this.userCharacter.getID()));
+                                        this.userIsParticipant = false;
+                                        setupParticipationButtons();
+                                        setupParticipationsCount();
+                                        this.callback.participationChanged();
+                                        this.progressBar.setVisibility(View.INVISIBLE);
+                                        this.pending = false;
+                                    })
+                            .addOnFailureListener(
+                                    e ->
+                                    {
+                                        Snackbar.make(this.rootview, getString(R.string.network_error_message_retry), Snackbar.LENGTH_LONG)
+                                                .setAction(R.string.retry_label, v1 -> this.withdrawButton.callOnClick());
+                                        this.withdrawButton.setEnabled(true);
+                                        this.progressBar.setVisibility(View.INVISIBLE);
+                                        this.pending = false;
+                                    });
                 });
     }
 

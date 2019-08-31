@@ -17,7 +17,6 @@
     <string name="invalid_username">Nom d\'utilisateur invalide</string>
     <string name="invalid_password">Le mot de passe doit faire plus de 5 caractères</string>
     <string name="login_wrong_credentials">Identifiant ou mot de passe incorrect</string>
-    <string name="login_network_error">Erreur réseau, veuillez réessayer</string>
     <string name="login_fatal">Erreur système</string>
     <string name="login_feedback_modestiefr_connection">Authentification…</string>
     <string name="login_feedback_modestiefr_check_registration">Vérification de votre personnage enregistré…</string>
@@ -145,7 +144,6 @@
     <string name="button_participate">Participer</string>
     <string name="button_withdraw">Ne plus participer</string>
     <string name="snackbar_message_event_full">Désole, c\'est complet !</string>
-    <string name="snackbar_message_event_already_participant">Vous participez déjà</string>
 
     <!-- EVENT FORM ACTIVITIES -->
     <string name="title_new_event_activity">Nouvel événement</string>
@@ -227,5 +225,9 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
+
+    <!-- GLOBAL -->
+    <string name="network_error_message_retry">Erreur réseau, veuillez réessayer</string>
+    <string name="retry_label">Réessayer</string>
 
 </resources>
