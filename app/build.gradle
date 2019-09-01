@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
 
 android {
     compileSdkVersion 28
@@ -35,13 +36,14 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.android.volley:volley:1.1.1'
     implementation 'androidx.preference:preference:1.1.0-rc01'
-    implementation 'com.google.firebase:firebase-core:17.1.0'
     testImplementation 'junit:junit:4.12'
     //Firebase libs
-    implementation 'com.google.firebase:firebase-analytics:17.1.0'
+    implementation 'com.google.firebase:firebase-core:17.2.0'
+    implementation 'com.google.firebase:firebase-analytics:17.2.0'
     implementation 'com.google.firebase:firebase-auth:19.0.0'
     implementation 'com.google.firebase:firebase-firestore:21.0.0'
     implementation 'com.google.android.gms:play-services-auth:17.0.0'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
     implementation 'com.firebaseui:firebase-ui-auth:4.3.1'
     //Other libraries
     implementation 'com.squareup.picasso:picasso:2.71828'
