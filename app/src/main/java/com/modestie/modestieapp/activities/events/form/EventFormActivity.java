@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
@@ -47,7 +48,7 @@ import com.modestie.modestieapp.adapters.DraggableEventPriceAdapter;
 import com.modestie.modestieapp.model.character.LightCharacter;
 import com.modestie.modestieapp.model.event.EventPrice;
 import com.modestie.modestieapp.model.item.LightItem;
-import com.modestie.modestieapp.model.login.LoggedInUser;
+import com.modestie.modestieapp.utils.NumberInputFilter;
 import com.modestie.modestieapp.utils.network.RequestHelper;
 import com.orhanobut.hawk.Hawk;
 import com.squareup.picasso.Picasso;
@@ -118,7 +119,6 @@ public abstract class EventFormActivity
 
     AlertDialog imageUploadError;
 
-    LoggedInUser loggedInUser;
     LightCharacter userCharacter;
 
     RequestHelper requestHelper;
@@ -184,7 +184,6 @@ public abstract class EventFormActivity
 
         Hawk.init(getApplicationContext()).build();
 
-        this.loggedInUser = Hawk.get("LoggedInUser");
         this.userCharacter = Hawk.get("UserCharacter");
 
         this.pickedImage = null;
@@ -259,6 +258,8 @@ public abstract class EventFormActivity
             @Override
             public void afterTextChanged(Editable s) { ((TextView) eventCardPreview.findViewById(R.id.participantsCount)).setText(String.format(Locale.FRANCE, "--/%s", s.toString())); }
         });
+
+        this.formEventMaxParticipants.getEditText().setFilters(new InputFilter[]{new NumberInputFilter(1, Integer.MAX_VALUE)});
 
         this.formEventDescription.getEditText().addTextChangedListener(new TextWatcher()
         {
@@ -504,6 +505,25 @@ public abstract class EventFormActivity
                     }
                 });
 
+        /*-------------------------------------------
+            Event promoter participation checkbox
+        -------------------------------------------*/
+
+        this.formEventPromoterParticipant.setOnCheckedChangeListener(
+                (buttonView, isChecked) ->
+                {
+                    if (isChecked)
+                    {
+                        if (this.formEventMaxParticipants.getEditText().getText().toString().equals("") || Integer.parseInt(this.formEventMaxParticipants.getEditText().getText().toString()) < 2)
+                            this.formEventMaxParticipants.getEditText().setText("2");
+
+                        this.formEventMaxParticipants.getEditText().setFilters(new InputFilter[]{new NumberInputFilter(2, Integer.MAX_VALUE)});
+                    }
+                    else
+                        this.formEventMaxParticipants.getEditText().setFilters(new InputFilter[]{new NumberInputFilter(1, Integer.MAX_VALUE)});
+                }
+        );
+
         /*---------------------
             Image selection
         ---------------------*/
@@ -565,6 +585,8 @@ public abstract class EventFormActivity
             participationCheckPreview.setColorFilter(getColor(R.color.colorValidateLight));
             participationFeedbackPreview.setTextColor(getColor(R.color.colorValidateLight));
         }
+
+        this.eventCardPreview.findViewById(R.id.cardShimmerLayout).setVisibility(View.INVISIBLE);
 
         /*-----------------
             Prices list

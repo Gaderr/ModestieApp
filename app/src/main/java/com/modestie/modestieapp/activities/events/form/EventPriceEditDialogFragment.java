@@ -11,17 +11,22 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.text.Editable;
+import android.text.InputFilter;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.model.event.EventPrice;
 import com.modestie.modestieapp.model.item.LightItem;
+import com.modestie.modestieapp.utils.NumberInputFilter;
 import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
@@ -138,6 +143,7 @@ public class EventPriceEditDialogFragment extends DialogFragment
         this.priceIcon = this.rootview.findViewById(R.id.priceIcon);
         this.itemName = this.rootview.findViewById(R.id.fieldItemName);
         this.itemQuantity = this.rootview.findViewById(R.id.fieldItemQuantity);
+        this.itemQuantity.getEditText().setFilters(new InputFilter[] { new NumberInputFilter(1, Integer.MAX_VALUE)});
 
         //Init dump prices + radiogroup
         this.tempGilsPrice = new EventPrice(0, 1, "Gil", "https://xivapi.com/i/065000/065002.png", 100000);
@@ -180,7 +186,7 @@ public class EventPriceEditDialogFragment extends DialogFragment
 
                         case R.id.selectItemType:
                             //Save gils price
-                            this.tempGilsPrice.setAmount(Integer.parseInt(this.itemQuantity.getEditText().getText() + ""));
+                            this.tempGilsPrice.setAmount(Long.parseLong(this.itemQuantity.getEditText().getText().toString()));
                             this.itemName.setEnabled(true);
                             //Load item price
                             priceToLoad = this.tempItemPrice;

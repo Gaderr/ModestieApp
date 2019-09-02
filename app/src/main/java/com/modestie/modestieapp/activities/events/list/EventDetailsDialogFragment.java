@@ -30,7 +30,6 @@ import com.modestie.modestieapp.model.character.LightCharacter;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.event.EventPrice;
 import com.modestie.modestieapp.model.freeCompany.FreeCompanyMember;
-import com.modestie.modestieapp.model.login.LoggedInUser;
 import com.orhanobut.hawk.Hawk;
 import com.squareup.picasso.Picasso;
 
@@ -278,7 +277,6 @@ public class EventDetailsDialogFragment extends DialogFragment
                     this.progressBar.setVisibility(View.VISIBLE);
                     this.participationCheck.setVisibility(View.INVISIBLE);
                     this.participationText.setVisibility(View.INVISIBLE);
-                    LoggedInUser user = Hawk.get("LoggedInUser");
                     this.pending = true;
 
                     db.collection("events").document(this.event.getID())

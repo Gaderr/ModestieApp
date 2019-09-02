@@ -6,8 +6,6 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Comparator;
-
 public class EventPrice implements Comparable<EventPrice>
 {
     private static final String TAG = "MODL.EVNTPRCE";
@@ -113,7 +111,7 @@ public class EventPrice implements Comparable<EventPrice>
         return amount;
     }
 
-    public void setAmount(int amount)
+    public void setAmount(long amount)
     {
         this.amount = amount;
     }

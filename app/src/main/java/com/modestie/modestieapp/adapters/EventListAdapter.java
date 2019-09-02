@@ -244,6 +244,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
     private void setupCardData(EventListCardViewHolder holder, Event event, Object promoter)
     {
         holder.eventCard.setVisibility(View.VISIBLE);
+        holder.cardShimmerLayout.setVisibility(View.INVISIBLE);
 
         if (this.userCharacter != null)
             holder.userIsPromoter = event.getPromoterID() == this.userCharacter.getID();

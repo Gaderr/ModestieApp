@@ -13,6 +13,9 @@
         android:supportsRtl="true"
         android:theme="@style/ModestieTheme.DayNight"
         android:allowBackup="false">
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="false" />
         <activity
             android:name=".activities.login.LoginActivity"
             android:configChanges="orientation"

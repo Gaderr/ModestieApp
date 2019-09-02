@@ -115,7 +115,6 @@ public class LoginFragment extends Fragment
                     //Delete user stored data
                     //Hawk.delete("UserCredentials");
                     Hawk.delete("UserCharacter");
-                    Hawk.delete("LoggedInUser");
                     this.preferences
                             .edit()
                             .putBoolean("RememberMe", false)
@@ -258,7 +257,7 @@ public class LoginFragment extends Fragment
                     {
                         // Sign in success, update UI with the signed-in user's information
                         Log.d(TAG, "signInWithEmail:success");
-                        registerSignedInUserAndContinue(fbAuth.getCurrentUser());
+                        registerSignedInUserAndContinue();
                     }
                     else
                     {
@@ -289,7 +288,7 @@ public class LoginFragment extends Fragment
                     {
                         // Sign in success, update UI with the signed-in user's information
                         Log.d(TAG, "signInWithCredential:success");
-                        registerSignedInUserAndContinue(this.fbAuth.getCurrentUser());
+                        registerSignedInUserAndContinue();
                     }
                     else
                     {
@@ -331,18 +330,15 @@ public class LoginFragment extends Fragment
         this.loadingFeedback.setText(text);
     }
 
-    private void registerSignedInUserAndContinue(FirebaseUser user)
+    private void registerSignedInUserAndContinue()
     {
-        //Store user details and token
-        Hawk.put("LoggedInUser", user);
-
         //Store user credentials
         Hawk.put("UserCredentials", new UserCredentials(
                 this.usernameEditText.getEditText().getText().toString(),
                 this.passwordEditText.getEditText().getText().toString()));
 
         //Call listener
-        onLoginSuccess(user.getUid());
+        onLoginSuccess(this.fbAuth.getCurrentUser().getUid());
     }
 
     private static void hideKeyboardFrom(Context context, View view)
