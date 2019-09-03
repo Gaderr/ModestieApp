@@ -23,40 +23,24 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.facebook.shimmer.ShimmerFrameLayout;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.modestie.modestieapp.R;
 import com.modestie.modestieapp.activities.events.form.NewEventActivity;
 import com.modestie.modestieapp.adapters.EventListAdapter;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.sqlite.FreeCompanyDbHelper;
 import com.modestie.modestieapp.utils.network.RequestHelper;
-import com.modestie.modestieapp.utils.network.RequestURLs;
 import com.orhanobut.hawk.Hawk;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-
-import static com.android.volley.Request.Method.GET;
 
 public class EventListActivity extends AppCompatActivity implements EventDetailsDialogFragment.OnParticipationChanged
 {
@@ -64,8 +48,6 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
     private ArrayList<Event> events;
     private RecyclerView recyclerView;
     private RecyclerView.Adapter<EventListAdapter.EventViewHolder> adapter;
-    private RecyclerView.LayoutManager layoutManager;
-    private ProgressBar progressBar;
     private ShimmerFrameLayout shimmerFrameLayout;
     private ExtendedFloatingActionButton FAB;
 
@@ -79,7 +61,9 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
 
     private Snackbar errorSnackbar;
 
-    private int NEW_EVENT_REQUEST = 1;
+    public static final int NEW_EVENT_REQUEST = 1;
+    public static final int EVENT_MODIFICATION_REQUEST = 2;
+    //public static final int RESULT_OK =
 
     private String GET_EVENT_REQUEST_TAG = "GetEventsRequest";
 
@@ -100,7 +84,6 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
 
         this.noEventPlaceholder = findViewById(R.id.noEventsPlaceholder);
         this.recyclerView = findViewById(R.id.eventsCardsView);
-        this.progressBar = findViewById(R.id.progressBar);
         this.shimmerFrameLayout = findViewById(R.id.shimmerLayout);
         this.FAB = findViewById(R.id.newEventFAB);
         this.FAB.shrink();
@@ -109,8 +92,7 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
         this.userLoggedIn = Hawk.contains("UserCharacter") && Hawk.contains("UserCredentials");
         this.events = new ArrayList<>();
 
-        this.layoutManager = new LinearLayoutManager(this);
-        this.recyclerView.setLayoutManager(this.layoutManager);
+        this.recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         if (userLoggedIn)
         {
@@ -120,7 +102,7 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
                     v ->
                     {
                         this.requestHelper.cancelPendingRequests(this.GET_EVENT_REQUEST_TAG);
-                        startActivityForResult(new Intent(getApplicationContext(), NewEventActivity.class), this.NEW_EVENT_REQUEST);
+                        startActivityForResult(new Intent(getApplicationContext(), NewEventActivity.class), NEW_EVENT_REQUEST);
                     });
             //FAB animations
             this.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
@@ -200,7 +182,7 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
-        // Check which request we're responding to
+        //Log.e(TAG, "RESULT : " + requestCode + " / " + resultCode + " // " + RESULT_OK + " / " + RESULT_CANCELED);
         if (requestCode == NEW_EVENT_REQUEST)
         {
             // Make sure the request was successful
@@ -217,6 +199,19 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
                 else
                     Toast.makeText(this, "Envoi annulé.", Toast.LENGTH_SHORT).show();
             }
+        }
+        if(requestCode == EVENT_MODIFICATION_REQUEST)
+        {
+            if (resultCode == RESULT_OK)
+            {
+                Log.e(TAG, "RESULT OK");
+                if (this.eventDetailsFragment != null && this.eventDetailsFragment.isVisible())
+                {
+                    Log.e(TAG, "DISMISS");
+                    this.eventDetailsFragment.dismiss();
+                }
+            }
+            updateList();
         }
     }
 
@@ -242,9 +237,9 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
         SQLiteDatabase database = dbHelper.getReadableDatabase();
 
         if (this.userLoggedIn)
-            this.adapter = new EventListAdapter(this.events, database, userLoggedIn, Hawk.get("UserCharacter"), this);
+            this.adapter = new EventListAdapter(this.events, database, true, Hawk.get("UserCharacter"), this);
         else
-            this.adapter = new EventListAdapter(this.events, database, userLoggedIn, null, this);
+            this.adapter = new EventListAdapter(this.events, database, false, null, this);
 
         this.recyclerView.setAdapter(this.adapter);
 
@@ -308,7 +303,6 @@ public class EventListActivity extends AppCompatActivity implements EventDetails
     @Override
     public void participationChanged()
     {
-        //this.adapter.notifyItemChanged(position);
         updateList();
     }
 }

@@ -18,6 +18,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.modestie.modestieapp.R;
+import com.modestie.modestieapp.activities.events.list.EventListActivity;
 import com.modestie.modestieapp.model.event.Event;
 import com.modestie.modestieapp.model.event.EventPrice;
 import com.modestie.modestieapp.utils.Utils;
@@ -46,7 +47,6 @@ public class EventModificationActivity extends EventFormActivity
         this.db = FirebaseFirestore.getInstance();
         //Get event to modify
         this.event = Hawk.get("SelectedEvent");
-        Log.e(TAG, this.event.toString());
         //Set timestamp before calling superclass for proper instantiation
         this.pickedDate = this.event.getEventDate();
 
@@ -175,8 +175,6 @@ public class EventModificationActivity extends EventFormActivity
                             try
                             {
                                 JSONObject jsonResponse = new JSONObject(response);
-                                Log.e(TAG, jsonResponse.toString());
-
                                 if (jsonResponse.getBoolean("success"))
                                 {
                                     eventUpdateStep2(jsonResponse.getJSONObject("data").getString("link"));
@@ -304,14 +302,14 @@ public class EventModificationActivity extends EventFormActivity
         {
             Toast.makeText(this, "Événement supprimé", Toast.LENGTH_SHORT).show();
             Intent returnIntent = new Intent();
-            setResult(Activity.RESULT_OK, returnIntent);
+            setResult(EventListActivity.RESULT_OK, returnIntent);
             finish();
         }
         else
         {
             Intent returnIntent = new Intent();
             returnIntent.putExtra("Error", errorValue);
-            setResult(Activity.RESULT_CANCELED, returnIntent);
+            setResult(EventListActivity.RESULT_CANCELED, returnIntent);
             finish();
         }
     }

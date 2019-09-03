@@ -123,7 +123,8 @@ public class EventDetailsDialogFragment extends DialogFragment
         {
             Button editEventAction = this.toolbar.findViewById(R.id.eventDetailsEditAction);
             editEventAction.setVisibility(View.VISIBLE);
-            editEventAction.setOnClickListener(v -> startActivity(new Intent(getContext(), EventModificationActivity.class)));
+            editEventAction.setOnClickListener(
+                    v -> getActivity().startActivityForResult(new Intent(getContext(), EventModificationActivity.class), EventListActivity.EVENT_MODIFICATION_REQUEST));
         }
         this.rootview = view;
     }
