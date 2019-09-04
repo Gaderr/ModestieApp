@@ -59,8 +59,6 @@ public class EventPriceOptionsModal extends BottomSheetDialogFragment
                 {
                     this.adapter.dataset.remove(this.itemPosition);
                     this.adapter.notifyDataSetChanged();
-                    if (this.context instanceof EventFormActivity)
-                        ((EventFormActivity) this.context).pricesChanged = true;
                     dismiss();
                 });
     }

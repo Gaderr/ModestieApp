@@ -238,16 +238,17 @@ public class EventModificationActivity extends EventFormActivity
             maxParticipants = -1;
 
         Map<String, Map<String, Object>> prices = new HashMap<>();
-        int count = 0;
+        int count = 1;
         for (Pair<Long, EventPrice> eventPrice : this.listPrices)
         {
             Map<String, Object> documentPrice = new HashMap<>();
-            documentPrice.put("degree", eventPrice.first);
+            documentPrice.put("degree", count);
             documentPrice.put("amount", eventPrice.second.getAmount());
             documentPrice.put("itemID", eventPrice.second.getItemID());
             documentPrice.put("itemIconURL", eventPrice.second.getItemIconURL());
             documentPrice.put("itemName", eventPrice.second.getItemName());
-            prices.put("price" + ++count, documentPrice);
+            prices.put("price" + count, documentPrice);
+            count++;
         }
 
         this.db.collection("events").document(this.event.getID())

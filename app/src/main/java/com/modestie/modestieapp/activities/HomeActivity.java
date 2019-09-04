@@ -1,7 +1,6 @@
 package com.modestie.modestieapp.activities;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Build;
@@ -11,7 +10,6 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 
-import android.preference.PreferenceManager;
 import android.view.MenuItem;
 import com.google.android.material.navigation.NavigationView;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -101,18 +99,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         this.gcMaelProgressBarView = findViewById(R.id.grandcompanyMaelProgressbar);
         this.gcAdderProgressBarView = findViewById(R.id.grandcompanyAdderProgressbar);
         this.gcFlamesProgressBarView = findViewById(R.id.grandcompanyFlamesProgressbar);
-    }
-
-    @Override
-    protected void onRestart()
-    {
-        super.onRestart();
-
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        if(sharedPref.getBoolean("nightmode", false))
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        else
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
     }
 
     @Override

@@ -20,14 +20,12 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -127,7 +125,6 @@ public abstract class EventFormActivity
     boolean pending;
 
     boolean illustrationChanged;
-    boolean pricesChanged;
 
     private static final int READ_EXTERNAL_STORAGE_REQUEST = 1;
     private static final int IMAGE_PICK_INTENT = 1;
@@ -191,7 +188,6 @@ public abstract class EventFormActivity
 
         this.pending = false;
         this.illustrationChanged = false;
-        this.pricesChanged = false;
 
         final Calendar c = Calendar.getInstance(Locale.FRANCE);
 
@@ -600,20 +596,6 @@ public abstract class EventFormActivity
         formPricesList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         formPricesList.setAdapter(this.adapter, true);
         formPricesList.setCanDragHorizontally(false);
-        formPricesList.setDragListListener(new DragListView.DragListListener()
-        {
-            @Override
-            public void onItemDragStarted(int position) { }
-
-            @Override
-            public void onItemDragging(int itemPosition, float x, float y) { }
-
-            @Override
-            public void onItemDragEnded(int fromPosition, int toPosition)
-            {
-                pricesChanged = true;
-            }
-        });
 
         /*----------------------
             New price button
@@ -645,7 +627,6 @@ public abstract class EventFormActivity
                                 if (newPrice != null)
                                 {
                                     this.listPrices.add(new Pair<>((long) ++count, newPrice));
-                                    this.pricesChanged = true;
                                     this.adapter.notifyDataSetChanged();
                                     return true;
                                 }
@@ -657,18 +638,6 @@ public abstract class EventFormActivity
                     popup.getMenuInflater().inflate(R.menu.event_form_price_type_selection_menu, popup.getMenu());
                     popup.show();
                 });
-    }
-
-    @Override
-    protected void onRestart()
-    {
-        super.onRestart();
-
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sharedPref.getBoolean("nightmode", false))
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        else
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
     }
 
     @Override
@@ -738,7 +707,6 @@ public abstract class EventFormActivity
         Long id = this.listPrices.get(position - 1).first;
         this.listPrices.set(position - 1, new Pair<>(id, editedPrice));
         this.adapter.notifyDataSetChanged();
-        this.pricesChanged = true;
     }
 
     @Override
