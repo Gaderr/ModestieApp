@@ -190,9 +190,9 @@ public class SplashScreenActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onResume()
+    protected void onRestart()
     {
-        super.onResume();
+        super.onRestart();
         recreate();
     }
 
