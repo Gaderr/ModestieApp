@@ -12,18 +12,16 @@ Kanban : https://trello.com/b/vQjlzoXg/
 
 https://modestie.fr/
 
-## API Wordpress plugin created for this project
-
-This project use an API created by me, within a Wordpress plugin (Modestie.fr is wordpress a website). You can see the requests by clicking on this button : 
-
-[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/1dd27766986e275bc5fe)
-
 ## Screenshots
 
 ![Imgur](https://i.imgur.com/XIE1Z0r.png)
 
 ## Collaborator characters
 
-- **Argus Mortefol** (me) (Java & C# programming) https://fr.finalfantasyxiv.com/lodestone/character/11148489/
-- **Myo Hikari** (Java programming) https://fr.finalfantasyxiv.com/lodestone/character/24226912/
-- **Sora Wish** (Art & C# programming) https://fr.finalfantasyxiv.com/lodestone/character/6373657/
+- [**Argus Mortefol**](https://fr.finalfantasyxiv.com/lodestone/character/11148489/) (me) (Java + C# programming / UX/UI design)
+- [**Helia Ylnera**](https://fr.finalfantasyxiv.com/lodestone/character/15256165/) (UX/UI design / Art)
+- [**Sora Wish**](https://fr.finalfantasyxiv.com/lodestone/character/6373657/) (Art / C# programming)
+
+---
+
+![Imgur](https://i.imgur.com/5WHsmaK.png?1)
