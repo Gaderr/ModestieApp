@@ -21,6 +21,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -309,7 +310,7 @@ public class SplashScreenActivity extends AppCompatActivity
 
     private JsonObjectRequest getCharacterUpdateRequest()
     {
-        return new JsonObjectRequest(
+        JsonObjectRequest request =  new JsonObjectRequest(
                 Request.Method.GET,
                 RequestURLs.XIVAPI_CHARACTER_REQ + "/" + this.character.getID() + RequestURLs.XIVAPI_CHARACTER_PARAM_LIGHT,
                 null,
@@ -330,11 +331,15 @@ public class SplashScreenActivity extends AppCompatActivity
                 },
                 error -> Toast.makeText(this, "Une erreur serveur s'est produite, veuillez réessayer", Toast.LENGTH_SHORT).show()
         );
+
+        request.setRetryPolicy(new DefaultRetryPolicy(0, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        return request;
     }
 
     private JsonObjectRequest getDatabaseUpdateRequest()
     {
-        return new JsonObjectRequest(
+        JsonObjectRequest request = new JsonObjectRequest(
                 GET, RequestURLs.XIVAPI_FREECOMPANY_REQ + "/" + RequestURLs.MODESTIE_FC_ID + RequestURLs.XIVAPI_FREECOMPANY_PARAM_FCM, null,
                 response ->
                 {
@@ -348,9 +353,9 @@ public class SplashScreenActivity extends AppCompatActivity
                 {
                     if (error.networkResponse == null)
                     {
-                        new MaterialAlertDialogBuilder(SplashScreenActivity.this)
-                                .setTitle("Erreur inconnue")
-                                .setMessage("Obtention des données impossible. Veuillez contacter un grand modeste si l'erreur persiste.")
+                        new MaterialAlertDialogBuilder(SplashScreenActivity.this, R.style.ThemeOverlay_ModestieTheme_Dialog)
+                                .setTitle("Erreur de transmission")
+                                .setMessage("Le serveur de données a mis trop de temps à répondre. Veuillez vérifier que vous êtes bien connecté à internet et contactez un grand modeste si l'erreur persiste.")
                                 .setPositiveButton("Ok", (dialog, which) -> finish())
                                 .show();
                     }
@@ -358,14 +363,18 @@ public class SplashScreenActivity extends AppCompatActivity
                     {
                         if (error.networkResponse.statusCode == 503)
                         {
-                            new MaterialAlertDialogBuilder(SplashScreenActivity.this)
-                                    .setTitle("Erreur code 503")
-                                    .setMessage("De tièrces parties nécéssaires à l'obtention d'informations sont temporairement indisponibles en raison d'une maintenance ou de difficultés techniques. Veuillez réessayer plus tard.")
+                            new MaterialAlertDialogBuilder(SplashScreenActivity.this, R.style.ThemeOverlay_ModestieTheme_Dialog)
+                                    .setTitle("Erreur 503")
+                                    .setMessage("Le serveur de données est temporairement indisponible en raison d'une maintenance ou de difficultés techniques. Veuillez réessayer plus tard.")
                                     .setPositiveButton("Ok", (dialog, which) -> finish())
                                     .show();
                         }
                     }
                 });
+
+        request.setRetryPolicy(new DefaultRetryPolicy(0, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        return request;
     }
 }
 
