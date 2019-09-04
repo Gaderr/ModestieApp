@@ -77,8 +77,8 @@ public class CharacterRegistrationFragment extends Fragment
     private TextView memberNameView;
     private TextView memberRankView;
 
-    private FreeCompanyMember member;
-    private LightCharacter character;
+    private FreeCompanyMember fcMemberCharacter;
+    private LightCharacter nonFCMemberCharacter;
     private long characterID;
     private String characterAvatar;
 
@@ -346,8 +346,6 @@ public class CharacterRegistrationFragment extends Fragment
     private void createThirdPage(View rootView)
     {
         this.yesBtn = rootView.findViewById(R.id.yesBtn);
-        this.member = null;
-
         this.avatarView = rootView.findViewById(R.id.promoterAvatar);
         this.rankIcon = rootView.findViewById(R.id.rankIcon);
         this.memberNameView = rootView.findViewById(R.id.memberName);
@@ -365,7 +363,11 @@ public class CharacterRegistrationFragment extends Fragment
                 {
                     if (!this.pending)
                     {
-                        String url = "https://fr.finalfantasyxiv.com/lodestone/character/" + this.member.getID();
+                        String url = "https://fr.finalfantasyxiv.com/lodestone/";
+                        if (this.fcMemberCharacter != null)
+                            url = "https://fr.finalfantasyxiv.com/lodestone/character/" + this.fcMemberCharacter.getID();
+                        else if (this.nonFCMemberCharacter != null)
+                            url = "https://fr.finalfantasyxiv.com/lodestone/character/" + this.nonFCMemberCharacter.getID();
                         Intent i = new Intent(Intent.ACTION_VIEW);
                         i.setData(Uri.parse(url));
                         startActivity(i);
@@ -415,21 +417,21 @@ public class CharacterRegistrationFragment extends Fragment
      */
     void setCharacter(Object character)
     {
-        this.member = null;
-        this.character = null;
+        this.fcMemberCharacter = null;
+        this.nonFCMemberCharacter = null;
         this.characterID = 0;
         this.characterAvatar = "";
 
         if (character instanceof FreeCompanyMember)
         {
-            this.member = (FreeCompanyMember) character;
-            this.characterID = this.member.getID();
-            this.characterAvatar = this.member.getAvatarURL();
-            this.memberNameView.setText(this.member.getName());
-            this.memberRankView.setText(this.member.getRank());
+            this.fcMemberCharacter = (FreeCompanyMember) character;
+            this.characterID = this.fcMemberCharacter.getID();
+            this.characterAvatar = this.fcMemberCharacter.getAvatarURL();
+            this.memberNameView.setText(this.fcMemberCharacter.getName());
+            this.memberRankView.setText(this.fcMemberCharacter.getRank());
 
             Picasso.get()
-                    .load(this.member.getRankIconURL())
+                    .load(this.fcMemberCharacter.getRankIconURL())
                     .into(this.rankIcon);
 
             Transformation transformation = new RoundedTransformationBuilder()
@@ -440,7 +442,7 @@ public class CharacterRegistrationFragment extends Fragment
                     .build();
 
             Picasso.get()
-                    .load(this.member.getAvatarURL())
+                    .load(this.fcMemberCharacter.getAvatarURL())
                     .fit()
                     .transform(transformation)
                     .into(this.avatarView);
@@ -448,11 +450,11 @@ public class CharacterRegistrationFragment extends Fragment
 
         if (character instanceof LightCharacter)
         {
-            this.character = (LightCharacter) character;
-            this.characterID = this.character.getID();
-            this.characterAvatar = this.character.getAvatarURL();
-            this.memberNameView.setText(this.character.getName());
-            this.memberRankView.setText(this.character.getServer());
+            this.nonFCMemberCharacter = (LightCharacter) character;
+            this.characterID = this.nonFCMemberCharacter.getID();
+            this.characterAvatar = this.nonFCMemberCharacter.getAvatarURL();
+            this.memberNameView.setText(this.nonFCMemberCharacter.getName());
+            this.memberRankView.setText(this.nonFCMemberCharacter.getServer());
 
             Transformation transformation = new RoundedTransformationBuilder()
                     .borderColor(Color.TRANSPARENT)
@@ -462,7 +464,7 @@ public class CharacterRegistrationFragment extends Fragment
                     .build();
 
             Picasso.get()
-                    .load(this.character.getAvatarURL())
+                    .load(this.nonFCMemberCharacter.getAvatarURL())
                     .fit()
                     .transform(transformation)
                     .into(this.avatarView);
@@ -493,7 +495,7 @@ public class CharacterRegistrationFragment extends Fragment
     /**
      * Function callback
      *
-     * @param FCMember Is user a FC member?
+     * @param FCMember Is user a FC member ?
      */
     private void userTypeSelection(boolean FCMember)
     {

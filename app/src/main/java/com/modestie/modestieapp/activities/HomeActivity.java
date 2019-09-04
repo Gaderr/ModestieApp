@@ -11,12 +11,17 @@ import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 
 import android.view.MenuItem;
+
+import com.crashlytics.android.Crashlytics;
 import com.google.android.material.navigation.NavigationView;
+
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
 import android.view.Menu;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -99,6 +104,14 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         this.gcMaelProgressBarView = findViewById(R.id.grandcompanyMaelProgressbar);
         this.gcAdderProgressBarView = findViewById(R.id.grandcompanyAdderProgressbar);
         this.gcFlamesProgressBarView = findViewById(R.id.grandcompanyFlamesProgressbar);
+
+        Button crashButton = findViewById(R.id.crashbtn);
+        crashButton.setVisibility(View.GONE);
+        crashButton.setOnClickListener(
+                view ->
+                {
+                    Crashlytics.getInstance().crash(); // Force a crash
+                });
     }
 
     @Override
@@ -110,7 +123,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         SQLiteDatabase database = dbHelper.getReadableDatabase();
         this.freeCompany = new FreeCompany(database, 0);
 
-        if(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
+        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
             this.gradientBlack.setVisibility(View.VISIBLE);
         else
             this.gradientWhite.setVisibility(View.VISIBLE);
@@ -121,11 +134,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         this.fcSigleView.setText(String.format(Locale.FRANCE, "«%s»", this.freeCompany.getTag()));
         Date date = new Date(this.freeCompany.getFormed() * 1000);
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy", Locale.FRANCE);
-        this.fcFormedView.setText(String.format(Locale.FRANCE,"Formée le %s", sdf.format(date)));
+        this.fcFormedView.setText(String.format(Locale.FRANCE, "Formée le %s", sdf.format(date)));
         this.fcSloganView.setText(this.freeCompany.getSlogan());
         this.fcMembersCountView.setText(String.format(Locale.FRANCE, "%d", this.freeCompany.getMembers().size()));
         this.fcRankView.setText(String.format(Locale.FRANCE, "%d", this.freeCompany.getRank()));
-        switch(this.freeCompany.getGrandCompanyName())
+        switch (this.freeCompany.getGrandCompanyName())
         {
             case "Maelstrom":
                 this.gcNameView.setText(R.string.gc_maelstrom_name);
