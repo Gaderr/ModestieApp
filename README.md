@@ -1,3 +1,7 @@
+# DISCONTINUED
+
+----
+
 # ModestieApp
 
 ModestieApp is a Final-Fantasy-XIV-community-Android-native-application designed for the Free Company "Modestie" on Odin Server from Light datacenter.
